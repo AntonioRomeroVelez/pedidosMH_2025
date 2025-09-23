@@ -19,7 +19,7 @@
       />
     </div>
 
-    <div v-if="Loading">
+    <div v-if="loading">
       <LoadingComponent />
     </div>
 
@@ -90,12 +90,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import axios from "axios";
+import { obtenerProductos, eliminarProducto } from "@/servicios/api.js";
 import LoadingComponent from "./LoadingComponent.vue";
 
 const busqueda = ref("");
 const productos = ref([]);
-const Loading = ref(false);
+const loading = ref(false);
 
 const productosFiltrados = computed(() => {
   const texto = busqueda.value.toLowerCase().trim();
@@ -104,32 +104,32 @@ const productosFiltrados = computed(() => {
   );
 });
 
-async function obtenerProductos() {
-  Loading.value = true;
+onMounted(async () => {
+  loading.value = true;
   try {
-    const response = await axios.get("http://localhost:8000/api/productos");
+    const response = await obtenerProductos();
     productos.value = response.data;
-    Loading.value = false;
   } catch (error) {
-    console.error(error);
+    console.error("Error al obtener productos:", error);
+  } finally {
+    loading.value = false;
   }
-}
-
-onMounted(() => {
-  obtenerProductos();
 });
 
 const EliminarProducto = async (id, NombreProducto) => {
   const confirmDelete = window.confirm(
-    `estas seguro de querer eliminar el ${NombreProducto}?`
+    `¿Estás seguro de que deseas eliminar el producto "${NombreProducto}"?`
   );
-  if (confirmDelete) {
-    try {
-      await axios.delete(`http://localhost:8000/api/productos/${id}`);
-      obtenerProductos();
-    } catch (error) {
-      console.log(`error al eliminar el ${NombreProducto}`, error);
-    }
+
+  if (!confirmDelete) return;
+
+  try {
+    await eliminarProducto(id);
+    const response = await obtenerProductos();
+    productos.value = response.data; // actualiza la vista si estás usando Composition API
+  } catch (error) {
+    console.error(`❌ Error al eliminar "${NombreProducto}":`, error);
+    alert(`No se pudo eliminar "${NombreProducto}". Intenta nuevamente.`);
   }
 };
 </script>

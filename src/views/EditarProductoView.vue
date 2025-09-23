@@ -1,6 +1,6 @@
 <template>
   <main class="m-5">
-    <form @submit.prevent="actualizarProducto">
+    <form @submit.prevent="actualizarProductos">
       <div class="row mb-3">
         <div class="col-md-4">
           <label for="nombre" class="form-label">Nombre</label>
@@ -124,20 +124,26 @@
       <RouterLink class="btn btn-danger m-5" to="/Productos"
         >Cancelar</RouterLink
       >
-      <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      <button type="submit" class="btn btn-primary">Actualizar cambios</button>
     </form>
   </main>
 </template>
 
 <script setup>
 import { onMounted, ref } from "vue";
-import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
+import { verProducto, actualizarProducto } from "@/servicios/api.js";
 
 const router = useRouter();
 
-onMounted(() => {
-  cargarProducto();
+onMounted(async () => {
+  const productoId = useRoute().params.id;
+  try {
+    const response = await verProducto(productoId);
+    editarProducto.value = response.data;
+  } catch (error) {
+    console.log("Error al cargar el producto", error);
+  }
 });
 
 const editarProducto = ref({
@@ -153,21 +159,10 @@ const editarProducto = ref({
   IVA: "",
 });
 
-const cargarProducto = async () => {
-  const productoId = useRoute().params.id;
+const actualizarProductos = async () => {
   try {
-    const response = await axios.get(
-      `http://localhost:8000/api/productos/${productoId}`
-    );
-    editarProducto.value = response.data;
-  } catch (error) {
-    console.log("Error al cargar el producto", error);
-  }
-};
-const actualizarProducto = async () => {
-  try {
-    const response = await axios.put(
-      `http://localhost:8000/api/productos/${editarProducto.value.id}`,
+    const response = await actualizarProducto(
+      editarProducto.value.id,
       editarProducto.value
     );
     console.log("producto editado con éxito", response.data);

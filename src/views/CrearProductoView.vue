@@ -1,6 +1,6 @@
 <template>
   <main class="m-5">
-    <form @submit.prevent="crearProducto">
+    <form @submit.prevent="enviarProducto">
       <div class="row mb-3">
         <div class="col-md-4">
           <label for="nombre" class="form-label">Nombre</label>
@@ -131,8 +131,8 @@
 
 <script setup>
 import { ref } from "vue";
-import axios from "axios";
-import { useRoute, useRouter } from "vue-router";
+import { crearProducto } from "@/servicios/api.js";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 
@@ -148,13 +148,9 @@ const nuevoProducto = ref({
   IVA: "",
 });
 
-const crearProducto = async () => {
+const enviarProducto = async () => {
   try {
-    const response = await axios.post(
-      `http://localhost:8000/api/productos`,
-      nuevoProducto.value
-    );
-
+    const response = await crearProducto(nuevoProducto.value);
     (nuevoProducto.value.NombreProducto = ""),
       (nuevoProducto.value.Presentacion = ""),
       (nuevoProducto.value.PrincipioActivo = ""),
