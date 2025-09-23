@@ -19,8 +19,12 @@
       />
     </div>
 
+    <div v-if="Loading">
+      <LoadingComponent />
+    </div>
+
     <!-- Tarjetas de productos -->
-    <div class="row">
+    <div class="row" v-else>
       <div
         class="col-lg-4 col-md-6 mb-4"
         v-for="producto in productosFiltrados"
@@ -87,8 +91,11 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import LoadingComponent from "./LoadingComponent.vue";
 
 const busqueda = ref("");
+const productos = ref([]);
+const Loading = ref(false);
 
 const productosFiltrados = computed(() => {
   const texto = busqueda.value.toLowerCase().trim();
@@ -97,12 +104,12 @@ const productosFiltrados = computed(() => {
   );
 });
 
-const productos = ref([]);
-
 async function obtenerProductos() {
+  Loading.value = true;
   try {
     const response = await axios.get("http://localhost:8000/api/productos");
     productos.value = response.data;
+    Loading.value = false;
   } catch (error) {
     console.error(error);
   }

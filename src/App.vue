@@ -57,9 +57,16 @@ import { RouterLink, RouterView } from "vue-router";
   color: #333 !important;
   transition: color 0.3s ease, border-bottom 0.3s ease;
   border-bottom: 2px solid transparent;
+  margin: 0px 5px;
+  border-radius: 5px;
+  box-shadow: 0 2px 2px #cedcf1;
 }
 .custom-link:hover {
   color: #0d6efd !important; /* Azul corporativo Bootstrap */
+  border-bottom: 2px solid #0d6efd;
+}
+.router-link-active {
+  color: #0d6efd !important;
   border-bottom: 2px solid #0d6efd;
 }
 </style>

@@ -72,7 +72,7 @@ import axios from "axios";
 const route = useRoute();
 const router = useRouter();
 const producto = ref({});
-const cantidad = ref(1); // valor inicial
+const cantidad = ref(0); // valor inicial
 
 onMounted(async () => {
   const id = route.params.id;
