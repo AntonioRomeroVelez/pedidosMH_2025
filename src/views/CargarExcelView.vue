@@ -3,34 +3,36 @@
     <h2>📥 Cargar productos desde Excel</h2>
 
     <p>📝 El archivo debe tener las siguientes columnas:</p>
-    <table class="formato-tabla">
-      <thead>
-        <tr>
-          <th>NombreProducto</th>
-          <th>Presentacion</th>
-          <th>PrincipioActivo</th>
-          <th>PrecioFarmacia</th>
-          <th>PVP</th>
-          <th>Promocion</th>
-          <th>Descuento</th>
-          <th>Marca</th>
-          <th>IVA</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Paracetamol 500mg</td>
-          <td>Caja x 10</td>
-          <td>Paracetamol</td>
-          <td>1.50</td>
-          <td>2.00</td>
-          <td>2x1</td>
-          <td>10</td>
-          <td>Genfar</td>
-          <td>15</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-bordered cargar-excel">
+        <thead>
+          <tr>
+            <th>NombreProducto</th>
+            <th>Presentacion</th>
+            <th>PrincipioActivo</th>
+            <th>PrecioFarmacia</th>
+            <th>PVP</th>
+            <th>Promocion</th>
+            <th>Descuento</th>
+            <th>Marca</th>
+            <th>IVA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Paracetamol 500mg</td>
+            <td>Caja x 10</td>
+            <td>Paracetamol</td>
+            <td>1.50</td>
+            <td>2.00</td>
+            <td>2x1</td>
+            <td>10</td>
+            <td>Genfar</td>
+            <td>15</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <input type="file" @change="leerExcel" accept=".xlsx, .xls" />
     <button
@@ -90,7 +92,7 @@ const enviarDatos = async () => {
 
 <style scoped>
 .cargar-excel {
-  width: 80%;
+  width: 100%;
   margin: auto;
   padding: 2px;
   border: 1px solid #ccc;
@@ -108,6 +110,6 @@ const enviarDatos = async () => {
   text-align: center;
 }
 .formato-tabla th {
-  background-color: #f0de8d;
+  background-color: #f0de8d !important;
 }
 </style>

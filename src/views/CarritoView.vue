@@ -41,6 +41,7 @@
           <th>Presentación</th>
           <th>Principio Activo</th>
           <th>Precio Farmacia</th>
+          <th>PVP</th>
           <th>Promoción</th>
           <th>Descuento</th>
           <th>Marca</th>
@@ -56,6 +57,7 @@
           <td>{{ item.Presentacion }}</td>
           <td>{{ item.PrincipioActivo }}</td>
           <td>$ {{ item.PrecioFarmacia }}</td>
+          <td>$ {{ item.PVP }}</td>
           <td>{{ item.Promocion }}</td>
           <td>{{ item.Descuento }}</td>
           <td>{{ item.Marca }}</td>
@@ -72,7 +74,7 @@
           </td>
           <td>
             $
-            {{ (item.PrecioFarmacia * item.cantidad).toFixed(2) }}
+            {{ (item.PVP * item.cantidad).toFixed(2) }}
           </td>
           <td>
             <button
@@ -147,7 +149,7 @@ const calcularTotalesDesglosados = () => {
   iva15.value = 0;
 
   carrito.value.forEach((item) => {
-    const base = item.PrecioFarmacia * item.cantidad;
+    const base = item.PVP * item.cantidad;
     console.log("base:", base);
     const iva = Number(item.IVA);
 
@@ -177,7 +179,7 @@ onMounted(() => {
 const calcularTotal = () => {
   totalCarrito.value = carrito.value.reduce((acc, item) => {
     const iva = item.IVA > 0 ? item.IVA : 0; // Si tiene IVA, úsalo; si no, 0
-    const precioConIVA = item.PrecioFarmacia * item.cantidad * (1 + iva / 100);
+    const precioConIVA = item.PVP * item.cantidad * (1 + iva / 100);
     return acc + precioConIVA;
   }, 0);
 };
@@ -274,13 +276,13 @@ const descargarExcel = async () => {
       "Total",
     ];
     filas = carrito.value.map((item) => {
-      const totalVista = item.PrecioFarmacia * item.cantidad;
+      const totalVista = item.PVP * item.cantidad;
       return [
         item.cantidad,
         calcularPromocion(item.Promocion, item.cantidad).promo,
         item.NombreProducto,
         item.Marca,
-        item.PrecioFarmacia,
+        item.PVP,
         totalVista.toFixed(2),
       ];
     });
@@ -326,11 +328,11 @@ const descargarExcel = async () => {
   if (pedido.value.Tipo === "Proforma") {
     const totalGeneral = carrito.value.reduce((acc, item) => {
       const totalVista =
-        item.PrecioFarmacia *
-        item.cantidad *
-        (1 + (item.IVA > 0 ? item.IVA / 100 : 0));
+        item.PVP * item.cantidad * (1 + (item.IVA > 0 ? item.IVA / 100 : 0));
       return acc + totalVista;
     }, 0);
+
+    console.log("totalGeneral:", totalGeneral.toFixed(2)); /// este total es el general de toda la compra
     hoja.addRow([]); // fila vacía
 
     const resumenRow1 = hoja.addRow([

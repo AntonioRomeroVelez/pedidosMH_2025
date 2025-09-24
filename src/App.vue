@@ -50,9 +50,9 @@ import { RouterLink, RouterView } from "vue-router";
     </div>
   </nav>
 
-  <main class="container py-5">
+  <div class="container py-5">
     <RouterView />
-  </main>
+  </div>
 </template>
 
 <style scoped>
