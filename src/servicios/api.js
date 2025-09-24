@@ -21,3 +21,6 @@ export const actualizarProducto = (id, data) =>
   api.put(`/productos/${id}`, data);
 
 export const eliminarProducto = (id) => api.delete(`/productos/${id}`);
+
+export const registrarLote = (data) => api.post("/productos/lote", data);
+

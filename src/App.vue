@@ -31,6 +31,11 @@ import { RouterLink, RouterView } from "vue-router";
               Productos
             </RouterLink>
           </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link custom-link" to="/cargarexcel">
+              Cargar Excel
+            </RouterLink>
+          </li>
 
           <li class="nav-item">
             <RouterLink

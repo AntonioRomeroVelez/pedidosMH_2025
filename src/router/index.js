@@ -41,6 +41,12 @@ const router = createRouter({
       component: () => import("../views/ProductoDetalleView.vue"),
     },
     {
+      path: "/cargarexcel",
+      name: "cargarexcel",
+      // which is lazy-loaded when the route is visited.
+      component: () => import("../views/CargarExcelView.vue"),
+    },
+    {
       path: "/carrito",
       name: "carrito",
       // which is lazy-loaded when the route is visited.
