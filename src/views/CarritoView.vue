@@ -40,14 +40,14 @@
           <th>Nombre</th>
           <th>Presentación</th>
           <th>Principio Activo</th>
-          <th>Precio Farmacia</th>
+          <!-- <th>Precio Farmacia</th> -->
           <th>PVP</th>
           <th>Promoción</th>
           <th>Descuento</th>
           <th>Marca</th>
           <th>IVA</th>
           <th>Cantidad</th>
-          <th>Total</th>
+          <!-- <th>Total</th> -->
           <th>Acciones</th>
         </tr>
       </thead>
@@ -56,7 +56,7 @@
           <td>{{ item.NombreProducto }}</td>
           <td>{{ item.Presentacion }}</td>
           <td>{{ item.PrincipioActivo }}</td>
-          <td>$ {{ item.PrecioFarmacia }}</td>
+          <!-- <td>$ {{ item.PrecioFarmacia }}</td> -->
           <td>$ {{ item.PVP }}</td>
           <td>{{ item.Promocion }}</td>
           <td>{{ item.Descuento }}</td>
@@ -72,10 +72,10 @@
               style="width: 80px"
             />
           </td>
-          <td>
+          <!-- <td>
             $
             {{ (item.PVP * item.cantidad).toFixed(2) }}
-          </td>
+          </td> -->
           <td>
             <button
               class="btn btn-danger btn-sm"
@@ -332,7 +332,7 @@ const descargarExcel = async () => {
       return acc + totalVista;
     }, 0);
 
-    console.log("totalGeneral:", totalGeneral.toFixed(2)); /// este total es el general de toda la compra
+    console.log("totalGeneral:", totalGeneral.toFixed(2)); /// este total es el general de toda la proforma
     hoja.addRow([]); // fila vacía
 
     const resumenRow1 = hoja.addRow([
