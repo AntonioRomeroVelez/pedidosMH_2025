@@ -25,15 +25,19 @@
           <td>1.50</td>
           <td>2.00</td>
           <td>2x1</td>
-          <td>0.25</td>
+          <td>10</td>
           <td>Genfar</td>
-          <td>12</td>
+          <td>15</td>
         </tr>
       </tbody>
     </table>
 
     <input type="file" @change="leerExcel" accept=".xlsx, .xls" />
-    <button @click="enviarDatos" :disabled="datos.length === 0">
+    <button
+      @click="enviarDatos"
+      v-if="datos.length > 0"
+      class="btn btn-success"
+    >
       Registrar productos
     </button>
   </div>
@@ -86,14 +90,14 @@ const enviarDatos = async () => {
 
 <style scoped>
 .cargar-excel {
-  width: 100%;
+  width: 80%;
   margin: auto;
-  padding: 20px;
+  padding: 2px;
   border: 1px solid #ccc;
   border-radius: 8px;
 }
 .formato-tabla {
-  width: 100%;
+  width: 99%;
   border-collapse: collapse;
   margin-bottom: 20px;
 }
