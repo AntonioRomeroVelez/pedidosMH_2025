@@ -3,7 +3,7 @@
     <h2>🛒 Carrito de Compras</h2>
 
     <!-- Datos del pedido -->
-    <!-- <div class="row mb-4" v-if="carrito.length">
+    <div class="row mb-4" v-if="carrito.length">
       <div class="col-md-3">
         <label class="form-label">Nombre</label>
         <input v-model="pedido.Nombre" type="text" class="form-control" />
@@ -37,127 +37,65 @@
           <option value="Proforma">Proforma</option>
         </select>
       </div>
-    </div> -->
-
-    <table
-      class="table table-bordered table-sm mt-4 text-center"
-      v-if="carrito.length"
-    >
-      <thead class="table-light">
-        <tr>
-          <th>Nombre</th>
-          <th>Ciudad</th>
-          <th>Fecha</th>
-          <th>Vendedor</th>
-          <th>Tipo de documento</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <input v-model="pedido.Nombre" type="text" class="form-control" />
-          </td>
-          <td>
-            <input v-model="pedido.Ciudad" type="text" class="form-control" />
-          </td>
-          <td>
-            <input
-              v-model="pedido.Fecha"
-              type="date"
-              class="form-control"
-              readonly
-              disabled
-            />
-          </td>
-          <td>
-            <select v-model="pedido.Vendedor" class="form-select">
-              <option value="" disabled>Seleccione</option>
-              <option value="Diana Benalcázar">Diana Benalcázar</option>
-            </select>
-          </td>
-          <td>
-            <select v-model="pedido.Tipo" class="form-select">
-              <option value="" disabled>Seleccione</option>
-              <option value="Pedido">Pedido</option>
-              <option value="Proforma">Proforma</option>
-            </select>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    </div>
 
     <!-- Tabla de productos -->
-    <table
-      class="table table-bordered table-sm mt-4 table-striped"
-      v-if="carrito.length"
-    >
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Presentación</th>
-          <th>Principio Activo</th>
-          <th>PVP</th>
-          <th>Promoción</th>
-          <th>Descuento</th>
-          <th>Marca</th>
-          <th>IVA</th>
-          <th>Cantidad</th>
-          <th>Cantidad a recibir</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in carrito" :key="item.id">
-          <td>{{ item.NombreProducto }}</td>
-          <td>{{ item.Presentacion }}</td>
-          <td>{{ item.PrincipioActivo }}</td>
-          <td>$ {{ item.PVP }}</td>
-          <td>{{ item.Promocion }}</td>
-          <td>{{ item.Descuento }}</td>
-          <td>{{ item.Marca }}</td>
-          <td>{{ item.IVA > 0 ? item.IVA + "%" : "No aplica" }}</td>
-          <td>
-            <input
-              type="number"
-              min="0"
-              v-model.number="item.cantidad"
-              @change="actualizarCantidad(index)"
-              class="form-control"
-              style="width: 80px"
-            />
-          </td>
-          <td>
-            {{ mostarCantidadTotal(item.Promocion, item.cantidad) }}
-          </td>
-          <td>
-            <button
-              class="btn btn-danger btn-sm"
-              @click="eliminarProducto(index)"
-            >
-              Eliminar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th colspan="9" class="text-end">Subtotal 15%:</th>
-          <th colspan="2">$ {{ subtotal15.toFixed(2) }}</th>
-        </tr>
-        <tr>
-          <th colspan="9" class="text-end">Subtotal 0%:</th>
-          <th colspan="2">$ {{ subtotal0.toFixed(2) }}</th>
-        </tr>
-        <tr>
-          <th colspan="9" class="text-end">IVA 15%:</th>
-          <th colspan="2">$ {{ iva15.toFixed(2) }}</th>
-        </tr>
-        <tr>
-          <th colspan="9" class="text-end">VALOR TOTAL:</th>
-          <th colspan="2">$ {{ totalCarrito.toFixed(2) }}</th>
-        </tr>
-      </tfoot>
-    </table>
+    <div class="mt-4" v-if="carrito.length">
+      <table
+        class="table table-bordered table-sm table-striped text-center align-middle tableProductos"
+      >
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Presentación</th>
+            <th>Principio Activo</th>
+            <th>PVP</th>
+            <th>Promoción</th>
+            <th>Descuento</th>
+            <th>Marca</th>
+            <th>IVA</th>
+            <th>Cantidad</th>
+            <th>Cantidad a recibir</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in carrito" :key="item.id">
+            <td data-label="Nombre">{{ item.NombreProducto }}</td>
+            <td data-label="Presentación">{{ item.Presentacion }}</td>
+            <td data-label="Principio Activo">{{ item.PrincipioActivo }}</td>
+            <td data-label="PVP">$ {{ item.PVP }}</td>
+            <td data-label="Promoción">{{ item.Promocion }}</td>
+            <td data-label="Descuento">{{ item.Descuento }}</td>
+            <td data-label="Marca">{{ item.Marca }}</td>
+            <td data-label="IVA">
+              {{ item.IVA > 0 ? item.IVA + "%" : "No aplica" }}
+            </td>
+            <td data-label="Cantidad">
+              <input
+                type="number"
+                min="0"
+                v-model.number="item.cantidad"
+                @change="actualizarCantidad(index)"
+                class="form-control form-control-sm"
+                style="width: 80px"
+              />
+            </td>
+            <td data-label="Cantidad a recibir">
+              {{ mostarCantidadTotal(item.Promocion, item.cantidad) }}
+            </td>
+            <td data-label="Acciones">
+              <button
+                class="btn btn-danger btn-sm"
+                @click="eliminarProducto(index)"
+              >
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div v-else class="alert alert-info mt-4">El carrito está vacío.</div>
 
@@ -477,3 +415,38 @@ const vaciarCarrito = async () => {
   carrito.value = [];
 };
 </script>
+
+<style scoped>
+@media (max-width: 768px) {
+  .tableProductos thead {
+    display: none; /* Oculta encabezados */
+  }
+  .tableProductos,
+  .tableProductos tbody,
+  .tableProductos tr,
+  .tableProductos td {
+    display: block;
+    width: 100%;
+  }
+  .tableProductos tr {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 0.5rem;
+  }
+  .tableProductos td {
+    text-align: right;
+    position: relative;
+    padding-left: 50%;
+  }
+  .tableProductos td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    padding-left: 0.75rem;
+    font-weight: bold;
+    text-align: left;
+  }
+}
+</style>
