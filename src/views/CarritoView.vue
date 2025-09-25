@@ -14,7 +14,13 @@
       </div>
       <div class="col-md-3">
         <label class="form-label">Fecha</label>
-        <input v-model="pedido.Fecha" type="date" class="form-control" />
+        <input
+          v-model="pedido.Fecha"
+          type="date"
+          readonly
+          disabled
+          class="form-control"
+        />
       </div>
       <div class="col-md-3">
         <label class="form-label">Vendedor</label>
@@ -40,14 +46,12 @@
           <th>Nombre</th>
           <th>Presentación</th>
           <th>Principio Activo</th>
-          <!-- <th>Precio Farmacia</th> -->
           <th>PVP</th>
           <th>Promoción</th>
           <th>Descuento</th>
           <th>Marca</th>
           <th>IVA</th>
           <th>Cantidad</th>
-          <!-- <th>Total</th> -->
           <th>Acciones</th>
         </tr>
       </thead>
@@ -56,7 +60,6 @@
           <td>{{ item.NombreProducto }}</td>
           <td>{{ item.Presentacion }}</td>
           <td>{{ item.PrincipioActivo }}</td>
-          <!-- <td>$ {{ item.PrecioFarmacia }}</td> -->
           <td>$ {{ item.PVP }}</td>
           <td>{{ item.Promocion }}</td>
           <td>{{ item.Descuento }}</td>
@@ -65,17 +68,13 @@
           <td>
             <input
               type="number"
-              min="1"
+              min="0"
               v-model.number="item.cantidad"
               @change="actualizarCantidad(index)"
               class="form-control"
               style="width: 80px"
             />
           </td>
-          <!-- <td>
-            $
-            {{ (item.PVP * item.cantidad).toFixed(2) }}
-          </td> -->
           <td>
             <button
               class="btn btn-danger btn-sm"
@@ -127,7 +126,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+import alertify from "alertifyjs";
 
 const carrito = ref([]);
 const totalCarrito = ref(0);
@@ -172,7 +173,6 @@ onMounted(() => {
   carrito.value = datos;
   calcularTotal();
   calcularTotalesDesglosados();
-  // Establecer fecha actual en formato YYYY-MM-DD
   pedido.value.Fecha = new Date().toISOString().split("T")[0];
 });
 
@@ -217,8 +217,7 @@ const calcularPromocion = (promocionStr, cantidad) => {
 };
 
 ///// descaqrgar excel
-import ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
+
 
 const descargarExcel = async () => {
   // Validación de campos obligatorios
@@ -226,7 +225,8 @@ const descargarExcel = async () => {
   const faltantes = camposObligatorios.filter((campo) => !pedido.value[campo]);
 
   if (faltantes.length) {
-    alert(`Faltan campos obligatorios: ${faltantes.join(", ")}`);
+    alertify.error(`❌ Faltan campos obligatorios: ${faltantes.join(", ")}`);
+    // alert(`Faltan campos obligatorios: ${faltantes.join(", ")}`);
     return;
   }
 
@@ -326,15 +326,7 @@ const descargarExcel = async () => {
 
   // Total general para Proforma
   if (pedido.value.Tipo === "Proforma") {
-    const totalGeneral = carrito.value.reduce((acc, item) => {
-      const totalVista =
-        item.PVP * item.cantidad * (1 + (item.IVA > 0 ? item.IVA / 100 : 0));
-      return acc + totalVista;
-    }, 0);
-
-    console.log("totalGeneral:", totalGeneral.toFixed(2)); /// este total es el general de toda la proforma
     hoja.addRow([]); // fila vacía
-
     const resumenRow1 = hoja.addRow([
       "",
       "",

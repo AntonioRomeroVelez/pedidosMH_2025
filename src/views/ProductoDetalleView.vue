@@ -45,10 +45,7 @@
           </div>
 
           <div class="col-md-4 mb-3">
-            <button
-              class="btn btn-success w-100"
-              @click="agregarAlCarrito(producto)"
-            >
+            <button class="btn btn-success w-100" @click="agregarAlCarrito">
               🛒 Agregar al carrito
             </button>
           </div>
@@ -67,49 +64,77 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
+import { verProducto } from "@/servicios/api";
+import alertify from "alertifyjs";
 
 const route = useRoute();
 const router = useRouter();
 const producto = ref({});
-const cantidad = ref(0); // valor inicial
+const cantidad = ref("");
 
 onMounted(async () => {
   const id = route.params.id;
   try {
-    const response = await axios.get(
-      `http://localhost:8000/api/productos/${id}`
-    );
+    const response = await verProducto(id);
     producto.value = response.data;
   } catch (error) {
     console.error("Error al cargar el producto", error);
+    alertify.error("❌ Error al cargar el producto.");
   }
 });
 
-const agregarAlCarrito = (producto) => {
+function calcularUnidadesConPromociones(cantidad, promociones) {
+  if (!promociones) return cantidad;
+
+  const lista = promociones.split(",").map((p) => p.trim());
+  let mejorExtra = 0;
+
+  for (const promo of lista) {
+    const [x, y] = promo.split("+").map((n) => parseInt(n.trim()));
+    if (isNaN(x) || isNaN(y) || x <= 0 || y < 0) continue;
+
+    const grupos = Math.floor(cantidad / x);
+    const extra = grupos * y;
+    if (extra > mejorExtra) mejorExtra = extra;
+  }
+
+  return cantidad + mejorExtra;
+}
+
+const agregarAlCarrito = () => {
+  const cantidadNum = parseInt(cantidad.value);
+  if (!cantidadNum || cantidadNum < 1) {
+    alertify.error("❌ Ingresa una cantidad válida antes de agregar.");
+    return;
+  }
+
+  const unidadesEntregadas = calcularUnidadesConPromociones(
+    cantidadNum,
+    producto.value.Promocion
+  );
+
   const item = {
-    ...producto,
-    cantidad: cantidad.value,
+    ...producto.value,
+    cantidad: cantidadNum,
+    unidadesEntregadas,
   };
 
   const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-
-  // Buscar si el producto ya está en el carrito
   const index = carrito.findIndex((p) => p.id === item.id);
 
   if (index !== -1) {
-    // Ya existe: actualizar la cantidad
     carrito[index].cantidad += item.cantidad;
-    console.log(
-      `Cantidad actualizada: "${item.NombreProducto}" x${carrito[index].cantidad}`
+    carrito[index].unidadesEntregadas += item.unidadesEntregadas;
+    alertify.warning(
+      `⚠️ Cantidad actualizada: "${item.NombreProducto}" x${carrito[index].cantidad} (entregados: ${carrito[index].unidadesEntregadas})`
     );
   } else {
-    // No existe: agregar nuevo
     carrito.push(item);
-    console.log(
-      `Nuevo producto agregado: "${item.NombreProducto}" x${item.cantidad}`
+    alertify.success(
+      `✅ Producto agregado: "${item.NombreProducto}" x${item.cantidad} (entregados: ${item.unidadesEntregadas})`
     );
   }
+
   localStorage.setItem("carrito", JSON.stringify(carrito));
   router.push("/Productos");
 };

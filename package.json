@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@primeuix/themes": "^1.2.3",
+    "alertifyjs": "^1.14.0",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
     "exceljs": "^4.4.0",

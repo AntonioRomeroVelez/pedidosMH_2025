@@ -49,6 +49,9 @@
 import { ref } from "vue";
 import * as XLSX from "xlsx";
 import { registrarLote } from "@/servicios/api";
+import alertify from "alertifyjs";
+
+
 
 const datos = ref([]);
 

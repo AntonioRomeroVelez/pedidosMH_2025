@@ -133,6 +133,8 @@
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { verProducto, actualizarProducto } from "@/servicios/api.js";
+import alertify from "alertifyjs";
+
 
 const router = useRouter();
 

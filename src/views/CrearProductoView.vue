@@ -133,6 +133,8 @@
 import { ref } from "vue";
 import { crearProducto } from "@/servicios/api.js";
 import { useRouter } from "vue-router";
+import alertify from "alertifyjs";
+
 
 const router = useRouter();
 
