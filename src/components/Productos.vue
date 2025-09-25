@@ -56,6 +56,10 @@
                 {{ producto.Promocion || "Sin promoción" }}
               </p>
               <p>
+                <strong>Marca:</strong>
+                {{ producto.Marca }}
+              </p>
+              <p>
                 <strong>IVA:</strong>
                 {{ producto.IVA > 0 ? producto.IVA + "%" : "No aplica" }}
               </p>
@@ -92,6 +96,7 @@
 import { ref, onMounted, computed } from "vue";
 import { obtenerProductos, eliminarProducto } from "@/servicios/api.js";
 import LoadingComponent from "./LoadingComponent.vue";
+import alertify from "alertifyjs";
 
 const busqueda = ref("");
 const productos = ref([]);
@@ -111,25 +116,32 @@ onMounted(async () => {
     productos.value = response.data;
   } catch (error) {
     console.error("Error al obtener productos:", error);
+    alertify.error("❌ No se puedo obtner los productos, vuelve a intentarlo");
   } finally {
     loading.value = false;
   }
 });
 
-const EliminarProducto = async (id, NombreProducto) => {
-  const confirmDelete = window.confirm(
-    `¿Estás seguro de que deseas eliminar el producto "${NombreProducto}"?`
+const EliminarProducto = (id, NombreProducto) => {
+  alertify.confirm(
+    "🗑️ Confirmar eliminación",
+    `¿Estás seguro de que deseas eliminar el producto "${NombreProducto}"?`,
+    async function () {
+      try {
+        await eliminarProducto(id);
+        const response = await obtenerProductos();
+        productos.value = response.data;
+        alertify.success("✅ Producto eliminado");
+      } catch (error) {
+        console.error(`❌ Error al eliminar "${NombreProducto}":`, error);
+        alertify.error(
+          `No se pudo eliminar "${NombreProducto}". Intenta nuevamente.`
+        );
+      }
+    },
+    function () {
+      alertify.message("❎ Eliminación cancelada");
+    }
   );
-
-  if (!confirmDelete) return;
-
-  try {
-    await eliminarProducto(id);
-    const response = await obtenerProductos();
-    productos.value = response.data; // actualiza la vista si estás usando Composition API
-  } catch (error) {
-    console.error(`❌ Error al eliminar "${NombreProducto}":`, error);
-    alert(`No se pudo eliminar "${NombreProducto}". Intenta nuevamente.`);
-  }
 };
 </script>

@@ -134,7 +134,36 @@ import { ref } from "vue";
 import { crearProducto } from "@/servicios/api.js";
 import { useRouter } from "vue-router";
 import alertify from "alertifyjs";
+import * as yup from "yup";
 
+const productoSchema = yup.object({
+  NombreProducto: yup.string().required("El nombre es obligatorio"),
+  Presentacion: yup.string().required("La presentación es obligatoria"),
+  PrincipioActivo: yup.string().required("El principio activo es obligatorio"),
+  PrecioFarmacia: yup
+    .number()
+    .typeError("Debe ser un número")
+    .required("Precio farmacia obligatorio")
+    .min(0),
+  PVP: yup
+    .number()
+    .typeError("Debe ser un número")
+    .required("PVP obligatorio")
+    .min(0),
+  Promocion: yup.string().required("La promoción es obligatoria"),
+  Descuento: yup
+    .number()
+    .typeError("Debe ser un número")
+    .required("Descuento obligatorio")
+    .min(0),
+  Marca: yup.string().required("La marca es obligatoria"),
+  IVA: yup
+    .number()
+    .typeError("Debe ser un número")
+    .required("IVA obligatorio")
+    .min(0)
+    .max(100),
+});
 
 const router = useRouter();
 
@@ -152,20 +181,23 @@ const nuevoProducto = ref({
 
 const enviarProducto = async () => {
   try {
+    await productoSchema.validate(nuevoProducto.value, { abortEarly: false });
+
     const response = await crearProducto(nuevoProducto.value);
-    (nuevoProducto.value.NombreProducto = ""),
-      (nuevoProducto.value.Presentacion = ""),
-      (nuevoProducto.value.PrincipioActivo = ""),
-      (nuevoProducto.value.PrecioFarmacia = ""),
-      (nuevoProducto.value.PVP = ""),
-      (nuevoProducto.value.Promocion = ""),
-      (nuevoProducto.value.Descuento = ""),
-      (nuevoProducto.value.Marca = ""),
-      (nuevoProducto.value.IVA = ""),
-      console.log("producto creado con éxito", response.data);
+
+    Object.keys(nuevoProducto.value).forEach((key) => {
+      nuevoProducto.value[key] = "";
+    });
+
+    alertify.success("✅ Producto creado con éxito");
     router.push("/Productos");
   } catch (error) {
-    console.log("no se puede crear el producto", error);
+    if (error.name === "ValidationError") {
+      error.errors.forEach((msg) => alertify.error(`❌ ${msg}`));
+    } else {
+      console.error("Error al crear producto", error);
+      alertify.error("❌ No se pudo crear el producto");
+    }
   }
 };
 </script>

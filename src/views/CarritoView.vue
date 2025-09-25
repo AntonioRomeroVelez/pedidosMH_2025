@@ -3,7 +3,7 @@
     <h2>🛒 Carrito de Compras</h2>
 
     <!-- Datos del pedido -->
-    <div class="row mb-4" v-if="carrito.length">
+    <!-- <div class="row mb-4" v-if="carrito.length">
       <div class="col-md-3">
         <label class="form-label">Nombre</label>
         <input v-model="pedido.Nombre" type="text" class="form-control" />
@@ -37,10 +37,60 @@
           <option value="Proforma">Proforma</option>
         </select>
       </div>
-    </div>
+    </div> -->
+
+    <table
+      class="table table-bordered table-sm mt-4 text-center"
+      v-if="carrito.length"
+    >
+      <thead class="table-light">
+        <tr>
+          <th>Nombre</th>
+          <th>Ciudad</th>
+          <th>Fecha</th>
+          <th>Vendedor</th>
+          <th>Tipo de documento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <input v-model="pedido.Nombre" type="text" class="form-control" />
+          </td>
+          <td>
+            <input v-model="pedido.Ciudad" type="text" class="form-control" />
+          </td>
+          <td>
+            <input
+              v-model="pedido.Fecha"
+              type="date"
+              class="form-control"
+              readonly
+              disabled
+            />
+          </td>
+          <td>
+            <select v-model="pedido.Vendedor" class="form-select">
+              <option value="" disabled>Seleccione</option>
+              <option value="Diana Benalcázar">Diana Benalcázar</option>
+            </select>
+          </td>
+          <td>
+            <select v-model="pedido.Tipo" class="form-select">
+              <option value="" disabled>Seleccione</option>
+              <option value="Pedido">Pedido</option>
+              <option value="Proforma">Proforma</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <!-- Tabla de productos -->
-    <table class="table table-bordered table-striped" v-if="carrito.length">
+    <table
+      class="table table-bordered table-sm mt-4 table-striped"
+      v-if="carrito.length"
+    >
       <thead>
         <tr>
           <th>Nombre</th>
@@ -52,6 +102,7 @@
           <th>Marca</th>
           <th>IVA</th>
           <th>Cantidad</th>
+          <th>Cantidad a recibir</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -74,6 +125,9 @@
               class="form-control"
               style="width: 80px"
             />
+          </td>
+          <td>
+            {{ mostarCantidadTotal(item.Promocion, item.cantidad) }}
           </td>
           <td>
             <button
@@ -212,12 +266,30 @@ const calcularPromocion = (promocionStr, cantidad) => {
   const veces = Math.floor(cantidad / base);
   const promo = veces * extra;
   const total = cantidad + promo;
-
+  console.log("promo:", promo);
+  console.log("total:", total);
   return { promo, total };
 };
 
-///// descaqrgar excel
+function mostarCantidadTotal(promocion, cantidad) {
+  if (!promocion || !cantidad) return cantidad;
 
+  const lista = promocion.split(",").map((p) => p.trim());
+  let mejorExtra = 0;
+
+  for (const promo of lista) {
+    const [x, y] = promo.split("+").map((n) => parseInt(n.trim()));
+    if (isNaN(x) || isNaN(y) || x <= 0 || y < 0) continue;
+
+    const grupos = Math.floor(cantidad / x);
+    const extra = grupos * y;
+    if (extra > mejorExtra) mejorExtra = extra;
+  }
+
+  return cantidad + mejorExtra;
+}
+
+///// descaqrgar excel
 
 const descargarExcel = async () => {
   // Validación de campos obligatorios

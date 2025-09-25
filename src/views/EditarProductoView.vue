@@ -135,7 +135,6 @@ import { useRoute, useRouter } from "vue-router";
 import { verProducto, actualizarProducto } from "@/servicios/api.js";
 import alertify from "alertifyjs";
 
-
 const router = useRouter();
 
 onMounted(async () => {
@@ -144,6 +143,7 @@ onMounted(async () => {
     const response = await verProducto(productoId);
     editarProducto.value = response.data;
   } catch (error) {
+    alertify.warning(`⚠️ Producto no se pudo mostrat: "${response.data}`);
     console.log("Error al cargar el producto", error);
   }
 });
@@ -169,8 +169,14 @@ const actualizarProductos = async () => {
     );
     console.log("producto editado con éxito", response.data);
     router.push("/Productos");
+    alertify.success(
+      `✅ Producto editado con éxito:  "${response.data.NombreProducto}"`
+    );
   } catch (error) {
     console.log("no se puede editar el producto", error);
+    alertify.warning(
+      `⚠️ Producto no se pudo mostrat: "${response.data.NombreProducto}`
+    );
   }
 };
 </script>
