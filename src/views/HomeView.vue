@@ -1,3 +1,7 @@
 <script setup></script>
 
-<template></template>
+<template>
+  <RouterLink class="btn btn-success w-100" to="/Productos">
+    Productos
+  </RouterLink>
+</template>
