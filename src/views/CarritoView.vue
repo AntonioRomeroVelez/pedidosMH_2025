@@ -251,7 +251,6 @@ const descargarExcel = async () => {
   hoja.addRow(["Vendedor", pedido.value.Vendedor]);
   hoja.addRow(["Tipo", pedido.value.Tipo]);
   hoja.addRow([]);
-  hoja.addRow(["Productos"]);
 
   // Configuración según tipo
   let encabezados = [];

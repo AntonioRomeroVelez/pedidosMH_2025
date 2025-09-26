@@ -1,11 +1,13 @@
 <template>
-  <div class="container py-4">
+  <div v-if="noHayProductos !== null">
+    <div class="alert alert-info text-center mt-3 shadow-sm">
+      <i class="bi bi-box-seam"></i> {{ noHayProductos }}
+    </div>
+  </div>
+  <div class="container py-4" v-else>
     <!-- Encabezado y acción -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="text-dark fw-bold">📦 Gestión de Productos</h2>
-      <router-link class="btn btn-success btn-lg" to="/crearProducto">
-        ➕ Crear producto nuevo
-      </router-link>
     </div>
 
     <!-- Buscador -->
@@ -19,13 +21,14 @@
       />
     </div>
 
+    <!-- Mensaje carga -->
     <div v-if="loading">
       <LoadingComponent />
     </div>
 
     <!-- Tarjetas de productos -->
     <div class="row" v-else>
-      <div
+      <!-- <div
         class="col-lg-4 col-md-6 mb-4"
         v-for="producto in productosFiltrados"
         :key="producto.id"
@@ -55,10 +58,7 @@
                 <strong>Promoción:</strong>
                 {{ producto.Promocion || "Sin promoción" }}
               </p>
-              <p>
-                <strong>Marca:</strong>
-                {{ producto.Marca }}
-              </p>
+              <p><strong>Marca:</strong> {{ producto.Marca }}</p>
               <p>
                 <strong>IVA:</strong>
                 {{ producto.IVA > 0 ? producto.IVA + "%" : "No aplica" }}
@@ -66,24 +66,68 @@
             </div>
 
             <div class="d-flex flex-wrap gap-2 justify-content-center mt-auto">
-              <button
-                class="btn btn-outline-danger px-3"
-                @click="EliminarProducto(producto.id, producto.NombreProducto)"
-              >
-                🗑️ Eliminar
-              </button>
-              <RouterLink
-                class="btn btn-outline-warning px-3"
-                :to="'editarProducto/' + producto.id"
-              >
-                ✏️ Editar
-              </RouterLink>
-              <RouterLink
+              <router-link
                 class="btn btn-outline-primary px-3"
-                :to="'producto/' + producto.id"
+                :to="'producto/' + producto.ID"
               >
                 🔍 Ver
-              </RouterLink>
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+
+        
+      </div> -->
+
+      <div class="container">
+        <div class="row g-3 justify-content-center">
+          <div
+            v-for="producto in productosFiltrados"
+            :key="producto.ID"
+            class="col-md-6 col-lg-4 d-flex justify-content-center"
+            style="max-width: 550px"
+          >
+            <div class="list-group w-100 shadow-sm rounded-3">
+              <div
+                class="list-group-item d-flex justify-content-between align-items-center border-0 border-bottom py-3"
+              >
+                <!-- Info producto -->
+                <div>
+                  <h6 class="mb-1 fw-bold text-dark">
+                    {{ producto.NombreProducto }}
+                  </h6>
+                  <small class="text-muted">
+                    {{ producto.Marca }} | {{ producto.Presentacion }}
+                  </small>
+                </div>
+
+                <!-- Precio -->
+                <div class="text-end">
+                  <span class="fw-semibold text-success h6 mb-0">
+                    ${{ producto.PVP.toFixed(2) }}
+                  </span>
+                  <div>
+                    <small class="text-muted">
+                      {{
+                        producto.Descuento
+                          ? producto.Descuento + "% Dscto."
+                          : ""
+                      }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botón -->
+              <div class="px-3 py-2 text-end">
+                <router-link
+                  class="btn btn-sm btn-outline-primary rounded-pill"
+                  :to="'/producto/' + producto.ID"
+                >
+                  🔍 Ver
+                </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -93,55 +137,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { obtenerProductos, eliminarProducto } from "@/servicios/api.js";
+import { ref, onMounted } from "vue";
 import LoadingComponent from "./LoadingComponent.vue";
-import alertify from "alertifyjs";
+import { computed } from "vue";
 
-const busqueda = ref("");
 const productos = ref([]);
+const busqueda = ref("");
+const noHayProductos = ref(null);
 const loading = ref(false);
 
-const productosFiltrados = computed(() => {
-  const texto = busqueda.value.toLowerCase().trim();
-  return productos.value.filter((p) =>
-    p.NombreProducto.toLowerCase().includes(texto)
-  );
-});
-
-onMounted(async () => {
-  loading.value = true;
-  try {
-    const response = await obtenerProductos();
-    productos.value = response.data;
-  } catch (error) {
-    console.error("Error al obtener productos:", error);
-    alertify.error("❌ No se puedo obtner los productos, vuelve a intentarlo");
-  } finally {
-    loading.value = false;
+onMounted(() => {
+  const datosGuardados = localStorage.getItem("ListaProductos");
+  if (datosGuardados) {
+    productos.value = JSON.parse(datosGuardados);
+    console.log("datosGuardados :", datosGuardados);
+  } else {
+    noHayProductos.value =
+      "No hay productos para mostrar, puedes agregar productos en Cargar Excel";
   }
 });
 
-const EliminarProducto = (id, NombreProducto) => {
-  alertify.confirm(
-    "🗑️ Confirmar eliminación",
-    `¿Estás seguro de que deseas eliminar el producto "${NombreProducto}"?`,
-    async function () {
-      try {
-        await eliminarProducto(id);
-        const response = await obtenerProductos();
-        productos.value = response.data;
-        alertify.success("✅ Producto eliminado");
-      } catch (error) {
-        console.error(`❌ Error al eliminar "${NombreProducto}":`, error);
-        alertify.error(
-          `No se pudo eliminar "${NombreProducto}". Intenta nuevamente.`
-        );
-      }
-    },
-    function () {
-      alertify.message("❎ Eliminación cancelada");
-    }
-  );
-};
+const productosFiltrados = computed(() => {
+  // const texto = busqueda.value.toLowerCase().trim();
+  // return productos.value.filter((p) =>
+  //   p.NombreProducto?.toLowerCase().includes(texto)
+  // );
+
+  return productos.value.filter((p) => {
+    const texto = busqueda.value.toLowerCase().trim();
+    return (
+      p.NombreProducto?.toLowerCase().includes(texto) ||
+      p.Marca?.toLowerCase().includes(texto) ||
+      p.PrincipioActivo?.toLowerCase().includes(texto)
+    );
+  });
+});
 </script>

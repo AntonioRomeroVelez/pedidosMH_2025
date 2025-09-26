@@ -19,6 +19,7 @@
     "bootstrap": "^5.3.8",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
+    "pinia": "^3.0.3",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.9",

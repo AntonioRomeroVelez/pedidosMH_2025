@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <div class="card shadow-sm">
+    <!-- <div v-if="producto" class="card shadow-sm">
       <div class="card-body">
         <h3 class="card-title text-primary mb-3">
           🧪 {{ producto.NombreProducto }}
@@ -21,10 +21,15 @@
 
           <div class="col-md-6 mb-2">
             <p>
-              <strong>Precio Farmacia:</strong> ${{ producto.PrecioFarmacia }}
+              <strong>Precio Farmacia:</strong> ${{
+                producto.PrecioFarmacia.toFixed(2)
+              }}
             </p>
-            <p><strong>PVP:</strong> ${{ producto.PVP }}</p>
-            <p><strong>Promoción:</strong> {{ producto.Promocion }}</p>
+            <p><strong>PVP:</strong> ${{ producto.PVP.toFixed(2) }}</p>
+            <p>
+              <strong>Promoción:</strong>
+              {{ producto.Promocion || "Sin promoción" }}
+            </p>
             <p><strong>Descuento:</strong> {{ producto.Descuento }}%</p>
           </div>
         </div>
@@ -43,20 +48,106 @@
               placeholder="Ej. 1"
             />
           </div>
-
           <div class="col-md-4 mb-3">
             <button class="btn btn-success w-100" @click="agregarAlCarrito">
               🛒 Agregar al carrito
             </button>
           </div>
 
-          <div class="col-md-4 mb-3">
-            <RouterLink class="btn btn-warning w-100" to="/Productos">
-              🔙 Regresar
-            </RouterLink>
+          <div>
+            <div class="d-block">
+              <RouterLink class="btn btn-warning w-100" to="/Productos">
+                🔙 Regresar
+              </RouterLink>
+            </div>
           </div>
         </div>
       </div>
+    </div> -->
+
+    <div v-if="producto" class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h3 class="text-primary fw-bold mb-4">
+          🧪 {{ producto.NombreProducto }}
+        </h3>
+
+        <div class="row g-3">
+          <!-- Columna izquierda -->
+          <div class="col-md-6">
+            <ul class="list-unstyled mb-0">
+              <li>
+                <strong>📦 Presentación:</strong> {{ producto.Presentacion }}
+              </li>
+              <li>
+                <strong>🧬 Principio Activo:</strong>
+                {{ producto.PrincipioActivo }}
+              </li>
+              <li><strong>🏷️ Marca:</strong> {{ producto.Marca }}</li>
+              <li>
+                <strong>🧾 IVA:</strong>
+                {{ producto.IVA > 0 ? producto.IVA + "%" : "No aplica" }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Columna derecha -->
+          <div class="col-md-6">
+            <ul class="list-unstyled mb-0">
+              <li>
+                <strong>💊 Precio Farmacia:</strong> ${{
+                  producto.PrecioFarmacia.toFixed(2)
+                }}
+              </li>
+              <li><strong>💰 PVP:</strong> ${{ producto.PVP.toFixed(2) }}</li>
+              <li>
+                <strong>🎁 Promoción:</strong>
+                {{ producto.Promocion || "Sin promoción" }}
+              </li>
+              <li><strong>🔻 Descuento:</strong> {{ producto.Descuento }}%</li>
+            </ul>
+          </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <!-- Cantidad y botón de agregar -->
+        <!-- Acciones centradas -->
+        <div class="d-flex flex-column align-items-center gap-3 mt-4">
+          <div class="w-50">
+            <label
+              for="cantidad"
+              class="form-label fw-semibold text-center d-block"
+              >Cantidad</label
+            >
+            <input
+              type="number"
+              min="1"
+              v-model="cantidad"
+              class="form-control text-center"
+              id="cantidad"
+              placeholder="Ej. 1"
+            />
+          </div>
+
+          <button class="btn btn-lg btn-primary px-4" @click="agregarAlCarrito">
+            🛒 Agregar al carrito
+          </button>
+        </div>
+
+        <!-- Botón de regreso separado -->
+        <div class="text-center mt-5">
+          <RouterLink class="btn btn-danger px-5" to="/Productos">
+            🔙 Regresar al listado
+          </RouterLink>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="text-center mt-5">
+      <h4 class="text-danger">❌ Producto no encontrado</h4>
+      <RouterLink class="btn btn-secondary mt-3" to="/Productos">
+        🔙 Volver al listado
+      </RouterLink>
     </div>
   </div>
 </template>
@@ -64,22 +155,23 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { verProducto } from "@/servicios/api";
 import alertify from "alertifyjs";
 
 const route = useRoute();
 const router = useRouter();
-const producto = ref({});
+const producto = ref(null);
 const cantidad = ref("");
 
-onMounted(async () => {
-  const id = route.params.id;
-  try {
-    const response = await verProducto(id);
-    producto.value = response.data;
-  } catch (error) {
-    console.error("Error al cargar el producto", error);
-    alertify.error("❌ Error al cargar el producto.");
+onMounted(() => {
+  const id = parseInt(route.params.id);
+  const productos = JSON.parse(localStorage.getItem("ListaProductos") || "[]");
+  const encontrado = productos.find((p) => p.ID === id);
+
+  if (encontrado) {
+    producto.value = encontrado;
+  } else {
+    producto.value = null;
+    alertify.error("❌ Producto no encontrado.");
   }
 });
 
@@ -119,8 +211,8 @@ const agregarAlCarrito = () => {
     unidadesEntregadas,
   };
 
-  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-  const index = carrito.findIndex((p) => p.id === item.id);
+  const carrito = JSON.parse(localStorage.getItem("carrito") || "[]");
+  const index = carrito.findIndex((p) => p.ID === item.ID);
 
   if (index !== -1) {
     carrito[index].cantidad += item.cantidad;
