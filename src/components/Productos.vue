@@ -5,11 +5,6 @@
     </div>
   </div>
   <div class="container py-4" v-else>
-    <!-- Encabezado y acción -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="text-dark fw-bold">📦 Gestión de Productos</h2>
-    </div>
-
     <!-- Buscador -->
     <div class="input-group mb-4">
       <span class="input-group-text bg-light">🔍</span>
@@ -17,7 +12,7 @@
         v-model="busqueda"
         type="text"
         class="form-control form-control-lg"
-        placeholder="Buscar por nombre de producto..."
+        placeholder="Buscar..."
       />
     </div>
 
@@ -88,7 +83,7 @@
             class="col-md-6 col-lg-4 d-flex justify-content-center"
             style="max-width: 550px"
           >
-            <div class="list-group w-100 shadow-sm rounded-3">
+            <div class="list-group w-100 shadow-sm border border-1 rounded-3">
               <div
                 class="list-group-item d-flex justify-content-between align-items-center border-0 border-bottom py-3"
               >
