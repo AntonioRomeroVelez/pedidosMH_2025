@@ -25,6 +25,10 @@
 
     <!-- Tarjetas de productos -->
     <div class="row" v-else>
+      <h5 class="text-primary fw-bold mb-3">
+        🧮 Total de productos: {{ cantidadProductos }}
+      </h5>
+
       <div class="container">
         <div class="row g-3 justify-content-center">
           <div
@@ -49,29 +53,43 @@
 
                 <!-- Precio -->
                 <div class="text-end">
-                  <span class="fw-semibold text-success h6 mb-0">
-                    ${{ producto.PVP.toFixed(2) }}
-                  </span>
-                  <div>
-                    <small class="text-muted">
-                      {{
-                        producto.Descuento
-                          ? producto.Descuento + "% Dscto."
-                          : ""
-                      }}
-                    </small>
-                  </div>
+                  <small class="text-success fw-bold d-block">
+                    {{
+                      producto.Descuento ? producto.Descuento + "% Dscto." : ""
+                    }}
+                  </small>
+                  <small class="d-block text-danger fw-bold">
+                    {{ producto.IVA ? "IVA " + producto.IVA + " %" : "" }}
+                  </small>
                 </div>
               </div>
 
-              <!-- Botón -->
-              <div class="px-3 py-2 text-end">
-                <router-link
-                  class="btn btn-sm btn-outline-primary rounded-pill"
-                  :to="'/producto/' + producto.ID"
-                >
-                  🔍 Ver
-                </router-link>
+              <div class="px-3 py-2 text-center">
+                <div class="d-flex gap-3 flex-wrap justify-content-center mt-3">
+                  <button
+                    type="button"
+                    class="btn btn-outline-success btn-sm rounded-2"
+                    style="pointer-events: none; cursor: default; width: 100px"
+                  >
+                    🏥 Precio Farmacia: <br />
+                    ${{ producto.PrecioFarmacia.toFixed(2) }}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm rounded-2"
+                    style="pointer-events: none; cursor: default; width: 100px"
+                  >
+                    💰 PVP: <br />
+                    ${{ producto.PVP.toFixed(2) }}
+                  </button>
+                  <router-link
+                    class="btn btn-sm btn-outline-secondary rounded-2"
+                    style="width: 150px"
+                    :to="'/producto/' + producto.ID"
+                  >
+                    🔍 Ver
+                  </router-link>
+                </div>
               </div>
             </div>
           </div>
@@ -90,12 +108,14 @@ const productos = ref([]);
 const busqueda = ref("");
 const noHayProductos = ref(null);
 const loading = ref(false);
+const cantidadProductos = ref(0);
 
 onMounted(() => {
   const datosGuardados = localStorage.getItem("ListaProductos");
   if (datosGuardados) {
     productos.value = JSON.parse(datosGuardados);
     console.log("datosGuardados :", datosGuardados);
+    cantidadProductos.value = productos.value.length;
   } else {
     noHayProductos.value =
       "No hay productos para mostrar, puedes agregar productos en Cargar Excel";
@@ -112,7 +132,8 @@ const productosFiltrados = computed(() => {
     const texto = busqueda.value.toLowerCase().trim();
     return (
       p.NombreProducto?.toLowerCase().includes(texto) ||
-      p.Marca?.toLowerCase().includes(texto)
+      p.Marca?.toLowerCase().includes(texto) ||
+      p.PrincipioActivo?.toLowerCase().includes(texto)
     );
   });
 });

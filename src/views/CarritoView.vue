@@ -38,6 +38,20 @@
         </select>
       </div>
     </div>
+    <!-- Botón para guardar pedido -->
+    <div class="mt-4 d-flex justify-content-around" v-if="carrito.length">
+      <button @click="vaciarCarrito" class="btn btn-warning">
+        Vaciar carrito
+      </button>
+
+      <button
+        class="btn btn-primary"
+        @click="descargarExcel"
+        :disabled="!carrito.length"
+      >
+        Guardar Pedido
+      </button>
+    </div>
 
     <!-- Tabla de productos -->
     <div class="mt-4" v-if="carrito.length">
@@ -64,7 +78,7 @@
             <td data-label="Nombre">{{ item.NombreProducto }}</td>
             <td data-label="Presentación">{{ item.Presentacion }}</td>
             <td data-label="Principio Activo">{{ item.PrincipioActivo }}</td>
-            <td data-label="PVP">$ {{ item.PVP }}</td>
+            <td data-label="Precio Farmacia">$ {{ item.PrecioFarmacia }}</td>
             <td data-label="Promoción">{{ item.Promocion }}</td>
             <td data-label="Descuento">{{ item.Descuento }}</td>
             <td data-label="Marca">{{ item.Marca }}</td>
@@ -95,24 +109,38 @@
           </tr>
         </tbody>
       </table>
+      <!-- Totales desglosados -->
+      <div class="mt-4" v-if="carrito.length">
+        <div class="row justify-content-end">
+          <div class="col-md-4">
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between">
+                <strong>Subtotal 15%:</strong>
+                <span>$ {{ subtotal15.toFixed(2) }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <strong>Subtotal 0%:</strong>
+                <span>$ {{ subtotal0.toFixed(2) }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <strong>IVA 15%:</strong>
+                <span>$ {{ iva15.toFixed(2) }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between bg-light"
+              >
+                <strong>Total:</strong>
+                <span class="fw-bold text-success"
+                  >$ {{ totalCarrito.toFixed(2) }}</span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-else class="alert alert-info mt-4">El carrito está vacío.</div>
-
-    <!-- Botón para guardar pedido -->
-    <div class="mt-4 d-flex justify-content-around" v-if="carrito.length">
-      <button @click="vaciarCarrito" class="btn btn-warning">
-        Vaciar carrito
-      </button>
-
-      <button
-        class="btn btn-primary"
-        @click="descargarExcel"
-        :disabled="!carrito.length"
-      >
-        Guardar Pedido
-      </button>
-    </div>
   </div>
 </template>
 
@@ -142,7 +170,7 @@ const calcularTotalesDesglosados = () => {
   iva15.value = 0;
 
   carrito.value.forEach((item) => {
-    const base = item.PVP * item.cantidad;
+    const base = item.PrecioFarmacia * item.cantidad;
     console.log("base:", base);
     const iva = Number(item.IVA);
 
@@ -171,7 +199,7 @@ onMounted(() => {
 const calcularTotal = () => {
   totalCarrito.value = carrito.value.reduce((acc, item) => {
     const iva = item.IVA > 0 ? item.IVA : 0; // Si tiene IVA, úsalo; si no, 0
-    const precioConIVA = item.PVP * item.cantidad * (1 + iva / 100);
+    const precioConIVA = item.PrecioFarmacia * item.cantidad * (1 + iva / 100);
     return acc + precioConIVA;
   }, 0);
 };
@@ -291,22 +319,32 @@ const descargarExcel = async () => {
         calcularPromocion(item.Promocion, item.cantidad).promo,
         item.NombreProducto,
         item.Marca,
-        item.PVP,
+        item.PrecioFarmacia,
         totalVista.toFixed(2),
       ];
     });
   }
 
-  // Agregar encabezado con estilo
+  // Agregar encabezados
   const headerRow = hoja.addRow(encabezados);
+  headerRow.height = 30;
+
   headerRow.eachCell((cell) => {
     cell.fill = {
       type: "pattern",
       pattern: "solid",
       fgColor: { argb: "FFCCE5FF" },
     };
-    cell.font = { bold: true };
-    cell.alignment = { horizontal: "center", vertical: "middle" };
+    cell.font = {
+      bold: true,
+      size: 12,
+      color: { argb: "FF000000" },
+    };
+    cell.alignment = {
+      horizontal: "center",
+      vertical: "middle",
+      wrapText: true,
+    };
     cell.border = {
       top: { style: "thin" },
       bottom: { style: "thin" },
@@ -315,9 +353,28 @@ const descargarExcel = async () => {
     };
   });
 
+  // Asignar ancho por columna según tipo
+  if (pedido.value.Tipo === "Pedido") {
+    hoja.getColumn(1).width = 15; // Cantidad
+    hoja.getColumn(2).width = 15; // Promoción
+    hoja.getColumn(3).width = 35; // NombreProducto
+    hoja.getColumn(4).width = 40; // Lote
+    hoja.getColumn(5).width = 40; // Fecha de Vencimiento
+  }
+
+  if (pedido.value.Tipo === "Proforma") {
+    hoja.getColumn(1).width = 15; // Cantidad
+    hoja.getColumn(2).width = 15; // Promoción
+    hoja.getColumn(3).width = 35; // Nombre Producto
+    hoja.getColumn(4).width = 35; // Marca
+    hoja.getColumn(5).width = 15; // Precio
+    hoja.getColumn(6).width = 20; // Total
+  }
+
   // Agregar filas de productos
   filas.forEach((fila) => {
     const row = hoja.addRow(fila);
+    row.height = 55; // 👈 Establece la altura en puntos (aprox. 50px visuales)
     row.eachCell((cell) => {
       cell.border = {
         top: { style: "thin" },
@@ -393,14 +450,14 @@ const descargarExcel = async () => {
   }
 
   // Ajustar ancho de columnas
-  hoja.columns.forEach((col) => {
-    let maxLength = 10;
-    col.eachCell({ includeEmpty: true }, (cell) => {
-      const value = cell.value ? cell.value.toString() : "";
-      maxLength = Math.max(maxLength, value.length);
-    });
-    col.width = maxLength + 2;
-  });
+  // hoja.columns.forEach((col) => {
+  //   let maxLength = 10;
+  //   col.eachCell({ includeEmpty: true }, (cell) => {
+  //     const value = cell.value ? cell.value.toString() : "";
+  //     maxLength = Math.max(maxLength, value.length);
+  //   });
+  //   col.width = maxLength + 2;
+  // });
 
   // Descargar archivo
   const buffer = await workbook.xlsx.writeBuffer();

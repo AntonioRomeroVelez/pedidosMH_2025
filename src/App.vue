@@ -167,4 +167,18 @@ onBeforeUnmount(() => {
   width: 200px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+@media (max-width: 768px) {
+  body {
+    overscroll-behavior-y: contain;
+  }
+}
+
+html,
+body {
+  overscroll-behavior-y: contain;
+  touch-action: pan-x pan-y;
+  height: 100%;
+  margin: 0;
+}
 </style>

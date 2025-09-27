@@ -14,9 +14,9 @@
               type="number"
               min="1"
               v-model="cantidad"
-              class="form-control py-3 fs-1 text text-center"
+              class="form-control py-2 fs-1 text text-center"
               id="cantidad"
-              placeholder="Ej. 1"
+              placeholder="0"
             />
           </div>
           <div class="col-8">
@@ -74,8 +74,8 @@
 
         <!-- Botón de regreso -->
         <div class="text-center mt-4">
-          <RouterLink class="btn btn-danger px-5" to="/Productos">
-            🔙 Regresar al listado
+          <RouterLink class="btn btn-warning px-5" to="/Productos">
+            Atras
           </RouterLink>
         </div>
       </div>
