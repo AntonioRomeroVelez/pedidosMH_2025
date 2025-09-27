@@ -54,6 +54,16 @@
       </button>
     </div>
 
+    <div v-if="errores.length" class="mt-3">
+      <h5 class="text-danger">❌ Errores detectados:</h5>
+      <ul>
+        <li v-for="error in errores" :key="`${error.hoja}-${error.fila}`">
+          <strong>Hoja {{ error.hoja }}, Fila {{ error.fila }}:</strong>
+          {{ error.errores.join(", ") }}
+        </li>
+      </ul>
+    </div>
+
     <div v-if="datos.length" class="table-responsive mt-4">
       <h4>👀 Vista previa de productos cargados</h4>
       <table class="table table-bordered table-sm formato-tabla">
@@ -91,15 +101,6 @@
         </tbody>
       </table>
     </div>
-
-    <div v-if="errores.length" class="mt-3">
-      <h5 class="text-danger">❌ Errores detectados:</h5>
-      <ul>
-        <li v-for="error in errores" :key="error.fila">
-          <strong>Fila {{ error.fila }}:</strong> {{ error.errores.join(", ") }}
-        </li>
-      </ul>
-    </div>
   </div>
 </template>
 
@@ -107,11 +108,23 @@
 import { ref } from "vue";
 import * as XLSX from "xlsx";
 import alertify from "alertifyjs";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 const datos = ref([]);
 const errores = ref([]);
 const router = useRouter();
+
+const encabezadosEsperados = [
+  "NombreProducto",
+  "Presentacion",
+  "PrincipioActivo",
+  "PrecioFarmacia",
+  "PVP",
+  "Promocion",
+  "Descuento",
+  "Marca",
+  "IVA",
+];
 
 const leerExcel = (event) => {
   const archivo = event.target.files[0];
@@ -125,14 +138,14 @@ const leerExcel = (event) => {
     errores.value = [];
     let productosTemp = [];
 
-    // Iterar todas las hojas
-    workbook.SheetNames.forEach((sheetName) => {
+    workbook.SheetNames.forEach((sheetName, indexH) => {
       const hoja = workbook.Sheets[sheetName];
+
       const json = XLSX.utils.sheet_to_json(hoja);
 
       json.forEach((fila, index) => {
         const producto = {
-          ID: index,
+          ID: `id-${indexH}${index}`,
           NombreProducto: fila.NombreProducto ?? "",
           Presentacion: fila.Presentacion ?? "",
           PrincipioActivo: fila.PrincipioActivo ?? "",
@@ -156,7 +169,13 @@ const leerExcel = (event) => {
         if (isNaN(producto.IVA)) erroresFila.push("IVA inválido");
 
         if (erroresFila.length > 0) {
-          errores.value.push({ fila: index + 2, errores: erroresFila });
+          errores.value.push({
+            hoja: sheetName,
+            fila: index + 2,
+            errores: erroresFila,
+            id: `${indexH}${index}`,
+          });
+          console.log(`Hoja: ${sheetName}, Fila ${index + 2}`, fila);
         }
 
         productosTemp.push(producto);
@@ -178,7 +197,8 @@ const leerExcel = (event) => {
 };
 
 const tieneError = (index) => {
-  return errores.value.some((e) => e.fila === index + 2);
+  const producto = datos.value[index];
+  return errores.value.some((e) => e.id === producto.ID);
 };
 
 const guardarEnStore = () => {
@@ -186,15 +206,13 @@ const guardarEnStore = () => {
     alertify.error("❌ No se puede guardar. Corrige los errores primero.");
     return;
   }
-  localStorage.removeItem("ListaProductos"); // eliminar el local storage
-
-  // Guardar en localStorage como JSON string
+  localStorage.removeItem("ListaProductos");
   localStorage.setItem("ListaProductos", JSON.stringify(datos.value));
   alertify.success("✅ Productos guardados en memoria");
 
   setTimeout(() => {
     router.push("/Productos");
-  }, "1000");
+  }, 1000);
 };
 
 const vaciarProductos = () => {
@@ -202,7 +220,7 @@ const vaciarProductos = () => {
     "⚠️ Confirmación",
     "¿Estás seguro de eliminar todos los productos cargados?",
     () => {
-      localStorage.removeItem("ListaProductos"); // eliminar el local storage
+      localStorage.removeItem("ListaProductos");
       alertify.success("✅ Archivos eliminados");
     },
     () => {

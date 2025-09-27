@@ -6,14 +6,16 @@
   </div>
   <div class="container py-4" v-else>
     <!-- Buscador -->
-    <div class="input-group mb-4">
-      <span class="input-group-text bg-light">🔍</span>
-      <input
-        v-model="busqueda"
-        type="text"
-        class="form-control form-control-lg"
-        placeholder="Buscar..."
-      />
+    <div class="sticky-buscador" style="width: 80%">
+      <div class="input-group mb-4">
+        <span class="input-group-text bg-light">🔍</span>
+        <input
+          v-model="busqueda"
+          type="text"
+          class="form-control form-control-lg"
+          placeholder="Buscar..."
+        />
+      </div>
     </div>
 
     <!-- Mensaje carga -->
@@ -23,58 +25,6 @@
 
     <!-- Tarjetas de productos -->
     <div class="row" v-else>
-      <!-- <div
-        class="col-lg-4 col-md-6 mb-4"
-        v-for="producto in productosFiltrados"
-        :key="producto.id"
-      >
-        <div class="card h-100 shadow-sm border-2">
-          <div class="card-body d-flex flex-column justify-content-between">
-            <h4 class="card-title text-primary fw-semibold mb-3">
-              {{ producto.NombreProducto }}
-            </h4>
-
-            <div class="mb-3 fs-6">
-              <p><strong>Presentación:</strong> {{ producto.Presentacion }}</p>
-              <p>
-                <strong>Principio Activo:</strong>
-                {{ producto.PrincipioActivo }}
-              </p>
-              <p><strong>PVP:</strong> ${{ producto.PVP }}</p>
-              <p>
-                <strong>Descuento:</strong>
-                {{
-                  producto.Descuento
-                    ? producto.Descuento + "%"
-                    : "No hay descuento"
-                }}
-              </p>
-              <p>
-                <strong>Promoción:</strong>
-                {{ producto.Promocion || "Sin promoción" }}
-              </p>
-              <p><strong>Marca:</strong> {{ producto.Marca }}</p>
-              <p>
-                <strong>IVA:</strong>
-                {{ producto.IVA > 0 ? producto.IVA + "%" : "No aplica" }}
-              </p>
-            </div>
-
-            <div class="d-flex flex-wrap gap-2 justify-content-center mt-auto">
-              <router-link
-                class="btn btn-outline-primary px-3"
-                :to="'producto/' + producto.ID"
-              >
-                🔍 Ver
-              </router-link>
-            </div>
-          </div>
-        </div>
-
-
-        
-      </div> -->
-
       <div class="container">
         <div class="row g-3 justify-content-center">
           <div
@@ -162,9 +112,18 @@ const productosFiltrados = computed(() => {
     const texto = busqueda.value.toLowerCase().trim();
     return (
       p.NombreProducto?.toLowerCase().includes(texto) ||
-      p.Marca?.toLowerCase().includes(texto) ||
-      p.PrincipioActivo?.toLowerCase().includes(texto)
+      p.Marca?.toLowerCase().includes(texto)
     );
   });
 });
 </script>
+
+<style>
+.sticky-buscador {
+  position: sticky;
+  top: 0px;
+  z-index: 1000;
+  background-color: white;
+  padding-top: 5px;
+}
+</style>

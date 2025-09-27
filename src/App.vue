@@ -18,17 +18,24 @@ const handleClickOutside = (event) => {
   }
 };
 
-onMounted(() => {
+const checkMobile = () => {
   isMobile.value = window.innerWidth <= 768;
+};
+
+onMounted(() => {
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
   document.addEventListener("click", handleClickOutside);
 });
 
 onBeforeUnmount(() => {
+  window.removeEventListener("resize", checkMobile);
   document.removeEventListener("click", handleClickOutside);
 });
 </script>
 
 <template>
+  <!-- Menú de escritorio -->
   <nav
     class="navbar navbar-expand-lg bg-white border-bottom shadow-sm"
     v-if="!isMobile"
@@ -73,21 +80,25 @@ onBeforeUnmount(() => {
   </nav>
 
   <!-- Menú flotante para móviles -->
+
   <div v-if="isMobile" class="floating-menu">
     <button
-      class="btn btn-primary rounded-circle shadow floating-button"
       @click="menuOpen = !menuOpen"
+      aria-label="Abrir menú"
+      class="btn btn-primary rounded-circle shadow floating-button"
     >
-      <i class="bi bi-list fs-4"></i>
+      ☰
     </button>
-
     <div v-if="menuOpen" class="menu-panel shadow">
-      <RouterLink class="menu-item" to="/productos">Productos</RouterLink>
-      <RouterLink class="menu-item" to="/cargarexcel">Cargar Excel</RouterLink>
-      <RouterLink class="menu-item" to="/carrito">Carrito</RouterLink>
+      <RouterLink class="menu-item" to="/productos">📦 Productos</RouterLink>
+      <RouterLink class="menu-item" to="/cargarexcel"
+        >📁 Cargar Excel</RouterLink
+      >
+      <RouterLink class="menu-item" to="/carrito">🛒 Carrito</RouterLink>
     </div>
   </div>
 
+  <!-- Vista principal -->
   <div class="container">
     <RouterView />
   </div>
@@ -113,12 +124,6 @@ onBeforeUnmount(() => {
 }
 
 /* Estilos flotantes para móviles */
-.floating-menu {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1050;
-}
 
 .floating-button {
   width: 56px;
@@ -126,17 +131,6 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.menu-panel {
-  position: absolute;
-  bottom: 70px;
-  right: 0;
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-  width: 200px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .menu-item {
@@ -154,5 +148,23 @@ onBeforeUnmount(() => {
 .menu-item:hover {
   background-color: #f8f9fa;
   color: #0d6efd;
+}
+
+.floating-menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+}
+
+.menu-panel {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  width: 200px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 </style>

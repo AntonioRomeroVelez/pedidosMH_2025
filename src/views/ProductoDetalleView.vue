@@ -1,44 +1,15 @@
 <template>
   <div class="container mt-5">
-    <!-- <div v-if="producto" class="card shadow-sm">
+    <div v-if="producto" class="card border-0 shadow-sm">
       <div class="card-body">
-        <h3 class="card-title text-primary mb-3">
-          🧪 {{ producto.NombreProducto }}
-        </h3>
-
-        <div class="row">
-          <div class="col-md-6 mb-2">
-            <p><strong>Presentación:</strong> {{ producto.Presentacion }}</p>
-            <p>
-              <strong>Principio Activo:</strong> {{ producto.PrincipioActivo }}
-            </p>
-            <p><strong>Marca:</strong> {{ producto.Marca }}</p>
-            <p>
-              <strong>IVA:</strong>
-              {{ producto.IVA > 0 ? producto.IVA + "%" : "No aplica" }}
-            </p>
-          </div>
-
-          <div class="col-md-6 mb-2">
-            <p>
-              <strong>Precio Farmacia:</strong> ${{
-                producto.PrecioFarmacia.toFixed(2)
-              }}
-            </p>
-            <p><strong>PVP:</strong> ${{ producto.PVP.toFixed(2) }}</p>
-            <p>
-              <strong>Promoción:</strong>
-              {{ producto.Promocion || "Sin promoción" }}
-            </p>
-            <p><strong>Descuento:</strong> {{ producto.Descuento }}%</p>
-          </div>
-        </div>
-
-        <hr />
-
-        <div class="row align-items-end">
-          <div class="col-md-4 mb-3">
-            <label for="cantidad" class="form-label">Cantidad</label>
+        <!-- Cantidad y botón de agregar (ahora arriba) -->
+        <div class="row g-3 align-items-center mb-4">
+          <center>
+            <label for="cantidad" class="form-label fw-semibold"
+              >Cantidad</label
+            >
+          </center>
+          <div class="col-6">
             <input
               type="number"
               min="1"
@@ -48,25 +19,16 @@
               placeholder="Ej. 1"
             />
           </div>
-          <div class="col-md-4 mb-3">
-            <button class="btn btn-success w-100" @click="agregarAlCarrito">
+          <div class="col-6">
+            <button
+              class="btn btn-lg btn-primary w-100 w-md-auto"
+              @click="agregarAlCarrito"
+            >
               🛒 Agregar al carrito
             </button>
           </div>
-
-          <div>
-            <div class="d-block">
-              <RouterLink class="btn btn-warning w-100" to="/Productos">
-                🔙 Regresar
-              </RouterLink>
-            </div>
-          </div>
         </div>
-      </div>
-    </div> -->
 
-    <div v-if="producto" class="card border-0 shadow-sm">
-      <div class="card-body">
         <h3 class="text-primary fw-bold mb-4">
           🧪 {{ producto.NombreProducto }}
         </h3>
@@ -110,32 +72,8 @@
 
         <hr class="my-4" />
 
-        <!-- Cantidad y botón de agregar -->
-        <!-- Acciones centradas -->
-        <div class="d-flex flex-column align-items-center gap-3 mt-4">
-          <div class="w-50">
-            <label
-              for="cantidad"
-              class="form-label fw-semibold text-center d-block"
-              >Cantidad</label
-            >
-            <input
-              type="number"
-              min="1"
-              v-model="cantidad"
-              class="form-control text-center"
-              id="cantidad"
-              placeholder="Ej. 1"
-            />
-          </div>
-
-          <button class="btn btn-lg btn-primary px-4" @click="agregarAlCarrito">
-            🛒 Agregar al carrito
-          </button>
-        </div>
-
-        <!-- Botón de regreso separado -->
-        <div class="text-center mt-5">
+        <!-- Botón de regreso -->
+        <div class="text-center mt-4">
           <RouterLink class="btn btn-danger px-5" to="/Productos">
             🔙 Regresar al listado
           </RouterLink>
@@ -163,16 +101,10 @@ const producto = ref(null);
 const cantidad = ref("");
 
 onMounted(() => {
-  const id = parseInt(route.params.id);
-  const productos = JSON.parse(localStorage.getItem("ListaProductos") || "[]");
-  const encontrado = productos.find((p) => p.ID === id);
-
-  if (encontrado) {
-    producto.value = encontrado;
-  } else {
-    producto.value = null;
-    alertify.error("❌ Producto no encontrado.");
-  }
+  const productosGuardados = JSON.parse(
+    localStorage.getItem("ListaProductos") || "[]"
+  );
+  producto.value = productosGuardados.find((p) => p.ID === route.params.id);
 });
 
 function calcularUnidadesConPromociones(cantidad, promociones) {
