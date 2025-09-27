@@ -9,17 +9,17 @@
               >Cantidad</label
             >
           </center>
-          <div class="col-6">
+          <div class="col-4">
             <input
               type="number"
               min="1"
               v-model="cantidad"
-              class="form-control"
+              class="form-control py-3 fs-1 text text-center"
               id="cantidad"
               placeholder="Ej. 1"
             />
           </div>
-          <div class="col-6">
+          <div class="col-8">
             <button
               class="btn btn-lg btn-primary w-100 w-md-auto"
               @click="agregarAlCarrito"

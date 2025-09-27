@@ -54,52 +54,57 @@
       </button>
     </div>
 
-    <div v-if="errores.length" class="mt-3">
-      <h5 class="text-danger">❌ Errores detectados:</h5>
-      <ul>
-        <li v-for="error in errores" :key="`${error.hoja}-${error.fila}`">
-          <strong>Hoja {{ error.hoja }}, Fila {{ error.fila }}:</strong>
-          {{ error.errores.join(", ") }}
-        </li>
-      </ul>
+    <div v-if="loading">
+      <LoadingComponent />
     </div>
+    <div v-else>
+      <div v-if="errores.length" class="mt-3">
+        <h5 class="text-danger">❌ Errores detectados:</h5>
+        <ul>
+          <li v-for="error in errores" :key="`${error.hoja}-${error.fila}`">
+            <strong>Hoja {{ error.hoja }}, Fila {{ error.fila }}:</strong>
+            {{ error.errores.join(", ") }}
+          </li>
+        </ul>
+      </div>
 
-    <div v-if="datos.length" class="table-responsive mt-4">
-      <h4>👀 Vista previa de productos cargados</h4>
-      <table class="table table-bordered table-sm formato-tabla">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>NombreProducto</th>
-            <th>Presentacion</th>
-            <th>PrincipioActivo</th>
-            <th>PrecioFarmacia</th>
-            <th>PVP</th>
-            <th>Promocion</th>
-            <th>Descuento</th>
-            <th>Marca</th>
-            <th>IVA</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(p, i) in datos"
-            :key="i"
-            :class="{ 'table-danger': tieneError(i) }"
-          >
-            <td>{{ i + 1 }}</td>
-            <td>{{ p.NombreProducto }}</td>
-            <td>{{ p.Presentacion }}</td>
-            <td>{{ p.PrincipioActivo }}</td>
-            <td>{{ p.PrecioFarmacia }}</td>
-            <td>{{ p.PVP }}</td>
-            <td>{{ p.Promocion }}</td>
-            <td>{{ p.Descuento }}</td>
-            <td>{{ p.Marca }}</td>
-            <td>{{ p.IVA }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-if="datos.length" class="table-responsive mt-4">
+        <h4>👀 Vista previa de productos cargados</h4>
+        <table class="table table-bordered table-sm formato-tabla">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>NombreProducto</th>
+              <th>Presentacion</th>
+              <th>PrincipioActivo</th>
+              <th>PrecioFarmacia</th>
+              <th>PVP</th>
+              <th>Promocion</th>
+              <th>Descuento</th>
+              <th>Marca</th>
+              <th>IVA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(p, i) in datos"
+              :key="i"
+              :class="{ 'table-danger': tieneError(i) }"
+            >
+              <td>{{ i + 1 }}</td>
+              <td>{{ p.NombreProducto }}</td>
+              <td>{{ p.Presentacion }}</td>
+              <td>{{ p.PrincipioActivo }}</td>
+              <td>{{ p.PrecioFarmacia }}</td>
+              <td>{{ p.PVP }}</td>
+              <td>{{ p.Promocion }}</td>
+              <td>{{ p.Descuento }}</td>
+              <td>{{ p.Marca }}</td>
+              <td>{{ p.IVA }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -110,86 +115,161 @@ import * as XLSX from "xlsx";
 import alertify from "alertifyjs";
 import { useRouter } from "vue-router";
 
+import LoadingComponent from "@/components/LoadingComponent.vue";
+const loading = ref(false);
+
 const datos = ref([]);
 const errores = ref([]);
 const router = useRouter();
 
-const encabezadosEsperados = [
-  "NombreProducto",
-  "Presentacion",
-  "PrincipioActivo",
-  "PrecioFarmacia",
-  "PVP",
-  "Promocion",
-  "Descuento",
-  "Marca",
-  "IVA",
-];
+// const leerExcel = (event) => {
+//   loading.value = true;
+//   const archivo = event.target.files[0];
+//   if (!archivo) {
+//     loading.value = false;
+//     return;
+//   }
+
+//   const reader = new FileReader();
+//   reader.onload = (e) => {
+//     const data = new Uint8Array(e.target.result);
+//     const workbook = XLSX.read(data, { type: "array" });
+
+//     errores.value = [];
+//     let productosTemp = [];
+
+//     workbook.SheetNames.forEach((sheetName, indexH) => {
+//       const hoja = workbook.Sheets[sheetName];
+
+//       const json = XLSX.utils.sheet_to_json(hoja);
+
+//       json.forEach((fila, index) => {
+//         const producto = {
+//           ID: `id-${indexH}${index}`,
+//           NombreProducto: fila.NombreProducto ?? "",
+//           Presentacion: fila.Presentacion ?? "",
+//           PrincipioActivo: fila.PrincipioActivo ?? "",
+//           PrecioFarmacia: parseFloat(fila.PrecioFarmacia ?? ""),
+//           PVP: parseFloat(fila.PVP ?? ""),
+//           Promocion: fila.Promocion ?? "",
+//           Descuento: parseInt(fila.Descuento ?? 0),
+//           Marca: fila.Marca ?? "",
+//           IVA: parseInt(fila.IVA ?? 0),
+//         };
+
+//         const erroresFila = [];
+//         if (!producto.NombreProducto) erroresFila.push("Nombre vacío");
+//         if (!producto.Presentacion) erroresFila.push("Presentación vacía");
+//         if (!producto.PrincipioActivo)
+//           erroresFila.push("Principio activo vacío");
+//         if (isNaN(producto.PrecioFarmacia))
+//           erroresFila.push("Precio farmacia inválido");
+//         if (isNaN(producto.PVP)) erroresFila.push("PVP inválido");
+//         if (!producto.Marca) erroresFila.push("Marca vacía");
+//         if (isNaN(producto.IVA)) erroresFila.push("IVA inválido");
+
+//         if (erroresFila.length > 0) {
+//           errores.value.push({
+//             hoja: sheetName,
+//             fila: index + 2,
+//             errores: erroresFila,
+//             id: `${indexH}${index}`,
+//           });
+//           console.log(`Hoja: ${sheetName}, Fila ${index + 2}`, fila);
+//         }
+
+//         productosTemp.push(producto);
+//       });
+//     });
+
+//     datos.value = productosTemp;
+//     loading.value = false;
+//     if (errores.value.length > 0) {
+//       alertify.error(
+//         "❌ Hay errores en el archivo. Revisa las filas marcadas."
+//       );
+//     } else {
+//       alertify.success("✅ Archivo cargado correctamente");
+//     }
+//   };
+
+//   reader.readAsArrayBuffer(archivo);
+// };
 
 const leerExcel = (event) => {
+  loading.value = true;
   const archivo = event.target.files[0];
-  if (!archivo) return;
+  if (!archivo) {
+    loading.value = false;
+    return;
+  }
 
   const reader = new FileReader();
   reader.onload = (e) => {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
 
-    errores.value = [];
-    let productosTemp = [];
+      errores.value = [];
+      let productosTemp = [];
 
-    workbook.SheetNames.forEach((sheetName, indexH) => {
-      const hoja = workbook.Sheets[sheetName];
+      workbook.SheetNames.forEach((sheetName, indexH) => {
+        const hoja = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(hoja);
 
-      const json = XLSX.utils.sheet_to_json(hoja);
+        json.forEach((fila, index) => {
+          const producto = {
+            ID: `id-${indexH}${index}`,
+            NombreProducto: fila.NombreProducto ?? "",
+            Presentacion: fila.Presentacion ?? "",
+            PrincipioActivo: fila.PrincipioActivo ?? "",
+            PrecioFarmacia: parseFloat(fila.PrecioFarmacia ?? ""),
+            PVP: parseFloat(fila.PVP ?? ""),
+            Promocion: fila.Promocion ?? "",
+            Descuento: parseInt(fila.Descuento ?? 0),
+            Marca: fila.Marca ?? "",
+            IVA: parseInt(fila.IVA ?? 0),
+          };
 
-      json.forEach((fila, index) => {
-        const producto = {
-          ID: `id-${indexH}${index}`,
-          NombreProducto: fila.NombreProducto ?? "",
-          Presentacion: fila.Presentacion ?? "",
-          PrincipioActivo: fila.PrincipioActivo ?? "",
-          PrecioFarmacia: parseFloat(fila.PrecioFarmacia ?? ""),
-          PVP: parseFloat(fila.PVP ?? ""),
-          Promocion: fila.Promocion ?? "",
-          Descuento: parseInt(fila.Descuento ?? 0),
-          Marca: fila.Marca ?? "",
-          IVA: parseInt(fila.IVA ?? 0),
-        };
+          const erroresFila = [];
+          if (!producto.NombreProducto) erroresFila.push("Nombre vacío");
+          if (!producto.Presentacion) erroresFila.push("Presentación vacía");
+          if (!producto.PrincipioActivo)
+            erroresFila.push("Principio activo vacío");
+          if (isNaN(producto.PrecioFarmacia))
+            erroresFila.push("Precio farmacia inválido");
+          if (isNaN(producto.PVP)) erroresFila.push("PVP inválido");
+          if (!producto.Marca) erroresFila.push("Marca vacía");
+          if (isNaN(producto.IVA)) erroresFila.push("IVA inválido");
 
-        const erroresFila = [];
-        if (!producto.NombreProducto) erroresFila.push("Nombre vacío");
-        if (!producto.Presentacion) erroresFila.push("Presentación vacía");
-        if (!producto.PrincipioActivo)
-          erroresFila.push("Principio activo vacío");
-        if (isNaN(producto.PrecioFarmacia))
-          erroresFila.push("Precio farmacia inválido");
-        if (isNaN(producto.PVP)) erroresFila.push("PVP inválido");
-        if (!producto.Marca) erroresFila.push("Marca vacía");
-        if (isNaN(producto.IVA)) erroresFila.push("IVA inválido");
+          if (erroresFila.length > 0) {
+            errores.value.push({
+              hoja: sheetName,
+              fila: index + 2,
+              errores: erroresFila,
+              id: `${indexH}${index}`,
+            });
+            console.log(`Hoja: ${sheetName}, Fila ${index + 2}`, fila);
+          }
 
-        if (erroresFila.length > 0) {
-          errores.value.push({
-            hoja: sheetName,
-            fila: index + 2,
-            errores: erroresFila,
-            id: `${indexH}${index}`,
-          });
-          console.log(`Hoja: ${sheetName}, Fila ${index + 2}`, fila);
-        }
-
-        productosTemp.push(producto);
+          productosTemp.push(producto);
+        });
       });
-    });
 
-    datos.value = productosTemp;
+      datos.value = productosTemp;
 
-    if (errores.value.length > 0) {
-      alertify.error(
-        "❌ Hay errores en el archivo. Revisa las filas marcadas."
-      );
-    } else {
-      alertify.success("✅ Archivo cargado correctamente");
+      if (errores.value.length > 0) {
+        alertify.error(
+          "❌ Hay errores en el archivo. Revisa las filas marcadas."
+        );
+      } else {
+        alertify.success("✅ Archivo cargado correctamente");
+      }
+    } catch (error) {
+      alertify.error("❌ Error al procesar el archivo.");
+      console.error("Error al leer Excel:", error);
+    } finally {
+      loading.value = false;
     }
   };
 
