@@ -73,16 +73,22 @@
         <hr class="my-4" />
 
         <!-- Botón de regreso -->
-        <div class="text-center mt-4">
+        <div
+          class="text-center mt-4 d-flex gap-3 align-content-center justify-content-center"
+        >
           <RouterLink class="btn btn-warning px-5" to="/Productos">
-            Atras
+            🔙 Regresar
           </RouterLink>
+          <router-link class="btn btn-info px-5" :to="'/editar/' + producto.ID">
+            ✏️ Editar
+          </router-link>
         </div>
       </div>
     </div>
 
     <div v-else class="text-center mt-5">
       <h4 class="text-danger">❌ Producto no encontrado</h4>
+
       <RouterLink class="btn btn-secondary mt-3" to="/Productos">
         🔙 Volver al listado
       </RouterLink>

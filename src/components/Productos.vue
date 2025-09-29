@@ -30,64 +30,62 @@
       </h5>
 
       <div class="container">
-        <div class="row g-3 justify-content-center">
+        <div class="row g-1 justify-content-center">
           <div
             v-for="producto in productosFiltrados"
             :key="producto.ID"
-            class="col-md-6 col-lg-4 d-flex justify-content-center"
-            style="max-width: 550px"
+            class="col-md-6 col-lg-4"
           >
-            <div class="list-group w-100 shadow-sm border border-1 rounded-3">
-              <div
-                class="list-group-item d-flex justify-content-between align-items-center border-0 border-bottom py-3"
-              >
-                <!-- Info producto -->
-                <div>
-                  <h6 class="mb-1 fw-bold text-dark">
-                    {{ producto.NombreProducto }}
-                  </h6>
-                  <small class="text-muted">
+            <div
+              class="card border border-primary rounded-1 shadow-sm h-100"
+              style="border-width: 2px"
+            >
+              <div class="card-body d-flex flex-column justify-content-between">
+                <!-- Encabezado -->
+                <div class="mb-3">
+                  <h5
+                    class="card-title text-primary fw-bold d-flex align-items-center"
+                  >
+                    🧪 {{ producto.NombreProducto }}
+                  </h5>
+                  <p class="card-subtitle text-muted mb-1">
                     {{ producto.Marca }} | {{ producto.Presentacion }}
-                  </small>
+                  </p>
                 </div>
 
-                <!-- Precio -->
-                <div class="text-end">
-                  <small class="text-success fw-bold d-block">
-                    {{
-                      producto.Descuento ? producto.Descuento + "% Dscto." : ""
-                    }}
-                  </small>
-                  <small class="d-block text-danger fw-bold">
-                    {{ producto.IVA ? "IVA " + producto.IVA + " %" : "" }}
-                  </small>
+                <!-- Precios y detalles -->
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between flex-wrap">
+                    <span class="badge bg-light text-dark border mb-2">
+                      🏥 P. Farmacia: ${{ producto.PrecioFarmacia.toFixed(2) }}
+                    </span>
+                    <span class="badge bg-light text-dark border mb-2">
+                      💰 PVP: ${{ producto.PVP.toFixed(2) }}
+                    </span>
+                  </div>
+                  <div class="d-flex justify-content-between flex-wrap">
+                    <span
+                      v-if="producto.Descuento"
+                      class="badge bg-success-subtle text-success mb-2"
+                    >
+                      🎁 Descuento: {{ producto.Descuento }}%
+                    </span>
+                    <span
+                      v-if="producto.IVA"
+                      class="badge bg-danger-subtle text-danger mb-2"
+                    >
+                      🧾 IVA: {{ producto.IVA }}%
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div class="px-3 py-2 text-center">
-                <div class="d-flex gap-3 flex-wrap justify-content-center mt-3">
-                  <button
-                    type="button"
-                    class="btn btn-outline-success btn-sm rounded-2"
-                    style="pointer-events: none; cursor: default; width: 100px"
-                  >
-                    🏥 Precio Farmacia: <br />
-                    ${{ producto.PrecioFarmacia.toFixed(2) }}
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline-primary btn-sm rounded-2"
-                    style="pointer-events: none; cursor: default; width: 100px"
-                  >
-                    💰 PVP: <br />
-                    ${{ producto.PVP.toFixed(2) }}
-                  </button>
+                <!-- Acción -->
+                <div class="text-center">
                   <router-link
-                    class="btn btn-sm btn-outline-secondary rounded-2"
-                    style="width: 150px"
+                    class="btn btn-outline-secondary w-75"
                     :to="'/producto/' + producto.ID"
                   >
-                    🔍 Ver
+                    🔍 Ver detalles
                   </router-link>
                 </div>
               </div>
