@@ -37,7 +37,7 @@ onBeforeUnmount(() => {
 <template>
   <!-- Menú de escritorio -->
   <nav
-    class="navbar navbar-expand-lg bg-white border-bottom shadow-sm"
+    class="navbar navbar-expand-lg bg-light border-bottom shadow-sm custom-navbar fixed-top"
     v-if="!isMobile"
   >
     <div class="container">
@@ -90,6 +90,7 @@ onBeforeUnmount(() => {
       ☰
     </button>
     <div v-if="menuOpen" class="menu-panel shadow">
+      <RouterLink class="menu-item" to="/">🏠 Inicio</RouterLink>
       <RouterLink class="menu-item" to="/productos">📦 Productos</RouterLink>
       <RouterLink class="menu-item" to="/cargarexcel"
         >📁 Cargar Excel</RouterLink
@@ -107,20 +108,20 @@ onBeforeUnmount(() => {
 <style scoped>
 .custom-link {
   font-weight: 500;
-  color: #333 !important;
+  color: #2028b1 !important;
   transition: color 0.3s ease, border-bottom 0.3s ease;
   border-bottom: 2px solid transparent;
   margin: 0px 5px;
   border-radius: 5px;
-  box-shadow: 0 2px 2px #cedcf1;
+  box-shadow: 0 2px 2px #dbe1ff;
 }
 .custom-link:hover {
-  color: #0d6efd !important;
-  border-bottom: 2px solid #0d6efd;
+  color: #1a22a0 !important;
+  border-bottom: 2px solid #1a22a0;
 }
 .router-link-active {
-  color: #0d6efd !important;
-  border-bottom: 2px solid #0d6efd;
+  color: #2028b1 !important;
+  border-bottom: 2px solid #2028b1;
 }
 
 /* Estilos flotantes para móviles */
@@ -128,17 +129,22 @@ onBeforeUnmount(() => {
 .floating-button {
   width: 56px;
   height: 56px;
+  background-color: #2028b1;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 24px;
+  border: none;
 }
 
 .menu-item {
   display: block;
   padding: 10px;
-  color: #333;
+  color: #2028b1;
   text-decoration: none;
   border-bottom: 1px solid #eee;
+  font-weight: 500;
 }
 
 .menu-item:last-child {
@@ -146,8 +152,8 @@ onBeforeUnmount(() => {
 }
 
 .menu-item:hover {
-  background-color: #f8f9fa;
-  color: #0d6efd;
+  background-color: #f0f2ff;
+  color: #1a22a0;
 }
 
 .floating-menu {
@@ -165,20 +171,6 @@ onBeforeUnmount(() => {
   border-radius: 10px;
   padding: 10px;
   width: 200px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-@media (max-width: 768px) {
-  body {
-    overscroll-behavior-y: contain;
-  }
-}
-
-html,
-body {
-  overscroll-behavior-y: contain;
-  touch-action: pan-x pan-y;
-  height: 100%;
-  margin: 0;
+  box-shadow: 0 4px 8px rgba(32, 40, 177, 0.2);
 }
 </style>

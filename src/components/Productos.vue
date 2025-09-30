@@ -6,7 +6,7 @@
   </div>
   <div class="container py-4" v-else>
     <!-- Buscador -->
-    <div class="sticky-buscador" style="width: 80%">
+    <div class="sticky-buscador">
       <div class="input-group mb-4">
         <span class="input-group-text bg-light">🔍</span>
         <input
@@ -139,10 +139,12 @@ const productosFiltrados = computed(() => {
 
 <style>
 .sticky-buscador {
+  width: 60%;
   position: sticky;
   top: 0px;
-  z-index: 1000;
-  background-color: white;
+  z-index: 5000;
+  background-color: transparent;
   padding-top: 5px;
+  margin-left: 70px;
 }
 </style>
