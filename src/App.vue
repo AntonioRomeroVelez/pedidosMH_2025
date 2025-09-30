@@ -98,6 +98,7 @@ onBeforeUnmount(() => {
         >📁 Cargar Excel</RouterLink
       >
       <RouterLink class="menu-item" to="/carrito">🛒 Carrito</RouterLink>
+      <RouterLink class="menu-item" to="/gestionar">🛠️ Gestionar</RouterLink>
     </div>
   </div>
 
