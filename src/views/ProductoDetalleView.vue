@@ -4,11 +4,10 @@
       <div class="card-body">
         <!-- Cantidad y botón de agregar (ahora arriba) -->
         <div class="row g-3 align-items-center mb-4">
-          <center>
-            <label for="cantidad" class="form-label fw-semibold"
-              >Cantidad</label
-            >
-          </center>
+          <label for="cantidad" class="text-center d-block">
+  Cantidad
+</label>
+
           <div class="col-4">
             <input
               type="number"
@@ -79,6 +78,10 @@
           <RouterLink class="btn btn-warning px-5" to="/Productos">
             🔙 Regresar
           </RouterLink>
+          <button class="btn btn-danger px-5" @click="eliminarProducto">
+            🗑️ Eliminar producto
+          </button>
+
           <router-link class="btn btn-info px-5" :to="'/editar/' + producto.ID">
             ✏️ Editar
           </router-link>
@@ -130,6 +133,27 @@ function calcularUnidadesConPromociones(cantidad, promociones) {
 
   return cantidad + mejorExtra;
 }
+
+const eliminarProducto = () => {
+  alertify.confirm(
+    "¿Eliminar producto?",
+    "Esta acción no se puede deshacer.",
+    () => {
+      const productosGuardados = JSON.parse(
+        localStorage.getItem("ListaProductos") || "[]"
+      );
+      const nuevosProductos = productosGuardados.filter(
+        (p) => p.ID !== producto.value.ID
+      );
+      localStorage.setItem("ListaProductos", JSON.stringify(nuevosProductos));
+      alertify.success("🗑️ Producto eliminado");
+      router.push("/Productos");
+    },
+    () => {
+      alertify.message("❌ Cancelado");
+    }
+  );
+};
 
 const agregarAlCarrito = () => {
   const cantidadNum = parseInt(cantidad.value);

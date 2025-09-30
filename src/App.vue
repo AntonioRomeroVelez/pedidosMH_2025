@@ -26,6 +26,7 @@ onMounted(() => {
   checkMobile();
   window.addEventListener("resize", checkMobile);
   document.addEventListener("click", handleClickOutside);
+  document.addEventListener("touchstart", handleClickOutside); // 👈 para móviles
 });
 
 onBeforeUnmount(() => {
@@ -64,14 +65,15 @@ onBeforeUnmount(() => {
               >Productos</RouterLink
             >
           </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link custom-link" to="/cargarexcel"
-              >Cargar Excel</RouterLink
-            >
-          </li>
+
           <li class="nav-item">
             <RouterLink class="nav-link custom-link" to="/carrito"
               >Carrito</RouterLink
+            >
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link custom-link" to="/gestionar"
+              >Gestionar</RouterLink
             >
           </li>
         </ul>

@@ -37,6 +37,21 @@ const router = createRouter({
       name: "EditarProducto",
       component: () => import("../views/EditarView.vue"),
     },
+    {
+      path: "/crear",
+      name: "CrearProducto",
+      component: () => import("../views/CrearView.vue"),
+    },
+    {
+      path: "/gestionar",
+      name: "Gestionar",
+      component: () => import("../views/GestionarView.vue"),
+    },
+    {
+      path: "/descargarExcel",
+      name: "DescargarExcel",
+      component: () => import("../views/DescargarExcelView.vue"),
+    },
   ],
 });
 
