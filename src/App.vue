@@ -85,12 +85,12 @@ onBeforeUnmount(() => {
     <button
       @click="menuOpen = !menuOpen"
       aria-label="Abrir menú"
-      class="btn btn-primary rounded-circle shadow floating-button"
+      class="btn btn-primary rounded-3 shadow floating-button"
     >
       ☰
     </button>
     <div v-if="menuOpen" class="menu-panel shadow">
-      <RouterLink class="menu-item" to="/">🏠 Inicio</RouterLink>
+      <!-- <RouterLink class="menu-item" to="/">🏠 Inicio</RouterLink> -->
       <RouterLink class="menu-item" to="/productos">📦 Productos</RouterLink>
       <RouterLink class="menu-item" to="/cargarexcel"
         >📁 Cargar Excel</RouterLink
@@ -129,7 +129,7 @@ onBeforeUnmount(() => {
 .floating-button {
   width: 56px;
   height: 56px;
-  background-color: #2028b1;
+  /* background-color: #2028b1; */
   color: #fff;
   display: flex;
   align-items: center;

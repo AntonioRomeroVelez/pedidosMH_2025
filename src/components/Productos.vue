@@ -147,4 +147,11 @@ const productosFiltrados = computed(() => {
   padding-top: 5px;
   margin-left: 70px;
 }
+/* En pantallas pequeñas (menores a 768px) */
+@media (max-width: 768px) {
+  .sticky-buscador {
+    width: 80%;
+    margin-left: 0px;
+  }
+}
 </style>
