@@ -75,14 +75,14 @@
         <div
           class="text-center mt-4 d-flex gap-3 align-content-center justify-content-center"
         >
-          <RouterLink class="btn btn-warning px-5" to="/Productos">
+          <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
             🔙 Regresar
           </RouterLink>
-          <button class="btn btn-danger px-5" @click="eliminarProducto">
-            🗑️ Eliminar producto
+          <button class="btn btn-danger px-2 sm" @click="eliminarProducto">
+            🗑️ Eliminar
           </button>
 
-          <router-link class="btn btn-info px-5" :to="'/editar/' + producto.ID">
+          <router-link class="btn btn-info px-2 sm" :to="'/editar/' + producto.ID">
             ✏️ Editar
           </router-link>
         </div>

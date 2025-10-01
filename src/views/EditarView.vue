@@ -100,20 +100,17 @@
 
         <!-- Botón de regreso -->
         <div class="d-flex gap-5 justify-content-center align-items-center">
-          <div class="text-center mt-4">
-            <RouterLink
-              class="btn btn-danger px-5"
-              style="color: white"
-              :to="'/producto/' + producto.ID"
-            >
-              ❌ Cancelar edición
-            </RouterLink>
-          </div>
-          <div class="text-center mt-4">
-            <button class="btn btn-success px-5" @click="guardarCambios">
-              💾 Guardar cambios
-            </button>
-          </div>
+          <RouterLink
+            class="btn btn-danger px-2 sm"
+            style="color: white"
+            :to="'/producto/' + producto.ID"
+          >
+            ❌ Cancelar
+          </RouterLink>
+
+          <button class="btn btn-success px-2 sm" @click="guardarCambios">
+            💾 Guardar
+          </button>
         </div>
       </div>
     </div>

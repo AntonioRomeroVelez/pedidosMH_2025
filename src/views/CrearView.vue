@@ -99,11 +99,11 @@
 
         <!-- Botones -->
         <div class="d-flex gap-5 justify-content-center align-items-center">
-          <RouterLink class="btn btn-danger px-5" to="/Productos">
-            ❌ Cancelar creación
+          <RouterLink class="btn btn-danger px-2 sm" to="/Productos">
+            ❌ Cancelar
           </RouterLink>
-          <button class="btn btn-success px-5" @click="guardarCambios">
-            💾 Guardar producto
+          <button class="btn btn-success px-2 sm" @click="guardarCambios">
+            💾 Guardar
           </button>
         </div>
       </div>
