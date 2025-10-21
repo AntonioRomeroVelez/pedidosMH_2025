@@ -6,7 +6,7 @@
   </div>
 
   <div class="container py-4" v-else>
-    <!-- Buscador -->
+    <!-- 🔍 Buscador -->
     <div class="sticky-buscador">
       <div class="input-group mb-4">
         <span class="input-group-text bg-light">🔍</span>
@@ -15,7 +15,11 @@
           type="text"
           class="form-control form-control-lg"
           placeholder="Buscar..."
+          @keyup.enter="buscarProductos"
         />
+        <button class="btn btn-primary btn-lg" @click="buscarProductos">
+          Buscar
+        </button>
       </div>
     </div>
 
@@ -24,7 +28,6 @@
       <LoadingComponent />
     </div>
 
-    <!-- Tarjetas de productos -->
     <!-- Tarjetas de productos -->
     <div class="row" v-else>
       <div class="d-flex justify-content-between align-items-center mb-3">
@@ -130,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, computed } from "vue";
 import LoadingComponent from "./LoadingComponent.vue";
 import Fuse from "fuse.js";
 
@@ -151,14 +154,13 @@ const totalPaginas = computed(() =>
   Math.ceil(resultados.value.length / elementosPorPagina)
 );
 
-// 🔄 Productos a mostrar según página
+// 🔄 Productos según página
 const productosPaginados = computed(() => {
   const inicio = (paginaActual.value - 1) * elementosPorPagina;
   const fin = inicio + elementosPorPagina;
   return resultados.value.slice(inicio, fin);
 });
 
-// ⏪ Cambiar página
 const paginaAnterior = () => {
   if (paginaActual.value > 1) paginaActual.value--;
 };
@@ -166,7 +168,7 @@ const paginaSiguiente = () => {
   if (paginaActual.value < totalPaginas.value) paginaActual.value++;
 };
 
-// 1️⃣ Cargar datos
+// 📦 Cargar datos
 onMounted(() => {
   const datosGuardados = localStorage.getItem("ListaProductos");
   if (datosGuardados) {
@@ -185,27 +187,23 @@ onMounted(() => {
   }
 });
 
-// 2️⃣ Búsqueda con debounce + reinicio de página
-let timeout = null;
-watch(busqueda, (valor) => {
-  clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    const texto = valor.trim().toLowerCase();
-    paginaActual.value = 1; // Reiniciar al buscar
-    if (!texto) {
-      resultados.value = productos.value;
-    } else {
-      resultados.value = fuse
-        ? fuse.search(texto).map((r) => r.item)
-        : productos.value.filter(
-            (p) =>
-              p.NombreProducto?.toLowerCase().includes(texto) ||
-              p.Marca?.toLowerCase().includes(texto) ||
-              p.PrincipioActivo?.toLowerCase().includes(texto)
-          );
-    }
-  }, 300);
-});
+// 🔍 Buscar al hacer clic
+const buscarProductos = () => {
+  const texto = busqueda.value.trim().toLowerCase();
+  paginaActual.value = 1;
+  if (!texto) {
+    resultados.value = productos.value;
+  } else {
+    resultados.value = fuse
+      ? fuse.search(texto).map((r) => r.item)
+      : productos.value.filter(
+          (p) =>
+            p.NombreProducto?.toLowerCase().includes(texto) ||
+            p.Marca?.toLowerCase().includes(texto) ||
+            p.PrincipioActivo?.toLowerCase().includes(texto)
+        );
+  }
+};
 </script>
 
 <style>
