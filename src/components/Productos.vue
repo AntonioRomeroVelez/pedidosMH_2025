@@ -9,7 +9,6 @@
     <!-- 🔍 Buscador -->
     <div class="sticky-buscador">
       <div class="input-group mb-4">
-        <span class="input-group-text bg-light">🔍</span>
         <input
           v-model="busqueda"
           type="text"
@@ -97,7 +96,7 @@
                     class="btn btn-outline-secondary w-75"
                     :to="'/producto/' + producto.ID"
                   >
-                    🔍 Ver detalles
+                    🔍 Ver Producto
                   </router-link>
                 </div>
               </div>
