@@ -219,7 +219,9 @@ const leerExcel = (event) => {
 
         json.forEach((fila, index) => {
           const producto = {
-            ID: `id-${indexH}${index}`,
+            ID: `id-${index}-${
+              fila.NombreProducto.split(" ")[0]
+            }-${Math.random().toString(36).substr(2, 5)}`,
             NombreProducto: fila.NombreProducto ?? "",
             Presentacion: fila.Presentacion ?? "",
             PrincipioActivo: fila.PrincipioActivo ?? "",

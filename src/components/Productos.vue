@@ -187,9 +187,27 @@ onMounted(() => {
 });
 
 // 🔍 Buscar al hacer clic
+// const buscarProductos = () => {
+//   const texto = busqueda.value.trim().toLowerCase();
+//   paginaActual.value = 1;
+//   if (!texto) {
+//     resultados.value = productos.value;
+//   } else {
+//     resultados.value = fuse
+//       ? fuse.search(texto).map((r) => r.item)
+//       : productos.value.filter(
+//           (p) =>
+//             p.NombreProducto?.toLowerCase().includes(texto) ||
+//             p.Marca?.toLowerCase().includes(texto) ||
+//             p.PrincipioActivo?.toLowerCase().includes(texto)
+//         );
+//   }
+// };
+
 const buscarProductos = () => {
   const texto = busqueda.value.trim().toLowerCase();
   paginaActual.value = 1;
+
   if (!texto) {
     resultados.value = productos.value;
   } else {
@@ -197,9 +215,9 @@ const buscarProductos = () => {
       ? fuse.search(texto).map((r) => r.item)
       : productos.value.filter(
           (p) =>
-            p.NombreProducto?.toLowerCase().includes(texto) ||
-            p.Marca?.toLowerCase().includes(texto) ||
-            p.PrincipioActivo?.toLowerCase().includes(texto)
+            p.NombreProducto?.toLowerCase() === texto ||
+            p.Marca?.toLowerCase() === texto ||
+            p.PrincipioActivo?.toLowerCase() === texto
         );
   }
 };
