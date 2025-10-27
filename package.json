@@ -17,6 +17,7 @@
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "fuse.js": "^7.1.0",
+    "html2canvas": "^1.4.1",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.9",

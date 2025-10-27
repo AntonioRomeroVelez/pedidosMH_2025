@@ -49,7 +49,15 @@
         @click="descargarExcel"
         :disabled="!carrito.length"
       >
-        Guardar Pedido
+        Exportar Excel
+      </button>
+
+      <button
+        class="btn btn-success"
+        @click="descarTablaConPromocion"
+        :disabled="!carrito.length"
+      >
+        Exportar Imagen promociones
       </button>
     </div>
 
@@ -469,6 +477,71 @@ const vaciarCarrito = async () => {
   // 🔥 Limpiar el carrito después de descargar
   localStorage.removeItem("carrito");
   carrito.value = [];
+};
+
+const descarTablaConPromocion = async () => {
+  const tabla = document.createElement("table");
+  tabla.style.borderCollapse = "collapse";
+  tabla.style.width = "100%";
+  tabla.style.backgroundColor = "white";
+  tabla.style.fontFamily = "Arial, sans-serif";
+
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr style="background-color: #4CAF50; color: white;">
+      <th style="padding: 12px; border: 1px solid #ddd;">Producto</th>
+      <th style="padding: 12px; border: 1px solid #ddd;">Promoción</th>
+    </tr>
+  `;
+  tabla.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  carrito.value.forEach((item, index) => {
+    const tr = document.createElement("tr");
+    tr.style.backgroundColor = index % 2 === 0 ? "#f2f2f2" : "white";
+    tr.innerHTML = `
+      <td style="padding: 12px; border: 1px solid #ddd;">${
+        item.NombreProducto
+      }</td>
+      <td style="padding: 12px; border: 1px solid #ddd;">${
+        item.Promocion || "Sin promoción"
+      }</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tabla.appendChild(tbody);
+
+  const container = document.createElement("div");
+  container.style.padding = "20px";
+  container.style.backgroundColor = "white";
+  container.style.fontFamily = "Arial, sans-serif";
+
+  const titulo = document.createElement("h2");
+  titulo.style.textAlign = "center";
+  titulo.style.marginBottom = "20px";
+  titulo.style.color = "#333";
+
+  container.appendChild(titulo);
+  container.appendChild(tabla);
+
+  // Agregar al DOM temporalmente
+  document.body.appendChild(container);
+
+  const html2canvas = (await import("html2canvas")).default;
+  html2canvas(container, {
+    backgroundColor: "white",
+    scale: 2,
+    useCORS: true,
+  }).then((canvas) => {
+    const imagen = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = `Promociones_${new Date().toISOString().split("T")[0]}.png`;
+    link.href = imagen;
+    link.click();
+
+    // Limpiar el DOM
+    document.body.removeChild(container);
+  });
 };
 </script>
 
