@@ -8,7 +8,7 @@
   <div class="container py-4" v-else>
     <!-- 🔍 Buscador -->
     <div class="sticky-buscador">
-      <div class="input-group mb-4">
+      <div class="input-group">
         <span class="input-group-text border-0 bg-white">
           <i class="bi bi-search text-primary"></i>
         </span>
@@ -265,7 +265,6 @@ const buscarProductos = () => {
 @media (min-width: 1400px) {
   .sticky-buscador {
     width: 50%;
-    top: 55px;
     padding: 20px;
   }
   .form-control-lg {
@@ -278,7 +277,6 @@ const buscarProductos = () => {
 @media (min-width: 1200px) and (max-width: 1399px) {
   .sticky-buscador {
     width: 55%;
-    top: 55px;
     padding: 15px;
   }
 }
@@ -287,7 +285,6 @@ const buscarProductos = () => {
 @media (min-width: 992px) and (max-width: 1199px) {
   .sticky-buscador {
     width: 65%;
-    top: 55px;
     padding: 15px;
   }
 }
@@ -296,7 +293,6 @@ const buscarProductos = () => {
 @media (min-width: 768px) and (max-width: 991px) {
   .sticky-buscador {
     width: 85%;
-    top: 55px;
     padding: 12px;
   }
   .form-control-lg {
@@ -308,14 +304,10 @@ const buscarProductos = () => {
 @media (min-width: 576px) and (max-width: 767px) {
   .sticky-buscador {
     width: 100%;
-    top: 85px;
     padding: 0px;
   }
   .btn-primary {
     padding: 0.5rem 1rem;
-  }
-   .container {
-    margin-top: 50px;
   }
 }
 
@@ -323,7 +315,6 @@ const buscarProductos = () => {
 @media (max-width: 575px) {
   .sticky-buscador {
     width: 100%;
-    top: 85px;
     padding: 0px;
   }
   .form-control-lg {
@@ -339,9 +330,6 @@ const buscarProductos = () => {
   }
   .form-control-lg::placeholder {
     font-size: 0.9rem;
-  }
-  .container {
-    margin-top: 50px;
   }
 }
 </style>

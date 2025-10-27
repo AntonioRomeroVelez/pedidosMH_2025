@@ -126,7 +126,7 @@ onBeforeUnmount(() => {
   </nav>
 
   <!-- Vista principal -->
-  <div class="container">
+  <div class="container containerApp">
     <RouterView />
   </div>
 </template>
@@ -282,4 +282,14 @@ onBeforeUnmount(() => {
   color: #0d6efd;
   font-weight: 600;
 }
+
+.containerApp{
+  margin-top: 20px;
+}
+@media (max-width: 768px) {
+ .containerApp{
+  margin-top: 60px;
+}
+}
+
 </style>
