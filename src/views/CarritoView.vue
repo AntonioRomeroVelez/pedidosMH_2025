@@ -538,7 +538,9 @@ const descarTablaConPromocion = async () => {
   }).then((canvas) => {
     const imagen = canvas.toDataURL("image/png");
     const link = document.createElement("a");
-    link.download = `Promociones_${new Date().toISOString().split("T")[0]}.png`;
+    link.download = `lista_productos_${
+      new Date().toISOString().split("T")[0]
+    }.png`;
     link.href = imagen;
     link.click();
 
