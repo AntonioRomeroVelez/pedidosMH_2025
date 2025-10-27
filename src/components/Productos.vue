@@ -9,15 +9,18 @@
     <!-- 🔍 Buscador -->
     <div class="sticky-buscador">
       <div class="input-group mb-4">
+        <span class="input-group-text border-0 bg-white">
+          <i class="bi bi-search text-primary"></i>
+        </span>
         <input
           v-model="busqueda"
           type="text"
           class="form-control form-control-lg"
-          placeholder="Buscar..."
+          placeholder="Buscar por nombre, marca o principio activo..."
           @keyup.enter="buscarProductos"
         />
         <button class="btn btn-primary btn-lg" @click="buscarProductos">
-          Buscar
+          <i class="bi bi-arrow-right"></i>
         </button>
       </div>
     </div>
@@ -186,24 +189,6 @@ onMounted(() => {
   }
 });
 
-// 🔍 Buscar al hacer clic
-// const buscarProductos = () => {
-//   const texto = busqueda.value.trim().toLowerCase();
-//   paginaActual.value = 1;
-//   if (!texto) {
-//     resultados.value = productos.value;
-//   } else {
-//     resultados.value = fuse
-//       ? fuse.search(texto).map((r) => r.item)
-//       : productos.value.filter(
-//           (p) =>
-//             p.NombreProducto?.toLowerCase().includes(texto) ||
-//             p.Marca?.toLowerCase().includes(texto) ||
-//             p.PrincipioActivo?.toLowerCase().includes(texto)
-//         );
-//   }
-// };
-
 const buscarProductos = () => {
   const texto = busqueda.value.trim().toLowerCase();
   paginaActual.value = 1;
@@ -224,19 +209,139 @@ const buscarProductos = () => {
 </script>
 
 <style>
+/* Estilos base del buscador */
 .sticky-buscador {
-  width: 60%;
   position: sticky;
-  top: 0px;
-  z-index: 5000;
+  z-index: 100;
   background-color: transparent;
-  padding-top: 5px;
-  margin-left: 70px;
+  transition: all 0.3s ease;
+  margin: 0 auto;
 }
-@media (max-width: 768px) {
+
+.input-group {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.input-group:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.input-group-text {
+  background-color: white !important;
+  border: none !important;
+  color: #0d6efd;
+  font-size: 1.2rem;
+  padding-left: 1rem;
+}
+
+.form-control-lg {
+  border: none;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.form-control-lg:focus {
+  box-shadow: none;
+  background-color: white;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border: none;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1.5rem;
+}
+
+.btn-primary:hover {
+  background-color: #198691;
+}
+
+/* Pantallas extra grandes (≥1400px) */
+@media (min-width: 1400px) {
   .sticky-buscador {
-    width: 80%;
-    margin-left: 0px;
+    width: 50%;
+    top: 55px;
+    padding: 20px;
+  }
+  .form-control-lg {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+  }
+}
+
+/* Pantallas grandes (≥1200px) */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .sticky-buscador {
+    width: 55%;
+    top: 55px;
+    padding: 15px;
+  }
+}
+
+/* Pantallas medianas (≥992px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .sticky-buscador {
+    width: 65%;
+    top: 55px;
+    padding: 15px;
+  }
+}
+
+/* Pantallas pequeñas (≥768px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .sticky-buscador {
+    width: 85%;
+    top: 55px;
+    padding: 12px;
+  }
+  .form-control-lg {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Tablets (≥576px) */
+@media (min-width: 576px) and (max-width: 767px) {
+  .sticky-buscador {
+    width: 100%;
+    top: 85px;
+    padding: 0px;
+  }
+  .btn-primary {
+    padding: 0.5rem 1rem;
+  }
+   .container {
+    margin-top: 50px;
+  }
+}
+
+/* Móviles (<576px) */
+@media (max-width: 575px) {
+  .sticky-buscador {
+    width: 100%;
+    top: 85px;
+    padding: 0px;
+  }
+  .form-control-lg {
+    padding: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .input-group-text {
+    padding-left: 0.75rem;
+    font-size: 1rem;
+  }
+  .btn-primary {
+    padding: 0.5rem 0.75rem;
+  }
+  .form-control-lg::placeholder {
+    font-size: 0.9rem;
+  }
+  .container {
+    margin-top: 50px;
   }
 }
 </style>

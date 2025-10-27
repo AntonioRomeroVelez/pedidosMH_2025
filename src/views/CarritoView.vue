@@ -1,6 +1,6 @@
 <template>
-  <div class="container mt-5">
-    <h2>🛒 Carrito de Compras</h2>
+  <div class="container mt-4">
+    <h2 style="margin-top: 70px">🛒 Carrito de Compras</h2>
 
     <!-- Datos del pedido -->
     <div class="row mb-4" v-if="carrito.length">
@@ -39,7 +39,10 @@
       </div>
     </div>
     <!-- Botón para guardar pedido -->
-    <div class="mt-4 d-flex justify-content-around" v-if="carrito.length">
+    <div
+      class="mt-4 d-flex justify-content-around flex-wrap gap-4"
+      v-if="carrito.length"
+    >
       <button @click="vaciarCarrito" class="btn btn-warning">
         Vaciar carrito
       </button>

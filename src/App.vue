@@ -37,17 +37,19 @@ onBeforeUnmount(() => {
 
 <template>
   <!-- Menú de escritorio -->
-  <nav
-    class="navbar navbar-expand-lg bg-light border-bottom shadow-sm custom-navbar fixed-top"
-    v-if="!isMobile"
-  >
+  <nav class="navbar navbar-expand-lg custom-navbar fixed-top" v-if="!isMobile">
     <div class="container">
-      <RouterLink class="navbar-brand fw-bold text-primary fs-4" to="/">
-        Inicio
+      <RouterLink
+        class="navbar-brand d-flex align-items-center brand-link"
+        to="/"
+      >
+        <div class="logo-container">
+          <img src="/logo.png" alt="MH Logo" class="company-logo" />
+        </div>
       </RouterLink>
 
       <button
-        class="navbar-toggler"
+        class="navbar-toggler custom-toggler"
         type="button"
         data-bs-toggle="collapse"
         data-bs-target="#navbarNav"
@@ -55,52 +57,73 @@ onBeforeUnmount(() => {
         aria-expanded="false"
         aria-label="Toggle navigation"
       >
-        <span class="navbar-toggler-icon"></span>
+        <i class="bi bi-list"></i>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-lg-center">
           <li class="nav-item">
-            <RouterLink class="nav-link custom-link" to="/productos"
-              >Productos</RouterLink
-            >
-          </li>
-
-          <li class="nav-item">
-            <RouterLink class="nav-link custom-link" to="/carrito"
-              >Carrito</RouterLink
-            >
+            <RouterLink class="nav-link custom-link" to="/productos">
+              <i class="bi bi-box-seam me-1"></i>
+              Productos
+            </RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link custom-link" to="/gestionar"
-              >Gestionar</RouterLink
-            >
+            <RouterLink class="nav-link custom-link" to="/carrito">
+              <i class="bi bi-cart3 me-1"></i>
+              Carrito
+            </RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link custom-link" to="/gestionar">
+              <i class="bi bi-gear me-1"></i>
+              Gestionar
+            </RouterLink>
           </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- Menú flotante para móviles -->
+  <!-- Menú para móviles -->
+  <nav class="mobile-navbar" v-if="isMobile">
+    <div class="mobile-brand">
+      <RouterLink to="/" class="mobile-brand-link">
+        <img src="/logo.png" alt="MH Logo" class="company-logo" />
+      </RouterLink>
 
-  <div v-if="isMobile" class="floating-menu">
-    <button
-      @click="menuOpen = !menuOpen"
-      aria-label="Abrir menú"
-      class="btn btn-primary rounded-3 shadow floating-button"
-    >
-      ☰
-    </button>
-    <div v-if="menuOpen" class="menu-panel shadow">
-      <!-- <RouterLink class="menu-item" to="/">🏠 Inicio</RouterLink> -->
-      <RouterLink class="menu-item" to="/productos">📦 Productos</RouterLink>
-      <RouterLink class="menu-item" to="/cargarexcel"
-        >📁 Cargar Excel</RouterLink
+      <button
+        @click="menuOpen = !menuOpen"
+        aria-label="Abrir menú"
+        class="mobile-menu-button"
       >
-      <RouterLink class="menu-item" to="/carrito">🛒 Carrito</RouterLink>
-      <RouterLink class="menu-item" to="/gestionar">🛠️ Gestionar</RouterLink>
+        <i class="bi" :class="menuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+      </button>
     </div>
-  </div>
+
+    <div v-if="menuOpen" class="mobile-menu">
+      <RouterLink class="mobile-link" to="/productos" @click="menuOpen = false">
+        <i class="bi bi-box-seam me-2"></i>
+        Productos
+      </RouterLink>
+      <RouterLink
+        class="mobile-link"
+        to="/cargarexcel"
+        @click="menuOpen = false"
+      >
+        <i class="bi bi-cloud-arrow-up-fill me-2"></i>
+        Cargar Excel
+      </RouterLink>
+      <RouterLink class="mobile-link" to="/carrito" @click="menuOpen = false">
+        <i class="bi bi-cart3 me-2"></i>
+        Carrito
+      </RouterLink>
+      <RouterLink class="mobile-link" to="/gestionar" @click="menuOpen = false">
+        <i class="bi bi-gear me-2"></i>
+        Gestionar
+      </RouterLink>
+    </div>
+  </nav>
 
   <!-- Vista principal -->
   <div class="container">
@@ -109,71 +132,154 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.custom-link {
-  font-weight: 500;
-  color: #2028b1 !important;
-  transition: color 0.3s ease, border-bottom 0.3s ease;
-  border-bottom: 2px solid transparent;
-  margin: 0px 5px;
-  border-radius: 5px;
-  box-shadow: 0 2px 2px #dbe1ff;
-}
-.custom-link:hover {
-  color: #1a22a0 !important;
-  border-bottom: 2px solid #1a22a0;
-}
-.router-link-active {
-  color: #2028b1 !important;
-  border-bottom: 2px solid #2028b1;
+/* Estilos del navbar */
+.custom-navbar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  padding: 0rem 0;
+  transition: all 0.3s ease;
 }
 
-/* Estilos flotantes para móviles */
-
-.floating-button {
-  width: 56px;
-  height: 56px;
-  /* background-color: #2028b1; */
-  color: #fff;
+/* Estilos del logo y marca */
+.logo-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  border: none;
+  gap: 0.75rem;
 }
 
-.menu-item {
-  display: block;
-  padding: 10px;
+.company-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.company-logo-mobile {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.company-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0d6efd;
+  letter-spacing: -0.5px;
+}
+
+.company-type {
+  font-size: 0.9rem;
   color: #2028b1;
-  text-decoration: none;
-  border-bottom: 1px solid #eee;
   font-weight: 500;
 }
 
-.menu-item:last-child {
-  border-bottom: none;
+.brand-link:hover .company-logo {
+  transform: scale(1.1) rotate(-5deg);
 }
 
-.menu-item:hover {
-  background-color: #f0f2ff;
-  color: #1a22a0;
+.mobile-brand-link:hover .company-logo-mobile {
+  transform: scale(1.1);
 }
 
-.floating-menu {
+/* Estilos de los enlaces */
+.custom-link {
+  font-weight: 500;
+  color: #4a4a4a !important;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem !important;
+  margin: 0 0.3rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-link:hover {
+  color: #0d6efd !important;
+  background-color: rgba(32, 167, 177, 0.1);
+  transform: translateY(-1px);
+}
+
+.router-link-active {
+  color: #0d6efd !important;
+  background-color: rgba(32, 167, 177, 0.15);
+  font-weight: 600;
+}
+
+/* Estilos para móviles */
+.mobile-navbar {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 1050;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-.menu-panel {
-  position: absolute;
-  top: 60px;
-  right: 0;
+.mobile-brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.mobile-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mobile-menu-button {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-button:hover {
+  transform: scale(1.1);
+}
+
+.mobile-menu {
+  padding: 0.5rem;
   background: white;
-  border-radius: 10px;
-  padding: 10px;
-  width: 200px;
-  box-shadow: 0 4px 8px rgba(32, 40, 177, 0.2);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mobile-link {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  color: #4a4a4a;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin: 0.25rem 0;
+  font-weight: 500;
+}
+
+.mobile-link:hover {
+  background: rgba(32, 167, 177, 0.1);
+  color: #0d6efd;
+}
+
+.mobile-link.router-link-active {
+  background: rgba(32, 167, 177, 0.15);
+  color: #0d6efd;
+  font-weight: 600;
 }
 </style>
