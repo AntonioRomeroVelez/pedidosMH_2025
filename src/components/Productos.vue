@@ -294,6 +294,7 @@ const buscarProductos = () => {
   .sticky-buscador {
     width: 85%;
     padding: 12px;
+    margin: 3px 0px;
   }
   .form-control-lg {
     padding: 0.75rem 1rem;
@@ -305,6 +306,7 @@ const buscarProductos = () => {
   .sticky-buscador {
     width: 100%;
     padding: 0px;
+    margin: 3px 0px;
   }
   .btn-primary {
     padding: 0.5rem 1rem;
@@ -316,6 +318,7 @@ const buscarProductos = () => {
   .sticky-buscador {
     width: 100%;
     padding: 0px;
+    margin: 3px 0px;
   }
   .form-control-lg {
     padding: 0.5rem;
