@@ -505,16 +505,16 @@ const descarTablaConPromocion = async () => {
     const tr = document.createElement("tr");
     tr.style.backgroundColor = index % 2 === 0 ? "#f2f2f2" : "white";
     tr.innerHTML = `
-      <td style="padding: 12px; border: 1px solid #ddd;">${
+      <td style="padding: 5px; border: 1px solid #ddd;">${
         item.NombreProducto
       }</td>
-      <td style="padding: 12px; border: 1px solid #ddd;">${
-        item.precioFarmacia
+      <td style="padding: 5px; border: 1px solid #ddd;">${
+        item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null ? ("$" + Number(item.PrecioFarmacia).toFixed(2)) : "N/D"
       }</td>
-      <td style="padding: 12px; border: 1px solid #ddd;">${
+      <td style="padding: 5px; border: 1px solid #ddd;">${
         item.Promocion || "Sin promoción"
       }</td>
-      <td style="padding: 12px; border: 1px solid #ddd;">${
+      <td style="padding: 5px; border: 1px solid #ddd;">${
         item.Descuento || "Sin descuento"
       }</td>
     `;
