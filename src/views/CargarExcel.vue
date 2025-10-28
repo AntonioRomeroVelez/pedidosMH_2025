@@ -1,5 +1,5 @@
 <template>
-  <div class="cargar-excel">
+  <div class="cargar-excel" style="margin-top: 90px">
     <h2>📥 Cargar productos desde Excel</h2>
 
     <p>📝 El archivo debe tener las siguientes columnas:</p>
@@ -52,6 +52,10 @@
       <button @click="vaciarProductos" class="btn btn-danger m-1">
         Eliminar productos registrados
       </button>
+
+      <RouterLink class="btn btn-success px-2 sm" to="/Productos">
+        Atrás
+      </RouterLink>
     </div>
 
     <div v-if="loading">
@@ -121,80 +125,6 @@ const loading = ref(false);
 const datos = ref([]);
 const errores = ref([]);
 const router = useRouter();
-
-// const leerExcel = (event) => {
-//   loading.value = true;
-//   const archivo = event.target.files[0];
-//   if (!archivo) {
-//     loading.value = false;
-//     return;
-//   }
-
-//   const reader = new FileReader();
-//   reader.onload = (e) => {
-//     const data = new Uint8Array(e.target.result);
-//     const workbook = XLSX.read(data, { type: "array" });
-
-//     errores.value = [];
-//     let productosTemp = [];
-
-//     workbook.SheetNames.forEach((sheetName, indexH) => {
-//       const hoja = workbook.Sheets[sheetName];
-
-//       const json = XLSX.utils.sheet_to_json(hoja);
-
-//       json.forEach((fila, index) => {
-//         const producto = {
-//           ID: `id-${indexH}${index}`,
-//           NombreProducto: fila.NombreProducto ?? "",
-//           Presentacion: fila.Presentacion ?? "",
-//           PrincipioActivo: fila.PrincipioActivo ?? "",
-//           PrecioFarmacia: parseFloat(fila.PrecioFarmacia ?? ""),
-//           PVP: parseFloat(fila.PVP ?? ""),
-//           Promocion: fila.Promocion ?? "",
-//           Descuento: parseInt(fila.Descuento ?? 0),
-//           Marca: fila.Marca ?? "",
-//           IVA: parseInt(fila.IVA ?? 0),
-//         };
-
-//         const erroresFila = [];
-//         if (!producto.NombreProducto) erroresFila.push("Nombre vacío");
-//         if (!producto.Presentacion) erroresFila.push("Presentación vacía");
-//         if (!producto.PrincipioActivo)
-//           erroresFila.push("Principio activo vacío");
-//         if (isNaN(producto.PrecioFarmacia))
-//           erroresFila.push("Precio farmacia inválido");
-//         if (isNaN(producto.PVP)) erroresFila.push("PVP inválido");
-//         if (!producto.Marca) erroresFila.push("Marca vacía");
-//         if (isNaN(producto.IVA)) erroresFila.push("IVA inválido");
-
-//         if (erroresFila.length > 0) {
-//           errores.value.push({
-//             hoja: sheetName,
-//             fila: index + 2,
-//             errores: erroresFila,
-//             id: `${indexH}${index}`,
-//           });
-//           console.log(`Hoja: ${sheetName}, Fila ${index + 2}`, fila);
-//         }
-
-//         productosTemp.push(producto);
-//       });
-//     });
-
-//     datos.value = productosTemp;
-//     loading.value = false;
-//     if (errores.value.length > 0) {
-//       alertify.error(
-//         "❌ Hay errores en el archivo. Revisa las filas marcadas."
-//       );
-//     } else {
-//       alertify.success("✅ Archivo cargado correctamente");
-//     }
-//   };
-
-//   reader.readAsArrayBuffer(archivo);
-// };
 
 const leerExcel = (event) => {
   loading.value = true;

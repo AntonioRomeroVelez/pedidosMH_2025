@@ -11,7 +11,7 @@
           <div class="card-body">
             <h5 class="card-title text-success">📦 Productos</h5>
             <p class="card-text">Crear producto</p>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
               <RouterLink class="btn btn-outline-success" to="/productos"
                 >Ir a productos</RouterLink
               >
@@ -19,7 +19,7 @@
                 📦 Nuevo producto
               </RouterLink>
               <h5 class="text-primary fw-bold mb-0">
-                🧮 Hay {{ cantidadProductos }} registrados
+                Total productos: {{ cantidadProductos }}
               </h5>
             </div>
           </div>

@@ -4,10 +4,6 @@
       <div class="card-body">
         <!-- Cantidad y botón de agregar (ahora arriba) -->
         <div class="row g-3 align-items-center mb-4">
-          <label for="cantidad" class="text-center d-block">
-  Cantidad
-</label>
-
           <div class="col-4">
             <input
               type="number"
@@ -82,7 +78,10 @@
             🗑️ Eliminar
           </button>
 
-          <router-link class="btn btn-info px-2 sm" :to="'/editar/' + producto.ID">
+          <router-link
+            class="btn btn-info px-2 sm"
+            :to="'/editar/' + producto.ID"
+          >
             ✏️ Editar
           </router-link>
         </div>

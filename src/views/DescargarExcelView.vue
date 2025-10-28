@@ -4,7 +4,7 @@
       📥 Descargar Excel de productos
     </h2>
 
-    <div class="text-center">
+    <div class="text-center d-flex gap-5">
       <button class="btn btn-success px-4 py-2" @click="descargarExcel">
         📁 Descargar Excel
       </button>
