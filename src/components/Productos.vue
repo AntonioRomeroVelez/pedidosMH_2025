@@ -89,6 +89,7 @@
                   <router-link
                     class="btn btn-outline-secondary w-75"
                     :to="'/producto/' + producto.ID"
+                    @click="cerrarMenuMobile"
                   >
                     🔍 Ver Producto
                   </router-link>
@@ -156,9 +157,13 @@ const productosPaginados = computed(() => {
 
 const paginaAnterior = () => {
   if (paginaActual.value > 1) paginaActual.value--;
+  // Pedir al navbar móvil que se oculte si está abierto
+  try { window.dispatchEvent(new Event('close-mobile-menu')); } catch (e) {}
 };
 const paginaSiguiente = () => {
   if (paginaActual.value < totalPaginas.value) paginaActual.value++;
+  // Pedir al navbar móvil que se oculte si está abierto
+  try { window.dispatchEvent(new Event('close-mobile-menu')); } catch (e) {}
 };
 
 // 📦 Cargar datos
@@ -196,6 +201,11 @@ const buscarProductos = () => {
             p.PrincipioActivo?.toLowerCase() === texto
         );
   }
+};
+
+// Función para notificar al navbar que cierre el menú móvil
+const cerrarMenuMobile = () => {
+  try { window.dispatchEvent(new Event('close-mobile-menu')); } catch (e) {}
 };
 </script>
 

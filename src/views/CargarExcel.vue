@@ -49,10 +49,6 @@
         Guardar productos en memoria
       </button>
 
-      <button @click="vaciarProductos" class="btn btn-danger m-1">
-        Eliminar productos registrados
-      </button>
-
       <RouterLink class="btn btn-success px-2 sm" to="/Productos">
         Atrás
       </RouterLink>
@@ -225,20 +221,6 @@ const guardarEnStore = () => {
   setTimeout(() => {
     router.push("/Productos");
   }, 1000);
-};
-
-const vaciarProductos = () => {
-  alertify.confirm(
-    "⚠️ Confirmación",
-    "¿Estás seguro de eliminar todos los productos cargados?",
-    () => {
-      localStorage.removeItem("ListaProductos");
-      alertify.success("✅ Archivos eliminados");
-    },
-    () => {
-      alertify.error("❌ Operación cancelada");
-    }
-  );
 };
 </script>
 

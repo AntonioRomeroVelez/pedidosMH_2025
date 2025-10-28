@@ -6,14 +6,20 @@ const isMobile = ref(false);
 const menuOpen = ref(false);
 
 const handleClickOutside = (event) => {
-  const menu = document.querySelector(".menu-panel");
-  const button = document.querySelector(".floating-button");
-  if (
-    menuOpen.value &&
-    menu &&
-    !menu.contains(event.target) &&
-    !button.contains(event.target)
-  ) {
+  // Selectores actuales del menú móvil en App.vue
+  const menu = document.querySelector(".mobile-menu");
+  const button = document.querySelector(".mobile-menu-button");
+  try {
+    if (
+      menuOpen.value &&
+      menu &&
+      !menu.contains(event.target) &&
+      !(button && button.contains(event.target))
+    ) {
+      menuOpen.value = false;
+    }
+  } catch (e) {
+    // seguridad: en caso de targets inesperados
     menuOpen.value = false;
   }
 };
@@ -25,14 +31,26 @@ const checkMobile = () => {
 onMounted(() => {
   checkMobile();
   window.addEventListener("resize", checkMobile);
+  // Escuchamos pointerdown para cubrir mouse y táctil; mantenemos click/touchstart por compatibilidad
+  document.addEventListener("pointerdown", handleClickOutside);
   document.addEventListener("click", handleClickOutside);
   document.addEventListener("touchstart", handleClickOutside); // 👈 para móviles
+  // Listener personalizado para cerrar el menú desde vistas hijas (usamos función nombrada para poder removerla)
+  window.addEventListener("close-mobile-menu", handleCloseMenu);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("resize", checkMobile);
+  document.removeEventListener("pointerdown", handleClickOutside);
   document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("touchstart", handleClickOutside);
+  window.removeEventListener("close-mobile-menu", handleCloseMenu);
 });
+
+// función nombrada para cerrar el menú (usada por window events)
+function handleCloseMenu() {
+  menuOpen.value = false;
+}
 </script>
 
 <template>

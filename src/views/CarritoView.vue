@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-4">
-    <h2 style="margin-top: 70px">🛒 Carrito de Compras</h2>
+    <h2 style="margin-top: 90px">🛒 Carrito de Compras</h2>
 
     <!-- Datos del pedido -->
     <div class="row mb-4" v-if="carrito.length">
@@ -205,6 +205,15 @@ onMounted(() => {
   calcularTotal();
   calcularTotalesDesglosados();
   pedido.value.Fecha = new Date().toISOString().split("T")[0];
+  // Configuración global de alertify para mejorar visibilidad en móviles
+  try {
+    // Posición centrada y duración en segundos
+    alertify.set("notifier", "position", "top-center");
+    alertify.set("notifier", "delay", 2);
+  } catch (e) {
+    // si alertify no está disponible, no hacemos nada
+    console.warn("alertify configuración no aplicada:", e);
+  }
 });
 
 const calcularTotal = () => {
@@ -460,16 +469,6 @@ const descargarExcel = async () => {
     });
   }
 
-  // Ajustar ancho de columnas
-  // hoja.columns.forEach((col) => {
-  //   let maxLength = 10;
-  //   col.eachCell({ includeEmpty: true }, (cell) => {
-  //     const value = cell.value ? cell.value.toString() : "";
-  //     maxLength = Math.max(maxLength, value.length);
-  //   });
-  //   col.width = maxLength + 2;
-  // });
-
   // Descargar archivo
   const buffer = await workbook.xlsx.writeBuffer();
   const nombreArchivo = `${pedido.value.Tipo}_Cliente_${pedido.value.Nombre}_ciudad_${pedido.value.Ciudad}_Cliente_${pedido.value.Fecha}.xlsx`;
@@ -491,19 +490,52 @@ const descarTablaConPromocion = async () => {
     return;
   }
 
+  // Fecha y nombre para título/archivo
+  const fecha = new Date().toISOString().split("T")[0];
+  const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
+
+  // Contenedor fijo: ancho final deseado 500px y margen interno 5px
+  const container = document.createElement("div");
+  container.style.width = "500px"; // ancho final en px
+  container.style.padding = "5px"; // margen interno de 5px
+  container.style.backgroundColor = "white";
+  container.style.boxSizing = "border-box";
+  container.style.fontFamily = "Arial, sans-serif";
+  container.style.margin = "0 auto";
+  container.style.color = "#222";
+  container.style.border = "1px solid #e6e6e6";
+
+  // Título con cliente y fecha
+  const titulo = document.createElement("h2");
+  titulo.textContent = `Lista productos MH - ${pedido.value.Nombre} - ${fecha}`;
+  titulo.style.textAlign = "center";
+  titulo.style.margin = "10px 0 12px 0";
+  titulo.style.fontSize = "16px";
+  titulo.style.color = "#333";
+  container.appendChild(titulo);
+
+  // Tabla con layout fijo y colgroup para controlar anchos de columnas
   const tabla = document.createElement("table");
   tabla.style.borderCollapse = "collapse";
   tabla.style.width = "100%";
-  tabla.style.backgroundColor = "white";
-  tabla.style.fontFamily = "Arial, sans-serif";
+  tabla.style.tableLayout = "fixed"; // fuerza distribución según colgroup
+
+  const colgroup = document.createElement("colgroup");
+  // porcentaje: Producto 40%, Precio 15%, Promoción 30%, Descuento 15%
+  [40, 15, 25, 20].forEach((pct) => {
+    const col = document.createElement("col");
+    col.style.width = pct + "%";
+    colgroup.appendChild(col);
+  });
+  tabla.appendChild(colgroup);
 
   const thead = document.createElement("thead");
   thead.innerHTML = `
     <tr style="background-color: #4CAF50; color: white;">
-      <th style="padding: 12px; border: 1px solid #ddd;">Producto</th>
-      <th style="padding: 12px; border: 1px solid #ddd;">Precio</th>
-      <th style="padding: 12px; border: 1px solid #ddd;">Promoción</th>
-      <th style="padding: 12px; border: 1px solid #ddd;">Descuento1</th>
+      <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Producto</th>
+      <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Precio</th>
+      <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Promoción</th>
+      <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Descuento %</th>
     </tr>
   `;
   tabla.appendChild(thead);
@@ -511,60 +543,82 @@ const descarTablaConPromocion = async () => {
   const tbody = document.createElement("tbody");
   carrito.value.forEach((item, index) => {
     const tr = document.createElement("tr");
-    tr.style.backgroundColor = index % 2 === 0 ? "#f2f2f2" : "white";
+    tr.style.backgroundColor = index % 2 === 0 ? "#f9f9f9" : "white";
+
+    const nombre = item.NombreProducto || "";
+    const precio =
+      item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null
+        ? "$" + Number(item.PrecioFarmacia).toFixed(2)
+        : "N/D";
+    const promo = item.Promocion || "";
+    const descuento =
+      item.Descuento !== undefined ? String(item.Descuento) + " %" : "";
+
     tr.innerHTML = `
-      <td style="padding: 5px; border: 1px solid #ddd;">${
-        item.NombreProducto
-      }</td>
-      <td style="padding: 5px; border: 1px solid #ddd;">${
-        item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null
-          ? "$" + Number(item.PrecioFarmacia).toFixed(2)
-          : "N/D"
-      }</td>
-      <td style="padding: 5px; border: 1px solid #ddd;">${
-        item.Promocion || ""
-      }</td>
-      <td style="padding: 5px; border: 1px solid #ddd;">${
-        item.Descuento || ""
-      }</td>
+      <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:left; word-break:break-word;">${nombre}</td>
+      <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center;">${precio}</td>
+      <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center; word-break:break-word;">${promo}</td>
+      <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center;">${descuento}</td>
     `;
+
     tbody.appendChild(tr);
   });
   tabla.appendChild(tbody);
 
-  const container = document.createElement("div");
-  container.style.padding = "5px";
-  container.style.backgroundColor = "white";
-  container.style.fontFamily = "Arial, sans-serif";
-
-  const titulo = document.createElement("h2");
-  titulo.style.textAlign = "center";
-  titulo.style.margin = "20px";
-  titulo.style.color = "#333";
-
-  container.appendChild(titulo);
   container.appendChild(tabla);
 
-  // Agregar al DOM temporalmente
+  // Agregar al DOM temporalmente (fuera de flujo visible)
+  // lo hacemos transparente y fuera de pantalla para evitar salto visual en la app
+  container.style.position = "fixed";
+  container.style.left = "50%";
+  container.style.top = "-9999px";
+  container.style.transform = "translateX(-50%)";
   document.body.appendChild(container);
 
-  const html2canvas = (await import("html2canvas")).default;
-  html2canvas(container, {
-    backgroundColor: "white",
-    scale: 1,
-    useCORS: true,
-  }).then((canvas) => {
-    const imagen = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    const fecha = new Date().toISOString().split("T")[0];
-    const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
-    link.download = `lista_precios_cliente_${nombreCliente}_${fecha}.png`;
-    link.href = imagen;
-    link.click();
+  // Esperar render
+  await new Promise((resolve) =>
+    requestAnimationFrame(() => setTimeout(resolve, 50))
+  );
 
-    // Limpiar el DOM
-    document.body.removeChild(container);
+  const html2canvas = (await import("html2canvas")).default;
+  // Capture at devicePixelRatio up to 2 for quality, then resize to exactly 500px width
+  const scaleCapture = Math.min(2, window.devicePixelRatio || 1);
+  const canvas = await html2canvas(container, {
+    backgroundColor: "white",
+    scale: scaleCapture,
+    useCORS: true,
+    logging: false,
   });
+
+  // Garantizar ancho final 500px: escalar el canvas resultante a 500px
+  const finalWidth = 500;
+  const finalCanvas = document.createElement("canvas");
+  const ratio = finalWidth / canvas.width;
+  finalCanvas.width = finalWidth;
+  finalCanvas.height = Math.round(canvas.height * ratio);
+  const ctx = finalCanvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+  ctx.drawImage(
+    canvas,
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+    0,
+    0,
+    finalCanvas.width,
+    finalCanvas.height
+  );
+
+  const imagen = finalCanvas.toDataURL("image/png");
+  const link = document.createElement("a");
+  link.download = `lista_precios_cliente_${nombreCliente}_${fecha}.png`;
+  link.href = imagen;
+  link.click();
+
+  // Limpiar el DOM
+  document.body.removeChild(container);
 };
 </script>
 
@@ -599,6 +653,36 @@ const descarTablaConPromocion = async () => {
     padding-left: 0.75rem;
     font-weight: bold;
     text-align: left;
+  }
+}
+</style>
+
+<style>
+/* Alertify: asegurar visibilidad por encima de overlays y en pantallas móviles */
+.ajs-notifier,
+.ajs-message,
+.ajs-reset,
+.ajs-log,
+.ajs-notifier.ajs-top {
+  z-index: 2147483647 !important; /* muy alto para sobreponerse a modales/móviles */
+  pointer-events: auto !important;
+}
+.ajs-notifier {
+  max-width: 95% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  box-sizing: border-box !important;
+  padding: 0 0.25rem !important;
+}
+.ajs-message {
+  word-break: break-word !important;
+  white-space: normal !important;
+}
+@media (max-width: 480px) {
+  .ajs-message {
+    font-size: 15px !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
   }
 }
 </style>

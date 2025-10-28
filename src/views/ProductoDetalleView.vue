@@ -71,9 +71,6 @@
         <div
           class="text-center mt-4 d-flex gap-3 align-content-center justify-content-center"
         >
-          <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
-            🔙 Regresar
-          </RouterLink>
           <button class="btn btn-danger px-2 sm" @click="eliminarProducto">
             🗑️ Eliminar
           </button>
@@ -84,6 +81,9 @@
           >
             ✏️ Editar
           </router-link>
+          <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
+            🔙 Regresar
+          </RouterLink>
         </div>
       </div>
     </div>

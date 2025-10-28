@@ -10,17 +10,20 @@
         <div class="card shadow-sm border-0">
           <div class="card-body">
             <h5 class="card-title text-success">📦 Productos</h5>
-            <p class="card-text">Crear producto</p>
             <div class="d-flex gap-2 flex-wrap">
               <RouterLink class="btn btn-outline-success" to="/productos"
                 >Ir a productos</RouterLink
               >
               <RouterLink class="btn btn-outline-primary" :to="'/crear'">
-                📦 Nuevo producto
+                Nuevo producto
               </RouterLink>
               <h5 class="text-primary fw-bold mb-0">
                 Total productos: {{ cantidadProductos }}
               </h5>
+
+              <button @click="vaciarProductos" class="btn btn-outline-danger">
+                Eliminar productos registrados
+              </button>
             </div>
           </div>
         </div>
@@ -72,9 +75,14 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import alertify from "alertifyjs";
+
 const cantidadProductos = ref(0);
 const resultados = ref([]);
 const productos = ref([]);
+const noHayProductos = ref(null);
+const router = useRouter();
 
 // No necesitas lógica si solo navegas
 onMounted(() => {
@@ -89,4 +97,25 @@ onMounted(() => {
       "No hay productos para mostrar, puedes agregar productos en Cargar Excel";
   }
 });
+
+const vaciarProductos = () => {
+  alertify.confirm(
+    "⚠️ Confirmación",
+    "¿Estás seguro de eliminar todos los productos cargados?",
+    () => {
+      // Eliminar del storage y actualizar estado local para reflejar el cambio inmediatamente
+      localStorage.removeItem("ListaProductos");
+      productos.value = [];
+      resultados.value = [];
+      cantidadProductos.value = 0;
+      noHayProductos.value =
+        "No hay productos para mostrar, puedes agregar productos en Cargar Excel";
+      alertify.success("✅ Archivos eliminados");
+      // No es necesario navegar a la misma ruta; si quieres forzar reload, podemos usar router.push o location.reload()
+    },
+    () => {
+      alertify.error("❌ Operación cancelada");
+    }
+  );
+};
 </script>
