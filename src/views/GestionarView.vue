@@ -10,16 +10,16 @@
         <div class="card shadow-sm border-0">
           <div class="card-body">
             <h5 class="card-title text-success">📦 Productos</h5>
-            <div class="d-flex gap-2 flex-wrap">
+            <h5 class="text-primary fw-bold mb-0">
+              Total productos: {{ cantidadProductos }}
+            </h5>
+            <div class="d-flex gap-2 flex-wrap mt-2">
               <RouterLink class="btn btn-outline-success" to="/productos"
                 >Ir a productos</RouterLink
               >
               <RouterLink class="btn btn-outline-primary" :to="'/crear'">
                 Nuevo producto
               </RouterLink>
-              <h5 class="text-primary fw-bold mb-0">
-                Total productos: {{ cantidadProductos }}
-              </h5>
 
               <button @click="vaciarProductos" class="btn btn-outline-danger">
                 Eliminar productos registrados

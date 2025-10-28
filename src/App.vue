@@ -6,20 +6,58 @@ const isMobile = ref(false);
 const menuOpen = ref(false);
 
 const handleClickOutside = (event) => {
-  // Selectores actuales del menú móvil en App.vue
   const menu = document.querySelector(".mobile-menu");
   const button = document.querySelector(".mobile-menu-button");
+  const navbar = document.querySelector(".mobile-navbar");
+
+  // Si el menú está cerrado, no hacemos nada
+  if (!menuOpen.value) return;
+
   try {
-    if (
-      menuOpen.value &&
-      menu &&
-      !menu.contains(event.target) &&
-      !(button && button.contains(event.target))
-    ) {
+    // Verificar si el clic fue fuera del menú y del botón
+    const isOutside = menu && 
+      !menu.contains(event.target) && 
+      !(button && button.contains(event.target)) &&
+      navbar && 
+      !navbar.contains(event.target);
+
+    if (isOutside) {
       menuOpen.value = false;
+      // Eliminar el foco del botón
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
     }
   } catch (e) {
-    // seguridad: en caso de targets inesperados
+    console.warn('Error en handleClickOutside:', e);
+    menuOpen.value = false;
+  }
+};
+
+// Manejar pérdida de foco
+const handleBlur = (event) => {
+  if (!menuOpen.value) return;
+  
+  // Dar tiempo para detectar el nuevo elemento enfocado
+  setTimeout(() => {
+    const menu = document.querySelector(".mobile-menu");
+    const button = document.querySelector(".mobile-menu-button");
+    const activeElement = document.activeElement;
+
+    // Si el foco no está en el menú ni en el botón, cerrar
+    if (menu && 
+        button && 
+        activeElement && 
+        !menu.contains(activeElement) && 
+        activeElement !== button) {
+      menuOpen.value = false;
+    }
+  }, 0);
+};
+
+// Manejar scroll
+const handleScroll = () => {
+  if (menuOpen.value) {
     menuOpen.value = false;
   }
 };
@@ -30,21 +68,35 @@ const checkMobile = () => {
 
 onMounted(() => {
   checkMobile();
+  
+  // Event Listeners
   window.addEventListener("resize", checkMobile);
-  // Escuchamos pointerdown para cubrir mouse y táctil; mantenemos click/touchstart por compatibilidad
-  document.addEventListener("pointerdown", handleClickOutside);
-  document.addEventListener("click", handleClickOutside);
-  document.addEventListener("touchstart", handleClickOutside); // 👈 para móviles
-  // Listener personalizado para cerrar el menú desde vistas hijas (usamos función nombrada para poder removerla)
+  document.addEventListener("pointerdown", handleClickOutside, true);
+  document.addEventListener("focusout", handleBlur, true);
+  window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("close-mobile-menu", handleCloseMenu);
+  
+  // Eventos táctiles específicos para móviles
+  if ('ontouchstart' in window) {
+    document.addEventListener("touchstart", (e) => {
+      if (menuOpen.value) {
+        handleClickOutside(e);
+      }
+    }, { passive: true });
+  }
 });
 
 onBeforeUnmount(() => {
+  // Limpieza de Event Listeners
   window.removeEventListener("resize", checkMobile);
-  document.removeEventListener("pointerdown", handleClickOutside);
-  document.removeEventListener("click", handleClickOutside);
-  document.removeEventListener("touchstart", handleClickOutside);
+  document.removeEventListener("pointerdown", handleClickOutside, true);
+  document.removeEventListener("focusout", handleBlur, true);
+  window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("close-mobile-menu", handleCloseMenu);
+  
+  if ('ontouchstart' in window) {
+    document.removeEventListener("touchstart", handleClickOutside);
+  }
 });
 
 // función nombrada para cerrar el menú (usada por window events)
@@ -276,6 +328,20 @@ function handleCloseMenu() {
   padding: 0.5rem;
   background: white;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.2s ease-out;
+  transform-origin: top;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mobile-link {
@@ -303,10 +369,6 @@ function handleCloseMenu() {
 
 .containerApp {
   margin-top: 20px;
-}
-@media (max-width: 768px) {
-  .containerApp {
-    margin-top: 20px;
-  }
+  width: 100%;
 }
 </style>

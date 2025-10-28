@@ -1,6 +1,6 @@
 <template>
-  <div class="container mt-4">
-    <h2 style="margin-top: 60px">🛒 Carrito de Compras</h2>
+  <div class="container px-0">
+    <h2 class="text-center mb-4" style="margin-top: 60px">🛒 Carrito de Compras</h2>
 
     <!-- Datos del pedido -->
     <div class="row mb-4" v-if="carrito.length">
@@ -72,9 +72,9 @@
         <div class="export-text">Generando archivo, por favor espere...</div>
       </div>
 
-      <div v-if="!isMobile">
+      <div v-if="!isMobile" class="table-container">
         <table
-          class="table table-bordered table-sm table-striped text-center align-middle tableProductos"
+          class="table table-bordered table-sm table-striped text-center align-middle tableProductos mx-auto"
         >
           <thead>
             <tr>
@@ -142,29 +142,55 @@
         <div v-for="(item, index) in carrito" :key="item.id" class="card mb-3 mobile-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <div>
+              <div class="product-info">
                 <h5 class="card-title mb-1">{{ item.NombreProducto }}</h5>
-                <div class="text-muted small">{{ item.Marca }} • {{ item.Presentacion }}</div>
+                <div class="text-muted small">
+                  <div><strong>Marca:</strong> {{ item.Marca }}</div>
+                  <div><strong>Presentación:</strong> {{ item.Presentacion }}</div>
+                  <div><strong>P. Activo:</strong> {{ item.PrincipioActivo || '-' }}</div>
+                </div>
               </div>
-              <div class="text-end">
-                <div class="fw-bold text-success">$ {{ Number(item.PrecioFarmacia).toFixed(2) }}</div>
-                <div class="small text-muted">{{ item.IVA > 0 ? item.IVA + '%' : 'No aplica' }}</div>
+              <div class="price-info">
+                <div class="fw-bold text-success fs-5">$ {{ Number(item.PrecioFarmacia).toFixed(2) }}</div>
+                <div class="text-muted small">IVA: {{ item.IVA > 0 ? item.IVA + '%' : 'No aplica' }}</div>
               </div>
             </div>
 
-            <p class="mb-2 small"><strong>Promoción:</strong> {{ item.Promocion || '-' }}</p>
-            <p class="mb-2 small"><strong>Descuento:</strong> {{ item.Descuento ? item.Descuento + '%' : '-' }}</p>
-
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <div class="d-flex align-items-center">
-                <label class="me-2 small mb-0">Cant.</label>
-                <input type="number" min="0" v-model.number="item.cantidad" @change="actualizarCantidad(index)" class="form-control form-control-sm" style="width:72px" />
-                <div class="ms-3 small">A recibir: {{ mostarCantidadTotal(item.Promocion, item.cantidad) }}</div>
+            <div class="promo-info p-2 mb-2 rounded" :class="item.Promocion ? 'bg-light' : ''">
+              <div class="mb-1">
+                <strong class="text-primary">Promoción:</strong> 
+                <span class="badge bg-info text-dark ms-1">{{ item.Promocion || 'Sin promoción' }}</span>
               </div>
-
-              <div class="d-flex gap-2">
-                <button class="btn btn-danger btn-sm" @click="eliminarProducto(index)">Eliminar</button>
+              <div v-if="item.Descuento && Number(item.Descuento) !== 0">
+                <strong class="text-primary">Descuento:</strong> 
+                <span class="badge bg-warning text-dark ms-1">{{ item.Descuento }}%</span>
               </div>
+            </div>
+
+            <div class="quantity-controls p-2 rounded bg-light">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center">
+                  <label class="me-2 fw-bold mb-0">Cantidad:</label>
+                  <input 
+                    type="number" 
+                    min="0" 
+                    v-model.number="item.cantidad" 
+                    @change="actualizarCantidad(index)" 
+                    class="form-control" 
+                    style="width:80px"
+                  />
+                </div>
+                <div class="ms-2">
+                  <strong>A recibir:</strong> 
+                  <span class="badge bg-success">{{ mostarCantidadTotal(item.Promocion, item.cantidad) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid mt-3">
+              <button class="btn btn-outline-danger" @click="eliminarProducto(index)">
+                <i class="fas fa-trash-alt me-2"></i>Eliminar producto
+              </button>
             </div>
           </div>
         </div>
@@ -259,11 +285,34 @@ onMounted(() => {
   pedido.value.Fecha = new Date().toISOString().split("T")[0];
   // Configuración global de alertify para mejorar visibilidad en móviles
   try {
-    // Posición centrada y duración en segundos
-    alertify.set("notifier", "position", "top-center");
-    alertify.set("notifier", "delay", 2);
+    // Configuración del notificador
+    alertify.set("notifier", {
+      position: "top-center",
+      delay: 3,
+      closeButton: true,
+      clickToClose: true,
+      movable: false
+    });
+
+    // Configuración de diálogos
+    alertify.set("dialogs", {
+      modal: true,
+      movable: false,
+      resizable: false,
+      maximizable: false,
+      pinnable: false,
+      closable: true,
+      closableByDimmer: true,
+      preventBodyShift: true,
+      transition: "pulse",
+      autoReset: true
+    });
+
+    // Personalizar botones
+    alertify.defaults.glossary.ok = "Aceptar";
+    alertify.defaults.glossary.cancel = "Cancelar";
+
   } catch (e) {
-    // si alertify no está disponible, no hacemos nada
     console.warn("alertify configuración no aplicada:", e);
   }
 
@@ -801,7 +850,7 @@ const descarTablaConPromocion = async () => {
   .tableProductos td {
     text-align: right;
     position: relative;
-    padding-left: 50%;
+    padding-left: 0%;
   }
   .tableProductos td::before {
     content: attr(data-label);
@@ -837,10 +886,100 @@ const descarTablaConPromocion = async () => {
 @keyframes spin { to { transform: rotate(360deg); } }
 .export-text { color: #333; font-weight: 600; }
 
+/* Estilos de la tabla */
+.table-container {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.tableProductos {
+  width: 100% !important;
+  margin: 0 !important;
+  border-collapse: collapse;
+}
+
+.tableProductos th,
+.tableProductos td {
+  padding: 0.5rem !important;
+}
+
 /* Mobile card styles */
-.mobile-card .card-title { font-size: 1rem; }
-.mobile-card .card-body { padding: 0.75rem; }
-.mobile-cards { padding: 0 0.25rem; }
+.mobile-cards {
+  padding: 0.5rem;
+}
+
+.mobile-card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mobile-card:active {
+  transform: scale(0.98);
+}
+
+.mobile-card .card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.mobile-card .card-body {
+  padding: 1rem;
+}
+
+.mobile-card .product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-card .price-info {
+  text-align: right;
+  margin-left: 1rem;
+}
+
+.mobile-card .promo-info {
+  border-left: 4px solid #0d6efd;
+}
+
+.mobile-card .quantity-controls {
+  border-radius: 8px;
+}
+
+.mobile-card input[type="number"] {
+  border-radius: 6px;
+  border: 2px solid #dee2e6;
+  transition: border-color 0.2s;
+}
+
+.mobile-card input[type="number"]:focus {
+  border-color: #0d6efd;
+  box-shadow: none;
+}
+
+.mobile-card .badge {
+  font-weight: 500;
+  padding: 0.5em 0.8em;
+}
+
+/* Mejoras responsivas */
+@media (max-width: 360px) {
+  .mobile-card .price-info {
+    margin-left: 0.5rem;
+  }
+  
+  .mobile-card .card-body {
+    padding: 0.75rem;
+  }
+  
+  .mobile-card .quantity-controls .d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+}
 
 </style>
 
@@ -850,10 +989,12 @@ const descarTablaConPromocion = async () => {
 .ajs-message,
 .ajs-reset,
 .ajs-log,
-.ajs-notifier.ajs-top {
-  z-index: 2147483647 !important; /* muy alto para sobreponerse a modales/móviles */
+.ajs-notifier.ajs-top,
+.ajs-dialog {
+  z-index: 2147483647 !important;
   pointer-events: auto !important;
 }
+
 .ajs-notifier {
   max-width: 95% !important;
   left: 50% !important;
@@ -861,15 +1002,82 @@ const descarTablaConPromocion = async () => {
   box-sizing: border-box !important;
   padding: 0 0.25rem !important;
 }
+
 .ajs-message {
   word-break: break-word !important;
   white-space: normal !important;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  padding: 12px 16px !important;
 }
+
+/* Mejorar visibilidad de los diálogos de confirmación */
+.ajs-dialog {
+  max-width: 95% !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
+}
+
+.ajs-header {
+  border-radius: 12px 12px 0 0 !important;
+  padding: 16px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.ajs-body {
+  padding: 16px !important;
+  font-size: 15px !important;
+}
+
+.ajs-footer {
+  padding: 12px 16px !important;
+  border-radius: 0 0 12px 12px !important;
+}
+
+.ajs-button {
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s !important;
+}
+
 @media (max-width: 480px) {
-  .ajs-message {
-    font-size: 15px !important;
-    padding: 10px 12px !important;
-    border-radius: 8px !important;
+  .ajs-dialog {
+    margin: 16px !important;
   }
+  
+  .ajs-body {
+    padding: 12px !important;
+  }
+
+  .ajs-footer {
+    padding: 8px 12px !important;
+  }
+
+  .ajs-button {
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Mejoras para mensajes de éxito/error */
+.ajs-success {
+  background-color: #d4edda !important;
+  color: #155724 !important;
+  border-color: #c3e6cb !important;
+}
+
+.ajs-error {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+  border-color: #f5c6cb !important;
+}
+
+/* Backdrop para diálogos */
+.ajs-dim {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(2px) !important;
 }
 </style>
