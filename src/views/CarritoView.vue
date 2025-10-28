@@ -493,7 +493,9 @@ const descarTablaConPromocion = async () => {
   thead.innerHTML = `
     <tr style="background-color: #4CAF50; color: white;">
       <th style="padding: 12px; border: 1px solid #ddd;">Producto</th>
+      <th style="padding: 12px; border: 1px solid #ddd;">Precio</th>
       <th style="padding: 12px; border: 1px solid #ddd;">Promoción</th>
+      <th style="padding: 12px; border: 1px solid #ddd;">Descuento1</th>
     </tr>
   `;
   tabla.appendChild(thead);
@@ -507,7 +509,13 @@ const descarTablaConPromocion = async () => {
         item.NombreProducto
       }</td>
       <td style="padding: 12px; border: 1px solid #ddd;">${
+        item.precioFarmacia
+      }</td>
+      <td style="padding: 12px; border: 1px solid #ddd;">${
         item.Promocion || "Sin promoción"
+      }</td>
+      <td style="padding: 12px; border: 1px solid #ddd;">${
+        item.Descuento || "Sin descuento"
       }</td>
     `;
     tbody.appendChild(tr);
