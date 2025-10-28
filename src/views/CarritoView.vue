@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-4">
-    <h2 style="margin-top: 90px">🛒 Carrito de Compras</h2>
+    <h2 style="margin-top: 60px">🛒 Carrito de Compras</h2>
 
     <!-- Datos del pedido -->
     <div class="row mb-4" v-if="carrito.length">
@@ -91,7 +91,15 @@
             <td data-label="Principio Activo">{{ item.PrincipioActivo }}</td>
             <td data-label="Precio Farmacia">$ {{ item.PrecioFarmacia }}</td>
             <td data-label="Promoción">{{ item.Promocion }}</td>
-            <td data-label="Descuento">{{ item.Descuento }}</td>
+            <td data-label="Descuento">
+              {{
+                item.Descuento !== undefined &&
+                item.Descuento !== null &&
+                Number(item.Descuento) !== 0
+                  ? item.Descuento
+                  : ""
+              }}
+            </td>
             <td data-label="Marca">{{ item.Marca }}</td>
             <td data-label="IVA">
               {{ item.IVA > 0 ? item.IVA + "%" : "No aplica" }}
@@ -292,7 +300,7 @@ const descargarExcel = async () => {
   const hoja = workbook.addWorksheet(pedido.value.Tipo);
 
   // Encabezado del pedido
-  hoja.addRow([`Datos del ${pedido.value.Tipo}`]);
+  hoja.addRow([`Datos ${pedido.value.Tipo}`]);
   hoja.addRow(["Nombre", pedido.value.Nombre]);
   hoja.addRow(["Ciudad", pedido.value.Ciudad]);
   hoja.addRow(["Fecha", pedido.value.Fecha]);
@@ -495,8 +503,9 @@ const descarTablaConPromocion = async () => {
   const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
 
   // Contenedor fijo: ancho final deseado 500px y margen interno 5px
+  const finalWidth = 700; // ancho final en px (se usa también al escalar el canvas)
   const container = document.createElement("div");
-  container.style.width = "500px"; // ancho final en px
+  container.style.width = finalWidth + "px"; // ancho final en px
   container.style.padding = "5px"; // margen interno de 5px
   container.style.backgroundColor = "white";
   container.style.boxSizing = "border-box";
@@ -504,6 +513,15 @@ const descarTablaConPromocion = async () => {
   container.style.margin = "0 auto";
   container.style.color = "#222";
   container.style.border = "1px solid #e6e6e6";
+
+  // Hacer el texto más nítido mediante ajustes CSS antes de la captura
+  container.style.fontSize = "14px";
+  container.style.lineHeight = "1.25";
+  // Optimización de renderizado de texto
+  try {
+    container.style.setProperty("-webkit-font-smoothing", "antialiased");
+    container.style.setProperty("text-rendering", "optimizeLegibility");
+  } catch (e) {}
 
   // Título con cliente y fecha
   const titulo = document.createElement("h2");
@@ -551,8 +569,13 @@ const descarTablaConPromocion = async () => {
         ? "$" + Number(item.PrecioFarmacia).toFixed(2)
         : "N/D";
     const promo = item.Promocion || "";
-    const descuento =
-      item.Descuento !== undefined ? String(item.Descuento) + " %" : "";
+    let descuento = "";
+    if (item.Descuento !== undefined && item.Descuento !== null) {
+      const dnum = Number(item.Descuento);
+      if (!isNaN(dnum) && dnum !== 0) {
+        descuento = String(dnum) + " %";
+      }
+    }
 
     tr.innerHTML = `
       <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:left; word-break:break-word;">${nombre}</td>
@@ -575,14 +598,21 @@ const descarTablaConPromocion = async () => {
   container.style.transform = "translateX(-50%)";
   document.body.appendChild(container);
 
-  // Esperar render
+  // Esperar render y que las fuentes se carguen para evitar texto borroso
   await new Promise((resolve) =>
-    requestAnimationFrame(() => setTimeout(resolve, 50))
+    requestAnimationFrame(() => setTimeout(resolve, 80))
   );
+  if (document.fonts && document.fonts.ready) {
+    try {
+      await document.fonts.ready;
+    } catch (e) {
+      /* ignore */
+    }
+  }
 
   const html2canvas = (await import("html2canvas")).default;
-  // Capture at devicePixelRatio up to 2 for quality, then resize to exactly 500px width
-  const scaleCapture = Math.min(2, window.devicePixelRatio || 1);
+  // Capture at devicePixelRatio up to 3 for better quality, then resize to exactly finalWidth
+  const scaleCapture = Math.min(3, window.devicePixelRatio || 1);
   const canvas = await html2canvas(container, {
     backgroundColor: "white",
     scale: scaleCapture,
@@ -590,26 +620,33 @@ const descarTablaConPromocion = async () => {
     logging: false,
   });
 
-  // Garantizar ancho final 500px: escalar el canvas resultante a 500px
-  const finalWidth = 500;
+  // Escalar el canvas resultante a finalWidth con alta calidad
   const finalCanvas = document.createElement("canvas");
   const ratio = finalWidth / canvas.width;
   finalCanvas.width = finalWidth;
   finalCanvas.height = Math.round(canvas.height * ratio);
   const ctx = finalCanvas.getContext("2d");
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-  ctx.drawImage(
-    canvas,
-    0,
-    0,
-    canvas.width,
-    canvas.height,
-    0,
-    0,
-    finalCanvas.width,
-    finalCanvas.height
-  );
+  // Mejorar calidad al redimensionar
+  if (ctx) {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+    if (typeof ctx.imageSmoothingEnabled !== "undefined")
+      ctx.imageSmoothingEnabled = true;
+    try {
+      ctx.imageSmoothingQuality = "high";
+    } catch (e) {}
+    ctx.drawImage(
+      canvas,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+      0,
+      0,
+      finalCanvas.width,
+      finalCanvas.height
+    );
+  }
 
   const imagen = finalCanvas.toDataURL("image/png");
   const link = document.createElement("a");

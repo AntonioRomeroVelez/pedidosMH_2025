@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-y" style="margin-top: 80px">
+  <div class="container py-y" style="margin-top: 60px">
     <h2 class="text-primary fw-bold mb-4 text-center">
       🧭 Gestiones de la aplicación
     </h2>

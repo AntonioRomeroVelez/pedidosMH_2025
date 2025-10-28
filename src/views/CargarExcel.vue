@@ -1,5 +1,5 @@
 <template>
-  <div class="cargar-excel" style="margin-top: 90px">
+  <div class="cargar-excel" style="margin-top: 60px">
     <h2>📥 Cargar productos desde Excel</h2>
 
     <p>📝 El archivo debe tener las siguientes columnas:</p>

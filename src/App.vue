@@ -149,7 +149,7 @@ function handleCloseMenu() {
   </div>
 </template>
 
-<style scoped>
+<style>
 /* Estilos del navbar */
 .custom-navbar {
   background: rgba(255, 255, 255, 0.95);
@@ -247,7 +247,7 @@ function handleCloseMenu() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0rem 1rem;
 }
 
 .mobile-brand-link {
@@ -263,7 +263,7 @@ function handleCloseMenu() {
   border: none;
   color: #0d6efd;
   font-size: 1.5rem;
-  padding: 0.5rem;
+  padding: 0rem 0.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -306,7 +306,7 @@ function handleCloseMenu() {
 }
 @media (max-width: 768px) {
   .containerApp {
-    margin-top: 60px;
+    margin-top: 20px;
   }
 }
 </style>
