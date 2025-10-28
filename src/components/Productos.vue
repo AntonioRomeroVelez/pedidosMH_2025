@@ -32,16 +32,7 @@
 
     <!-- Tarjetas de productos -->
     <div class="row" v-else>
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="text-primary fw-bold mb-0">
-          🧮 Total de productos: {{ cantidadProductos }}
-        </h5>
-
-        <RouterLink class="btn btn-success" style="color: white" :to="'/crear'">
-          📦 Nuevo producto
-        </RouterLink>
-      </div>
-
+      
       <div class="container">
         <div class="row g-1 justify-content-center">
           <div
@@ -149,7 +140,7 @@ let fuse = null;
 
 // 🔢 Paginación
 const paginaActual = ref(1);
-const elementosPorPagina = 10;
+const elementosPorPagina = 5;
 
 // 🧮 Calcular páginas totales
 const totalPaginas = computed(() =>

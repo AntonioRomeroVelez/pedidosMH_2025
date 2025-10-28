@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4">
+  <div class="container py-y" style="margin-top: 80px">
     <h2 class="text-primary fw-bold mb-4 text-center">
       🧭 Gestiones de la aplicación
     </h2>
@@ -10,10 +10,18 @@
         <div class="card shadow-sm border-0">
           <div class="card-body">
             <h5 class="card-title text-success">📦 Productos</h5>
-            <p class="card-text">Crear, editar, eliminar y listar productos.</p>
-            <RouterLink class="btn btn-outline-success" to="/productos"
-              >Ir a productos</RouterLink
-            >
+            <p class="card-text">Crear producto</p>
+            <div class="d-flex gap-2">
+              <RouterLink class="btn btn-outline-success" to="/productos"
+                >Ir a productos</RouterLink
+              >
+              <RouterLink class="btn btn-outline-primary" :to="'/crear'">
+                📦 Nuevo producto
+              </RouterLink>
+              <h5 class="text-primary fw-bold mb-0">
+                🧮 Hay {{ cantidadProductos }} registrados
+              </h5>
+            </div>
           </div>
         </div>
       </div>
@@ -44,7 +52,6 @@
         </div>
       </div>
 
-     
       <!-- Configuración (opcional) -->
       <div class="col-md-6">
         <div class="card shadow-sm border-0">
@@ -56,7 +63,6 @@
             <RouterLink class="btn btn-outline-secondary" to="/descargarExcel"
               >Descargar Excel</RouterLink
             >
-            
           </div>
         </div>
       </div>
@@ -65,5 +71,22 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
+const cantidadProductos = ref(0);
+const resultados = ref([]);
+const productos = ref([]);
+
 // No necesitas lógica si solo navegas
+onMounted(() => {
+  const datosGuardados = localStorage.getItem("ListaProductos");
+  if (datosGuardados) {
+    productos.value = JSON.parse(datosGuardados);
+    cantidadProductos.value = productos.value.length;
+
+    resultados.value = productos.value;
+  } else {
+    noHayProductos.value =
+      "No hay productos para mostrar, puedes agregar productos en Cargar Excel";
+  }
+});
 </script>

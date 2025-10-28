@@ -483,6 +483,14 @@ const vaciarCarrito = async () => {
 };
 
 const descarTablaConPromocion = async () => {
+  // Validar que exista el nombre del cliente
+  if (!pedido.value.Nombre.trim()) {
+    alertify.error(
+      "❌ Por favor, ingrese el nombre del cliente antes de exportar"
+    );
+    return;
+  }
+
   const tabla = document.createElement("table");
   tabla.style.borderCollapse = "collapse";
   tabla.style.width = "100%";
@@ -509,13 +517,15 @@ const descarTablaConPromocion = async () => {
         item.NombreProducto
       }</td>
       <td style="padding: 5px; border: 1px solid #ddd;">${
-        item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null ? ("$" + Number(item.PrecioFarmacia).toFixed(2)) : "N/D"
+        item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null
+          ? "$" + Number(item.PrecioFarmacia).toFixed(2)
+          : "N/D"
       }</td>
       <td style="padding: 5px; border: 1px solid #ddd;">${
-        item.Promocion || "Sin promoción"
+        item.Promocion || ""
       }</td>
       <td style="padding: 5px; border: 1px solid #ddd;">${
-        item.Descuento || "Sin descuento"
+        item.Descuento || ""
       }</td>
     `;
     tbody.appendChild(tr);
@@ -523,13 +533,13 @@ const descarTablaConPromocion = async () => {
   tabla.appendChild(tbody);
 
   const container = document.createElement("div");
-  container.style.padding = "20px";
+  container.style.padding = "5px";
   container.style.backgroundColor = "white";
   container.style.fontFamily = "Arial, sans-serif";
 
   const titulo = document.createElement("h2");
   titulo.style.textAlign = "center";
-  titulo.style.marginBottom = "20px";
+  titulo.style.margin = "20px";
   titulo.style.color = "#333";
 
   container.appendChild(titulo);
@@ -541,14 +551,14 @@ const descarTablaConPromocion = async () => {
   const html2canvas = (await import("html2canvas")).default;
   html2canvas(container, {
     backgroundColor: "white",
-    scale: 2,
+    scale: 1,
     useCORS: true,
   }).then((canvas) => {
     const imagen = canvas.toDataURL("image/png");
     const link = document.createElement("a");
-    link.download = `lista_productos_${
-      new Date().toISOString().split("T")[0]
-    }.png`;
+    const fecha = new Date().toISOString().split("T")[0];
+    const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
+    link.download = `lista_precios_cliente_${nombreCliente}_${fecha}.png`;
     link.href = imagen;
     link.click();
 

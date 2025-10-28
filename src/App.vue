@@ -89,7 +89,7 @@ onBeforeUnmount(() => {
   <nav class="mobile-navbar" v-if="isMobile">
     <div class="mobile-brand">
       <RouterLink to="/" class="mobile-brand-link">
-        <img src="/logo.png" alt="MH Logo" class="company-logo" />
+        <div class="border border-primary p-1 rounded">MH</div>
       </RouterLink>
 
       <button
@@ -283,13 +283,12 @@ onBeforeUnmount(() => {
   font-weight: 600;
 }
 
-.containerApp{
+.containerApp {
   margin-top: 20px;
 }
 @media (max-width: 768px) {
- .containerApp{
-  margin-top: 60px;
+  .containerApp {
+    margin-top: 60px;
+  }
 }
-}
-
 </style>
