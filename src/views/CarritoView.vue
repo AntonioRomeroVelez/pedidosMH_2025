@@ -64,70 +64,112 @@
       </button>
     </div>
 
-    <!-- Tabla de productos -->
+    <!-- Lista de productos: tabla en desktop, tarjetas en móvil -->
     <div class="mt-4" v-if="carrito.length">
-      <table
-        class="table table-bordered table-sm table-striped text-center align-middle tableProductos"
-      >
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Presentación</th>
-            <th>Principio Activo</th>
-            <th>PVP</th>
-            <th>Promoción</th>
-            <th>Descuento</th>
-            <th>Marca</th>
-            <th>IVA</th>
-            <th>Cantidad</th>
-            <th>Cantidad a recibir</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in carrito" :key="item.id">
-            <td data-label="Nombre">{{ item.NombreProducto }}</td>
-            <td data-label="Presentación">{{ item.Presentacion }}</td>
-            <td data-label="Principio Activo">{{ item.PrincipioActivo }}</td>
-            <td data-label="Precio Farmacia">$ {{ item.PrecioFarmacia }}</td>
-            <td data-label="Promoción">{{ item.Promocion }}</td>
-            <td data-label="Descuento">
-              {{
-                item.Descuento !== undefined &&
-                item.Descuento !== null &&
-                Number(item.Descuento) !== 0
-                  ? item.Descuento
-                  : ""
-              }}
-            </td>
-            <td data-label="Marca">{{ item.Marca }}</td>
-            <td data-label="IVA">
-              {{ item.IVA > 0 ? item.IVA + "%" : "No aplica" }}
-            </td>
-            <td data-label="Cantidad">
-              <input
-                type="number"
-                min="0"
-                v-model.number="item.cantidad"
-                @change="actualizarCantidad(index)"
-                class="form-control form-control-sm"
-                style="width: 80px"
-              />
-            </td>
-            <td data-label="Cantidad a recibir">
-              {{ mostarCantidadTotal(item.Promocion, item.cantidad) }}
-            </td>
-            <td data-label="Acciones">
-              <button
-                class="btn btn-danger btn-sm"
-                @click="eliminarProducto(index)"
-              >
-                Eliminar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Overlay spinner durante exportaciones -->
+      <div v-if="isExporting" class="export-overlay">
+        <div class="export-spinner" aria-hidden="true"></div>
+        <div class="export-text">Generando archivo, por favor espere...</div>
+      </div>
+
+      <div v-if="!isMobile">
+        <table
+          class="table table-bordered table-sm table-striped text-center align-middle tableProductos"
+        >
+          <thead>
+            <tr>
+              <th class="text-wrap fs-6 text">Nombre</th>
+              <th class="text-wrap fs-6 text">Presentación</th>
+              <th class="text-wrap fs-6 text">Principio Activo</th>
+              <th class="text-wrap fs-6 text">PVP</th>
+              <th class="text-wrap fs-6 text">Promoción</th>
+              <th class="text-wrap fs-6 text">Descuento</th>
+              <th class="text-wrap fs-6 text">Marca</th>
+              <th class="text-wrap fs-6 text">IVA</th>
+              <th class="text-wrap fs-6 text">Cantidad</th>
+              <th class="text-wrap fs-6 text">A recibir</th>
+              <th class="text-wrap fs-6 text">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in carrito" :key="item.id">
+              <td data-label="Nombre">{{ item.NombreProducto }}</td>
+              <td data-label="Presentación">{{ item.Presentacion }}</td>
+              <td data-label="Principio Activo">{{ item.PrincipioActivo }}</td>
+              <td data-label="Precio Farmacia">$ {{ item.PrecioFarmacia }}</td>
+              <td data-label="Promoción">{{ item.Promocion }}</td>
+              <td data-label="Descuento">
+                {{
+                  item.Descuento !== undefined &&
+                  item.Descuento !== null &&
+                  Number(item.Descuento) !== 0
+                    ? item.Descuento
+                    : ""
+                }}
+              </td>
+              <td data-label="Marca">{{ item.Marca }}</td>
+              <td data-label="IVA">
+                {{ item.IVA > 0 ? item.IVA + "%" : "No aplica" }}
+              </td>
+              <td data-label="Cantidad">
+                <input
+                  type="number"
+                  min="0"
+                  v-model.number="item.cantidad"
+                  @change="actualizarCantidad(index)"
+                  class="form-control form-control-sm"
+                  style="width: 80px"
+                />
+              </td>
+              <td data-label="Cantidad a recibir">
+                {{ mostarCantidadTotal(item.Promocion, item.cantidad) }}
+              </td>
+              <td data-label="Acciones">
+                <button
+                  class="btn btn-danger btn-sm"
+                  @click="eliminarProducto(index)"
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tarjetas para móvil -->
+      <div v-else class="mobile-cards">
+        <div v-for="(item, index) in carrito" :key="item.id" class="card mb-3 mobile-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h5 class="card-title mb-1">{{ item.NombreProducto }}</h5>
+                <div class="text-muted small">{{ item.Marca }} • {{ item.Presentacion }}</div>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-success">$ {{ Number(item.PrecioFarmacia).toFixed(2) }}</div>
+                <div class="small text-muted">{{ item.IVA > 0 ? item.IVA + '%' : 'No aplica' }}</div>
+              </div>
+            </div>
+
+            <p class="mb-2 small"><strong>Promoción:</strong> {{ item.Promocion || '-' }}</p>
+            <p class="mb-2 small"><strong>Descuento:</strong> {{ item.Descuento ? item.Descuento + '%' : '-' }}</p>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <div class="d-flex align-items-center">
+                <label class="me-2 small mb-0">Cant.</label>
+                <input type="number" min="0" v-model.number="item.cantidad" @change="actualizarCantidad(index)" class="form-control form-control-sm" style="width:72px" />
+                <div class="ms-3 small">A recibir: {{ mostarCantidadTotal(item.Promocion, item.cantidad) }}</div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button class="btn btn-danger btn-sm" @click="eliminarProducto(index)">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Totales desglosados -->
       <div class="mt-4" v-if="carrito.length">
         <div class="row justify-content-end">
@@ -164,13 +206,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import alertify from "alertifyjs";
 
 const carrito = ref([]);
 const totalCarrito = ref(0);
+const isMobile = ref(false);
+const isExporting = ref(false);
 
 const pedido = ref({
   Nombre: "",
@@ -222,6 +266,27 @@ onMounted(() => {
     // si alertify no está disponible, no hacemos nada
     console.warn("alertify configuración no aplicada:", e);
   }
+
+  // detectar móvil por media query para renderizar tarjetas
+  const mq = window.matchMedia("(max-width: 767px)");
+  const setMobile = (ev) => {
+    isMobile.value = ev.matches !== undefined ? ev.matches : mq.matches;
+  };
+  setMobile(mq);
+  try {
+    mq.addEventListener("change", setMobile);
+  } catch (e) {
+    // fallback para navegadores antiguos
+    mq.addListener(setMobile);
+  }
+  // limpiar listener al desmontar
+  onUnmounted(() => {
+    try {
+      mq.removeEventListener("change", setMobile);
+    } catch (e) {
+      mq.removeListener(setMobile);
+    }
+  });
 });
 
 const calcularTotal = () => {
@@ -240,10 +305,29 @@ const actualizarCantidad = (index) => {
 };
 
 const eliminarProducto = (index) => {
-  carrito.value.splice(index, 1);
-  localStorage.setItem("carrito", JSON.stringify(carrito.value));
-  calcularTotal();
-  calcularTotalesDesglosados();
+  // Confirmar antes de eliminar
+  try {
+    alertify.confirm(
+      "Confirmar eliminación",
+      "¿Desea eliminar este producto del carrito?",
+      function () {
+        carrito.value.splice(index, 1);
+        localStorage.setItem("carrito", JSON.stringify(carrito.value));
+        calcularTotal();
+        calcularTotalesDesglosados();
+        alertify.success("Producto eliminado");
+      },
+      function () {
+        /* cancelado */
+      }
+    );
+  } catch (e) {
+    // si alertify no está disponible, proceder directamente
+    carrito.value.splice(index, 1);
+    localStorage.setItem("carrito", JSON.stringify(carrito.value));
+    calcularTotal();
+    calcularTotalesDesglosados();
+  }
 };
 
 const calcularPromocion = (promocionStr, cantidad) => {
@@ -292,201 +376,225 @@ const descargarExcel = async () => {
 
   if (faltantes.length) {
     alertify.error(`❌ Faltan campos obligatorios: ${faltantes.join(", ")}`);
-    // alert(`Faltan campos obligatorios: ${faltantes.join(", ")}`);
     return;
   }
 
-  const workbook = new ExcelJS.Workbook();
-  const hoja = workbook.addWorksheet(pedido.value.Tipo);
+  isExporting.value = true;
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const hoja = workbook.addWorksheet(pedido.value.Tipo);
 
-  // Encabezado del pedido
-  hoja.addRow([`Datos ${pedido.value.Tipo}`]);
-  hoja.addRow(["Nombre", pedido.value.Nombre]);
-  hoja.addRow(["Ciudad", pedido.value.Ciudad]);
-  hoja.addRow(["Fecha", pedido.value.Fecha]);
-  hoja.addRow(["Vendedor", pedido.value.Vendedor]);
-  hoja.addRow(["Tipo", pedido.value.Tipo]);
-  hoja.addRow([]);
+    // Encabezado del pedido
+    hoja.addRow([`Datos ${pedido.value.Tipo}`]);
+    hoja.addRow(["Nombre", pedido.value.Nombre]);
+    hoja.addRow(["Ciudad", pedido.value.Ciudad]);
+    hoja.addRow(["Fecha", pedido.value.Fecha]);
+    hoja.addRow(["Vendedor", pedido.value.Vendedor]);
+    hoja.addRow(["Tipo", pedido.value.Tipo]);
+    hoja.addRow([]);
 
-  // Configuración según tipo
-  let encabezados = [];
-  let filas = [];
+    // Configuración según tipo
+    let encabezados = [];
+    let filas = [];
 
-  if (pedido.value.Tipo === "Pedido") {
-    encabezados = [
-      "Cantidad",
-      "Promoción",
-      "NombreProducto",
-      "Lote",
-      "Fecha de Vencimiento",
-    ];
-    filas = carrito.value.map((item) => {
-      const { promo, total } = calcularPromocion(item.Promocion, item.cantidad);
-      return [
-        item.cantidad,
-        promo,
-        item.NombreProducto,
-        "", // Lote
-        "", // Fecha de vencimiento
+    if (pedido.value.Tipo === "Pedido") {
+      encabezados = [
+        "Cantidad",
+        "Promoción",
+        "NombreProducto",
+        "Lote",
+        "Fecha de Vencimiento",
       ];
-    });
-  }
-  if (pedido.value.Tipo === "Proforma") {
-    encabezados = [
-      "Cantidad",
-      "Promoción",
-      "Nombre Producto",
-      "Marca",
-      "Precio",
-      "Total",
-    ];
-    filas = carrito.value.map((item) => {
-      const totalVista = item.PVP * item.cantidad;
-      return [
-        item.cantidad,
-        calcularPromocion(item.Promocion, item.cantidad).promo,
-        item.NombreProducto,
-        item.Marca,
-        item.PrecioFarmacia,
-        totalVista.toFixed(2),
+      filas = carrito.value.map((item) => {
+        const { promo, total } = calcularPromocion(item.Promocion, item.cantidad);
+        return [
+          item.cantidad,
+          promo,
+          item.NombreProducto,
+          "", // Lote
+          "", // Fecha de vencimiento
+        ];
+      });
+    }
+    if (pedido.value.Tipo === "Proforma") {
+      encabezados = [
+        "Cantidad",
+        "Promoción",
+        "Nombre Producto",
+        "Marca",
+        "Precio",
+        "Total",
       ];
-    });
-  }
+      filas = carrito.value.map((item) => {
+        const totalVista = item.PVP * item.cantidad;
+        return [
+          item.cantidad,
+          calcularPromocion(item.Promocion, item.cantidad).promo,
+          item.NombreProducto,
+          item.Marca,
+          item.PrecioFarmacia,
+          totalVista.toFixed(2),
+        ];
+      });
+    }
 
-  // Agregar encabezados
-  const headerRow = hoja.addRow(encabezados);
-  headerRow.height = 30;
+    // Agregar encabezados
+    const headerRow = hoja.addRow(encabezados);
+    headerRow.height = 30;
 
-  headerRow.eachCell((cell) => {
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "FFCCE5FF" },
-    };
-    cell.font = {
-      bold: true,
-      size: 12,
-      color: { argb: "FF000000" },
-    };
-    cell.alignment = {
-      horizontal: "center",
-      vertical: "middle",
-      wrapText: true,
-    };
-    cell.border = {
-      top: { style: "thin" },
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" },
-    };
-  });
-
-  // Asignar ancho por columna según tipo
-  if (pedido.value.Tipo === "Pedido") {
-    hoja.getColumn(1).width = 15; // Cantidad
-    hoja.getColumn(2).width = 15; // Promoción
-    hoja.getColumn(3).width = 35; // NombreProducto
-    hoja.getColumn(4).width = 40; // Lote
-    hoja.getColumn(5).width = 40; // Fecha de Vencimiento
-  }
-
-  if (pedido.value.Tipo === "Proforma") {
-    hoja.getColumn(1).width = 15; // Cantidad
-    hoja.getColumn(2).width = 15; // Promoción
-    hoja.getColumn(3).width = 35; // Nombre Producto
-    hoja.getColumn(4).width = 35; // Marca
-    hoja.getColumn(5).width = 15; // Precio
-    hoja.getColumn(6).width = 20; // Total
-  }
-
-  // Agregar filas de productos
-  filas.forEach((fila) => {
-    const row = hoja.addRow(fila);
-    row.height = 55; // 👈 Establece la altura en puntos (aprox. 50px visuales)
-    row.eachCell((cell) => {
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFCCE5FF" },
+      };
+      cell.font = {
+        bold: true,
+        size: 12,
+        color: { argb: "FF000000" },
+      };
+      cell.alignment = {
+        horizontal: "center",
+        vertical: "middle",
+        wrapText: true,
+      };
       cell.border = {
         top: { style: "thin" },
         bottom: { style: "thin" },
         left: { style: "thin" },
         right: { style: "thin" },
       };
-      cell.alignment = {
-        vertical: "middle",
-        horizontal: "center",
-        wrapText: true, // 👈 Esto activa el salto de línea automático
-      };
     });
-  });
 
-  // Total general para Proforma
-  if (pedido.value.Tipo === "Proforma") {
-    hoja.addRow([]); // fila vacía
-    const resumenRow1 = hoja.addRow([
-      "",
-      "",
-      "",
-      "",
-      "Subtotal 15%:",
-      subtotal15.value.toFixed(2),
-    ]);
-    const resumenRow2 = hoja.addRow([
-      "",
-      "",
-      "",
-      "",
-      "Subtotal 0%:",
-      subtotal0.value.toFixed(2),
-    ]);
-    const resumenRow3 = hoja.addRow([
-      "",
-      "",
-      "",
-      "",
-      "IVA 15%:",
-      iva15.value.toFixed(2),
-    ]);
-    const resumenRow4 = hoja.addRow([
-      "",
-      "",
-      "",
-      "",
-      "VALOR TOTAL:",
-      totalCarrito.value.toFixed(2),
-    ]);
+    // Asignar ancho por columna según tipo
+    if (pedido.value.Tipo === "Pedido") {
+      hoja.getColumn(1).width = 15; // Cantidad
+      hoja.getColumn(2).width = 15; // Promoción
+      hoja.getColumn(3).width = 35; // NombreProducto
+      hoja.getColumn(4).width = 40; // Lote
+      hoja.getColumn(5).width = 40; // Fecha de Vencimiento
+    }
 
-    // Aplicar bordes y estilos
-    [resumenRow1, resumenRow2, resumenRow3, resumenRow4].forEach((row) => {
+    if (pedido.value.Tipo === "Proforma") {
+      hoja.getColumn(1).width = 15; // Cantidad
+      hoja.getColumn(2).width = 15; // Promoción
+      hoja.getColumn(3).width = 35; // Nombre Producto
+      hoja.getColumn(4).width = 35; // Marca
+      hoja.getColumn(5).width = 15; // Precio
+      hoja.getColumn(6).width = 20; // Total
+    }
+
+    // Agregar filas de productos
+    filas.forEach((fila) => {
+      const row = hoja.addRow(fila);
+      row.height = 55; // 👈 Establece la altura en puntos (aprox. 50px visuales)
       row.eachCell((cell) => {
-        const valor = cell.value?.toString().trim();
-
-        if (valor) {
-          cell.border = {
-            top: { style: "thin" },
-            bottom: { style: "thin" },
-            left: { style: "thin" },
-            right: { style: "thin" },
-          };
-          cell.alignment = {
-            vertical: "middle",
-            horizontal: "center",
-            wrapText: true,
-          };
-          cell.font = { bold: true };
-        }
+        cell.border = {
+          top: { style: "thin" },
+          bottom: { style: "thin" },
+          left: { style: "thin" },
+          right: { style: "thin" },
+        };
+        cell.alignment = {
+          vertical: "middle",
+          horizontal: "center",
+          wrapText: true, // 👈 Esto activa el salto de línea automático
+        };
       });
     });
-  }
 
-  // Descargar archivo
-  const buffer = await workbook.xlsx.writeBuffer();
-  const nombreArchivo = `${pedido.value.Tipo}_Cliente_${pedido.value.Nombre}_ciudad_${pedido.value.Ciudad}_Cliente_${pedido.value.Fecha}.xlsx`;
-  saveAs(new Blob([buffer]), nombreArchivo);
+    // Total general para Proforma
+    if (pedido.value.Tipo === "Proforma") {
+      hoja.addRow([]); // fila vacía
+      const resumenRow1 = hoja.addRow([
+        "",
+        "",
+        "",
+        "",
+        "Subtotal 15%:",
+        subtotal15.value.toFixed(2),
+      ]);
+      const resumenRow2 = hoja.addRow([
+        "",
+        "",
+        "",
+        "",
+        "Subtotal 0%:",
+        subtotal0.value.toFixed(2),
+      ]);
+      const resumenRow3 = hoja.addRow([
+        "",
+        "",
+        "",
+        "",
+        "IVA 15%:",
+        iva15.value.toFixed(2),
+      ]);
+      const resumenRow4 = hoja.addRow([
+        "",
+        "",
+        "",
+        "",
+        "VALOR TOTAL:",
+        totalCarrito.value.toFixed(2),
+      ]);
+
+      // Aplicar bordes y estilos
+      [resumenRow1, resumenRow2, resumenRow3, resumenRow4].forEach((row) => {
+        row.eachCell((cell) => {
+          const valor = cell.value?.toString().trim();
+
+          if (valor) {
+            cell.border = {
+              top: { style: "thin" },
+              bottom: { style: "thin" },
+              left: { style: "thin" },
+              right: { style: "thin" },
+            };
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: "center",
+              wrapText: true,
+            };
+            cell.font = { bold: true };
+          }
+        });
+      });
+    }
+
+    // Descargar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const nombreArchivo = `${pedido.value.Tipo}_Cliente_${pedido.value.Nombre}_ciudad_${pedido.value.Ciudad}_Cliente_${pedido.value.Fecha}.xlsx`;
+    saveAs(new Blob([buffer]), nombreArchivo);
+    alertify.success("Excel generado correctamente");
+  } catch (err) {
+    console.error("Error generando Excel:", err);
+    alertify.error("Ocurrió un error al generar el Excel");
+  } finally {
+    isExporting.value = false;
+  }
 };
 
 const vaciarCarrito = async () => {
-  // 🔥 Limpiar el carrito después de descargar
-  localStorage.removeItem("carrito");
-  carrito.value = [];
+  try {
+    alertify.confirm(
+      "Vaciar carrito",
+      "¿Está seguro que desea vaciar todo el carrito? Esta acción no se puede deshacer.",
+      function () {
+        localStorage.removeItem("carrito");
+        carrito.value = [];
+        calcularTotal();
+        calcularTotalesDesglosados();
+        alertify.success("Carrito vaciado");
+      },
+      function () {
+        /* cancelado */
+      }
+    );
+  } catch (e) {
+    localStorage.removeItem("carrito");
+    carrito.value = [];
+  }
 };
 
 const descarTablaConPromocion = async () => {
@@ -498,164 +606,177 @@ const descarTablaConPromocion = async () => {
     return;
   }
 
-  // Fecha y nombre para título/archivo
-  const fecha = new Date().toISOString().split("T")[0];
-  const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
-
-  // Contenedor fijo: ancho final deseado 500px y margen interno 5px
-  const finalWidth = 700; // ancho final en px (se usa también al escalar el canvas)
-  const container = document.createElement("div");
-  container.style.width = finalWidth + "px"; // ancho final en px
-  container.style.padding = "5px"; // margen interno de 5px
-  container.style.backgroundColor = "white";
-  container.style.boxSizing = "border-box";
-  container.style.fontFamily = "Arial, sans-serif";
-  container.style.margin = "0 auto";
-  container.style.color = "#222";
-  container.style.border = "1px solid #e6e6e6";
-
-  // Hacer el texto más nítido mediante ajustes CSS antes de la captura
-  container.style.fontSize = "14px";
-  container.style.lineHeight = "1.25";
-  // Optimización de renderizado de texto
+  isExporting.value = true;
+  let container = null;
   try {
-    container.style.setProperty("-webkit-font-smoothing", "antialiased");
-    container.style.setProperty("text-rendering", "optimizeLegibility");
-  } catch (e) {}
+    // Fecha y nombre para título/archivo
+    const fecha = new Date().toISOString().split("T")[0];
+    const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
 
-  // Título con cliente y fecha
-  const titulo = document.createElement("h2");
-  titulo.textContent = `Lista productos MH - ${pedido.value.Nombre} - ${fecha}`;
-  titulo.style.textAlign = "center";
-  titulo.style.margin = "10px 0 12px 0";
-  titulo.style.fontSize = "16px";
-  titulo.style.color = "#333";
-  container.appendChild(titulo);
+    // Contenedor fijo: ancho final deseado 500px y margen interno 5px
+    const finalWidth = 500; // ancho final en px (se usa también al escalar el canvas)
+    container = document.createElement("div");
+    container.style.width = finalWidth + "px"; // ancho final en px
+    container.style.padding = "5px"; // margen interno de 5px
+    container.style.backgroundColor = "white";
+    container.style.boxSizing = "border-box";
+    container.style.fontFamily = "Arial, sans-serif";
+    container.style.margin = "0 auto";
+    container.style.color = "#222";
+    container.style.border = "1px solid #e6e6e6";
 
-  // Tabla con layout fijo y colgroup para controlar anchos de columnas
-  const tabla = document.createElement("table");
-  tabla.style.borderCollapse = "collapse";
-  tabla.style.width = "100%";
-  tabla.style.tableLayout = "fixed"; // fuerza distribución según colgroup
+    // Hacer el texto más nítido mediante ajustes CSS antes de la captura
+    container.style.fontSize = "14px";
+    container.style.lineHeight = "1.25";
+    // Optimización de renderizado de texto
+    try {
+      container.style.setProperty("-webkit-font-smoothing", "antialiased");
+      container.style.setProperty("text-rendering", "optimizeLegibility");
+    } catch (e) {}
 
-  const colgroup = document.createElement("colgroup");
-  // porcentaje: Producto 40%, Precio 15%, Promoción 30%, Descuento 15%
-  [40, 15, 25, 20].forEach((pct) => {
-    const col = document.createElement("col");
-    col.style.width = pct + "%";
-    colgroup.appendChild(col);
-  });
-  tabla.appendChild(colgroup);
+    // Título con cliente y fecha
+    const titulo = document.createElement("h2");
+    titulo.textContent = `Lista productos MH - ${pedido.value.Nombre} - ${fecha}`;
+    titulo.style.textAlign = "center";
+    titulo.style.margin = "10px 0 12px 0";
+    titulo.style.fontSize = "16px";
+    titulo.style.color = "#333";
+    container.appendChild(titulo);
 
-  const thead = document.createElement("thead");
-  thead.innerHTML = `
-    <tr style="background-color: #4CAF50; color: white;">
-      <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Producto</th>
-      <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Precio</th>
-      <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Promoción</th>
-      <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Descuento %</th>
-    </tr>
-  `;
-  tabla.appendChild(thead);
+    // Tabla con layout fijo y colgroup para controlar anchos de columnas
+    const tabla = document.createElement("table");
+    tabla.style.borderCollapse = "collapse";
+    tabla.style.width = "100%";
+    tabla.style.tableLayout = "fixed"; // fuerza distribución según colgroup
 
-  const tbody = document.createElement("tbody");
-  carrito.value.forEach((item, index) => {
-    const tr = document.createElement("tr");
-    tr.style.backgroundColor = index % 2 === 0 ? "#f9f9f9" : "white";
+    const colgroup = document.createElement("colgroup");
+    // porcentaje: Producto 40%, Precio 15%, Promoción 30%, Descuento 15%
+    [40, 15, 25, 20].forEach((pct) => {
+      const col = document.createElement("col");
+      col.style.width = pct + "%";
+      colgroup.appendChild(col);
+    });
+    tabla.appendChild(colgroup);
 
-    const nombre = item.NombreProducto || "";
-    const precio =
-      item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null
-        ? "$" + Number(item.PrecioFarmacia).toFixed(2)
-        : "N/D";
-    const promo = item.Promocion || "";
-    let descuento = "";
-    if (item.Descuento !== undefined && item.Descuento !== null) {
-      const dnum = Number(item.Descuento);
-      if (!isNaN(dnum) && dnum !== 0) {
-        descuento = String(dnum) + " %";
+    const thead = document.createElement("thead");
+    thead.innerHTML = `
+      <tr style="background-color: #4CAF50; color: white;">
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Producto</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Precio</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Promoción</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Descuento %</th>
+      </tr>
+    `;
+    tabla.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    carrito.value.forEach((item, index) => {
+      const tr = document.createElement("tr");
+      tr.style.backgroundColor = index % 2 === 0 ? "#f9f9f9" : "white";
+
+      const nombre = item.NombreProducto || "";
+      const precio =
+        item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null
+          ? "$" + Number(item.PrecioFarmacia).toFixed(2)
+          : "N/D";
+      const promo = item.Promocion || "";
+      let descuento = "";
+      if (item.Descuento !== undefined && item.Descuento !== null) {
+        const dnum = Number(item.Descuento);
+        if (!isNaN(dnum) && dnum !== 0) {
+          descuento = String(dnum) + " %";
+        }
+      }
+
+      tr.innerHTML = `
+        <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:left; word-break:break-word;">${nombre}</td>
+        <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center;">${precio}</td>
+        <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center; word-break:break-word;">${promo}</td>
+        <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center;">${descuento}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+    tabla.appendChild(tbody);
+
+    container.appendChild(tabla);
+
+    // Agregar al DOM temporalmente (fuera de flujo visible)
+    // lo hacemos transparente y fuera de pantalla para evitar salto visual en la app
+    container.style.position = "fixed";
+    container.style.left = "50%";
+    container.style.top = "-9999px";
+    container.style.transform = "translateX(-50%)";
+    document.body.appendChild(container);
+
+    // Esperar render y que las fuentes se carguen para evitar texto borroso
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => setTimeout(resolve, 80))
+    );
+    if (document.fonts && document.fonts.ready) {
+      try {
+        await document.fonts.ready;
+      } catch (e) {
+        /* ignore */
       }
     }
 
-    tr.innerHTML = `
-      <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:left; word-break:break-word;">${nombre}</td>
-      <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center;">${precio}</td>
-      <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center; word-break:break-word;">${promo}</td>
-      <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center;">${descuento}</td>
-    `;
+    const html2canvas = (await import("html2canvas")).default;
+    // Capture at devicePixelRatio up to 3 for better quality, then resize to exactly finalWidth
+    const scaleCapture = Math.min(3, window.devicePixelRatio || 1);
+    const canvas = await html2canvas(container, {
+      backgroundColor: "white",
+      scale: scaleCapture,
+      useCORS: true,
+      logging: false,
+    });
 
-    tbody.appendChild(tr);
-  });
-  tabla.appendChild(tbody);
+    // Escalar el canvas resultante a finalWidth con alta calidad
+    const finalCanvas = document.createElement("canvas");
+    const ratio = finalWidth / canvas.width;
+    finalCanvas.width = finalWidth;
+    finalCanvas.height = Math.round(canvas.height * ratio);
+    const ctx = finalCanvas.getContext("2d");
+    // Mejorar calidad al redimensionar
+    if (ctx) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+      if (typeof ctx.imageSmoothingEnabled !== "undefined")
+        ctx.imageSmoothingEnabled = true;
+      try {
+        ctx.imageSmoothingQuality = "high";
+      } catch (e) {}
+      ctx.drawImage(
+        canvas,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+        0,
+        0,
+        finalCanvas.width,
+        finalCanvas.height
+      );
+    }
 
-  container.appendChild(tabla);
-
-  // Agregar al DOM temporalmente (fuera de flujo visible)
-  // lo hacemos transparente y fuera de pantalla para evitar salto visual en la app
-  container.style.position = "fixed";
-  container.style.left = "50%";
-  container.style.top = "-9999px";
-  container.style.transform = "translateX(-50%)";
-  document.body.appendChild(container);
-
-  // Esperar render y que las fuentes se carguen para evitar texto borroso
-  await new Promise((resolve) =>
-    requestAnimationFrame(() => setTimeout(resolve, 80))
-  );
-  if (document.fonts && document.fonts.ready) {
+    const imagen = finalCanvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = `lista_precios_MH_cliente_${nombreCliente}_${fecha}.png`;
+    link.href = imagen;
+    link.click();
+    alertify.success("Imagen generada correctamente");
+  } catch (err) {
+    console.error("Error generando imagen:", err);
+    alertify.error("No se pudo generar la imagen. Intente nuevamente o use Exportar Excel.");
+  } finally {
+    // Limpiar el DOM
     try {
-      await document.fonts.ready;
+      if (container && document.body.contains(container)) document.body.removeChild(container);
     } catch (e) {
       /* ignore */
     }
+    isExporting.value = false;
   }
-
-  const html2canvas = (await import("html2canvas")).default;
-  // Capture at devicePixelRatio up to 3 for better quality, then resize to exactly finalWidth
-  const scaleCapture = Math.min(3, window.devicePixelRatio || 1);
-  const canvas = await html2canvas(container, {
-    backgroundColor: "white",
-    scale: scaleCapture,
-    useCORS: true,
-    logging: false,
-  });
-
-  // Escalar el canvas resultante a finalWidth con alta calidad
-  const finalCanvas = document.createElement("canvas");
-  const ratio = finalWidth / canvas.width;
-  finalCanvas.width = finalWidth;
-  finalCanvas.height = Math.round(canvas.height * ratio);
-  const ctx = finalCanvas.getContext("2d");
-  // Mejorar calidad al redimensionar
-  if (ctx) {
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-    if (typeof ctx.imageSmoothingEnabled !== "undefined")
-      ctx.imageSmoothingEnabled = true;
-    try {
-      ctx.imageSmoothingQuality = "high";
-    } catch (e) {}
-    ctx.drawImage(
-      canvas,
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-      0,
-      0,
-      finalCanvas.width,
-      finalCanvas.height
-    );
-  }
-
-  const imagen = finalCanvas.toDataURL("image/png");
-  const link = document.createElement("a");
-  link.download = `lista_precios_cliente_${nombreCliente}_${fecha}.png`;
-  link.href = imagen;
-  link.click();
-
-  // Limpiar el DOM
-  document.body.removeChild(container);
 };
 </script>
 
@@ -692,6 +813,35 @@ const descarTablaConPromocion = async () => {
     text-align: left;
   }
 }
+
+/* Spinner overlay durante export */
+.export-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  z-index: 2147483646;
+}
+.export-spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid rgba(0,0,0,0.08);
+  border-top-color: #0d6efd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.export-text { color: #333; font-weight: 600; }
+
+/* Mobile card styles */
+.mobile-card .card-title { font-size: 1rem; }
+.mobile-card .card-body { padding: 0.75rem; }
+.mobile-cards { padding: 0 0.25rem; }
+
 </style>
 
 <style>

@@ -107,7 +107,7 @@ function handleCloseMenu() {
   <nav class="mobile-navbar" v-if="isMobile">
     <div class="mobile-brand">
       <RouterLink to="/" class="mobile-brand-link">
-        <div class="border border-primary p-1 rounded">MH</div>
+        <img src="/logo.png" alt="MH Logo" class="company-logo" />
       </RouterLink>
 
       <button
