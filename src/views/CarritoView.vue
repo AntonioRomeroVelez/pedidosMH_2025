@@ -1,6 +1,8 @@
 <template>
   <div class="container px-0">
-    <h2 class="text-center mb-4" style="margin-top: 60px">🛒 Carrito de Compras</h2>
+    <h2 class="text-center mb-4" style="margin-top: 60px">
+      🛒 Carrito de Compras
+    </h2>
 
     <!-- Datos del pedido -->
     <div class="row mb-4" v-if="carrito.length">
@@ -139,56 +141,83 @@
 
       <!-- Tarjetas para móvil -->
       <div v-else class="mobile-cards">
-        <div v-for="(item, index) in carrito" :key="item.id" class="card mb-3 mobile-card">
+        <div
+          v-for="(item, index) in carrito"
+          :key="item.id"
+          class="card mb-3 mobile-card"
+        >
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <div class="product-info">
                 <h5 class="card-title mb-1">{{ item.NombreProducto }}</h5>
                 <div class="text-muted small">
                   <div><strong>Marca:</strong> {{ item.Marca }}</div>
-                  <div><strong>Presentación:</strong> {{ item.Presentacion }}</div>
-                  <div><strong>P. Activo:</strong> {{ item.PrincipioActivo || '-' }}</div>
+                  <div>
+                    <strong>Presentación:</strong> {{ item.Presentacion }}
+                  </div>
+                  <div>
+                    <strong>P. Activo:</strong>
+                    {{ item.PrincipioActivo || "-" }}
+                  </div>
                 </div>
               </div>
               <div class="price-info">
-                <div class="fw-bold text-success fs-5">$ {{ Number(item.PrecioFarmacia).toFixed(2) }}</div>
-                <div class="text-muted small">IVA: {{ item.IVA > 0 ? item.IVA + '%' : 'No aplica' }}</div>
+                <div class="fw-bold text-success fs-5">
+                  $ {{ Number(item.PrecioFarmacia).toFixed(2) }}
+                </div>
+                <div class="text-muted small">
+                  IVA: {{ item.IVA > 0 ? item.IVA + "%" : "No aplica" }}
+                </div>
               </div>
             </div>
 
-            <div class="promo-info p-2 mb-2 rounded" :class="item.Promocion ? 'bg-light' : ''">
+            <div
+              class="promo-info p-2 mb-2 rounded"
+              :class="item.Promocion ? 'bg-light' : ''"
+            >
               <div class="mb-1">
-                <strong class="text-primary">Promoción:</strong> 
-                <span class="badge bg-info text-dark ms-1">{{ item.Promocion || 'Sin promoción' }}</span>
+                <strong class="text-primary">Promoción:</strong>
+                <span class="badge bg-info text-dark ms-1">{{
+                  item.Promocion || "Sin promoción"
+                }}</span>
               </div>
               <div v-if="item.Descuento && Number(item.Descuento) !== 0">
-                <strong class="text-primary">Descuento:</strong> 
-                <span class="badge bg-warning text-dark ms-1">{{ item.Descuento }}%</span>
+                <strong class="text-primary">Descuento:</strong>
+                <span class="badge bg-warning text-dark ms-1"
+                  >{{ item.Descuento }}%</span
+                >
               </div>
             </div>
 
             <div class="quantity-controls p-2 rounded bg-light">
-              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div
+                class="d-flex align-items-center justify-content-between flex-wrap gap-2"
+              >
                 <div class="d-flex align-items-center">
                   <label class="me-2 fw-bold mb-0">Cantidad:</label>
-                  <input 
-                    type="number" 
-                    min="0" 
-                    v-model.number="item.cantidad" 
-                    @change="actualizarCantidad(index)" 
-                    class="form-control" 
-                    style="width:80px"
+                  <input
+                    type="number"
+                    min="0"
+                    v-model.number="item.cantidad"
+                    @change="actualizarCantidad(index)"
+                    class="form-control"
+                    style="width: 80px"
                   />
                 </div>
                 <div class="ms-2">
-                  <strong>A recibir:</strong> 
-                  <span class="badge bg-success">{{ mostarCantidadTotal(item.Promocion, item.cantidad) }}</span>
+                  <strong>A recibir:</strong>
+                  <span class="badge bg-success">{{
+                    mostarCantidadTotal(item.Promocion, item.cantidad)
+                  }}</span>
                 </div>
               </div>
             </div>
 
             <div class="d-grid mt-3">
-              <button class="btn btn-outline-danger" @click="eliminarProducto(index)">
+              <button
+                class="btn btn-outline-danger"
+                @click="eliminarProducto(index)"
+              >
                 <i class="fas fa-trash-alt me-2"></i>Eliminar producto
               </button>
             </div>
@@ -291,7 +320,7 @@ onMounted(() => {
       delay: 3,
       closeButton: true,
       clickToClose: true,
-      movable: false
+      movable: false,
     });
 
     // Configuración de diálogos
@@ -305,13 +334,12 @@ onMounted(() => {
       closableByDimmer: true,
       preventBodyShift: true,
       transition: "pulse",
-      autoReset: true
+      autoReset: true,
     });
 
     // Personalizar botones
     alertify.defaults.glossary.ok = "Aceptar";
     alertify.defaults.glossary.cancel = "Cancelar";
-
   } catch (e) {
     console.warn("alertify configuración no aplicada:", e);
   }
@@ -455,7 +483,10 @@ const descargarExcel = async () => {
         "Fecha de Vencimiento",
       ];
       filas = carrito.value.map((item) => {
-        const { promo, total } = calcularPromocion(item.Promocion, item.cantidad);
+        const { promo, total } = calcularPromocion(
+          item.Promocion,
+          item.cantidad
+        );
         return [
           item.cantidad,
           promo,
@@ -649,9 +680,11 @@ const vaciarCarrito = async () => {
 const descarTablaConPromocion = async () => {
   // Validar que exista el nombre del cliente
   if (!pedido.value.Nombre.trim()) {
-    alertify.error(
+    alertify.alert(
+      "Campo obligatorio",
       "❌ Por favor, ingrese el nombre del cliente antes de exportar"
     );
+
     return;
   }
 
@@ -816,11 +849,14 @@ const descarTablaConPromocion = async () => {
     alertify.success("Imagen generada correctamente");
   } catch (err) {
     console.error("Error generando imagen:", err);
-    alertify.error("No se pudo generar la imagen. Intente nuevamente o use Exportar Excel.");
+    alertify.error(
+      "No se pudo generar la imagen. Intente nuevamente o use Exportar Excel."
+    );
   } finally {
     // Limpiar el DOM
     try {
-      if (container && document.body.contains(container)) document.body.removeChild(container);
+      if (container && document.body.contains(container))
+        document.body.removeChild(container);
     } catch (e) {
       /* ignore */
     }
@@ -830,6 +866,10 @@ const descarTablaConPromocion = async () => {
 </script>
 
 <style scoped>
+.alertify-notifier {
+  z-index: 9999 !important;
+}
+
 @media (max-width: 768px) {
   .tableProductos thead {
     display: none; /* Oculta encabezados */
@@ -877,14 +917,21 @@ const descarTablaConPromocion = async () => {
 .export-spinner {
   width: 48px;
   height: 48px;
-  border: 5px solid rgba(0,0,0,0.08);
+  border: 5px solid rgba(0, 0, 0, 0.08);
   border-top-color: #0d6efd;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 12px;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-.export-text { color: #333; font-weight: 600; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.export-text {
+  color: #333;
+  font-weight: 600;
+}
 
 /* Estilos de la tabla */
 .table-container {
@@ -911,7 +958,7 @@ const descarTablaConPromocion = async () => {
 
 .mobile-card {
   border: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -969,18 +1016,17 @@ const descarTablaConPromocion = async () => {
   .mobile-card .price-info {
     margin-left: 0.5rem;
   }
-  
+
   .mobile-card .card-body {
     padding: 0.75rem;
   }
-  
+
   .mobile-card .quantity-controls .d-flex {
     flex-direction: column;
     align-items: flex-start !important;
     gap: 0.5rem;
   }
 }
-
 </style>
 
 <style>
@@ -989,6 +1035,7 @@ const descarTablaConPromocion = async () => {
 .ajs-message,
 .ajs-reset,
 .ajs-log,
+.ajs-alert,
 .ajs-notifier.ajs-top,
 .ajs-dialog {
   z-index: 2147483647 !important;
@@ -1006,7 +1053,7 @@ const descarTablaConPromocion = async () => {
 .ajs-message {
   word-break: break-word !important;
   white-space: normal !important;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
   border-radius: 8px !important;
   font-size: 15px !important;
   padding: 12px 16px !important;
@@ -1016,7 +1063,7 @@ const descarTablaConPromocion = async () => {
 .ajs-dialog {
   max-width: 95% !important;
   border-radius: 12px !important;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
 }
 
 .ajs-header {
@@ -1047,7 +1094,7 @@ const descarTablaConPromocion = async () => {
   .ajs-dialog {
     margin: 16px !important;
   }
-  
+
   .ajs-body {
     padding: 12px !important;
   }

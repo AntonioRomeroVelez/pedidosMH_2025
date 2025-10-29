@@ -1,5 +1,5 @@
 <template>
-  <div class="cargar-excel" style="margin-top: 60px">
+  <div class="cargar-excel container" style="margin-top: 60px">
     <h2>📥 Cargar productos desde Excel</h2>
 
     <p>📝 El archivo debe tener las siguientes columnas:</p>
@@ -34,12 +34,33 @@
       </table>
     </div>
 
-    <input
-      type="file"
-      @change="leerExcel"
-      accept=".xlsx, .xls"
-      class="form-control my-3"
-    />
+    <div class="mb-4">
+      <label for="excelInput" class="form-label fw-semibold text-primary">
+        📄 Cargar archivo Excel
+      </label>
+
+      <div class="input-group">
+        <label
+          class="input-group-text bg-success text-white"
+          for="excelInput"
+          style="cursor: pointer"
+        >
+          <i class="bi bi-arrow-bar-up me-2"></i> Subir Excel
+        </label>
+        <input
+          type="file"
+          class="form-control"
+          id="excelInput"
+          @change="leerExcel"
+          accept=".xlsx, .xls"
+        />
+      </div>
+
+      <div v-if="archivoNombre" class="form-text text-success mt-2">
+        Archivo seleccionado: {{ archivoNombre }}
+      </div>
+    </div>
+
     <div>
       <button
         @click="guardarEnStore"
@@ -49,8 +70,8 @@
         Guardar productos en memoria
       </button>
 
-      <RouterLink class="btn btn-success px-2 sm" to="/Productos">
-        Atrás
+      <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
+        Cancelar
       </RouterLink>
     </div>
 
@@ -233,7 +254,7 @@ const guardarEnStore = () => {
   border-radius: 8px;
 }
 .formato-tabla {
-  width: 100%;
+  width: 90%;
   border-collapse: collapse;
   margin-bottom: 20px;
 }
