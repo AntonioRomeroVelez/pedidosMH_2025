@@ -696,7 +696,7 @@ const descarTablaConPromocion = async () => {
     const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
 
     // Contenedor fijo: ancho final deseado 500px y margen interno 5px
-    const finalWidth = 500; // ancho final en px (se usa también al escalar el canvas)
+    const finalWidth = 400; // ancho final en px (se usa también al escalar el canvas)
     container = document.createElement("div");
     container.style.width = finalWidth + "px"; // ancho final en px
     container.style.padding = "5px"; // margen interno de 5px
@@ -721,14 +721,14 @@ const descarTablaConPromocion = async () => {
     titulo.textContent = `Lista productos MH - ${pedido.value.Nombre} - ${fecha}`;
     titulo.style.textAlign = "center";
     titulo.style.margin = "10px 0 12px 0";
-    titulo.style.fontSize = "16px";
+    titulo.style.fontSize = "14px";
     titulo.style.color = "#333";
     container.appendChild(titulo);
 
     // Tabla con layout fijo y colgroup para controlar anchos de columnas
     const tabla = document.createElement("table");
     tabla.style.borderCollapse = "collapse";
-    tabla.style.width = "100%";
+    tabla.style.width = "90%";
     tabla.style.tableLayout = "fixed"; // fuerza distribución según colgroup
 
     const colgroup = document.createElement("colgroup");
@@ -743,10 +743,10 @@ const descarTablaConPromocion = async () => {
     const thead = document.createElement("thead");
     thead.innerHTML = `
       <tr style="background-color: #4CAF50; color: white;">
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Producto</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Precio</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Promoción</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:13px; text-align:center; vertical-align:middle;">Descuento %</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center; vertical-align:middle;">Producto</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center; vertical-align:middle;">Precio</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center; vertical-align:middle;">Promoción</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center; vertical-align:middle;">Descuento %</th>
       </tr>
     `;
     tabla.appendChild(thead);
@@ -771,10 +771,10 @@ const descarTablaConPromocion = async () => {
       }
 
       tr.innerHTML = `
-        <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:left; word-break:break-word;">${nombre}</td>
-        <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center;">${precio}</td>
-        <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center; word-break:break-word;">${promo}</td>
-        <td style="padding: 6px; border: 1px solid #ddd; font-size:13px; vertical-align:middle; text-align:center;">${descuento}</td>
+        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; vertical-align:middle; text-align:left; word-break:break-word;">${nombre}</td>
+        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; vertical-align:middle; text-align:center;">${precio}</td>
+        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; vertical-align:middle; text-align:center; word-break:break-word;">${promo}</td>
+        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; vertical-align:middle; text-align:center;">${descuento}</td>
       `;
 
       tbody.appendChild(tr);
