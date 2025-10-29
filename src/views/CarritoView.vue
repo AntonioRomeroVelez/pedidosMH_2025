@@ -452,7 +452,8 @@ const descargarExcel = async () => {
   const faltantes = camposObligatorios.filter((campo) => !pedido.value[campo]);
 
   if (faltantes.length) {
-    alertify.error(`❌ Faltan campos obligatorios: ${faltantes.join(", ")}`);
+    alertify.alert(`❌ Faltan campos obligatorios: ${faltantes.join(", ")}`);
+
     return;
   }
 
@@ -677,46 +678,178 @@ const vaciarCarrito = async () => {
   }
 };
 
+// const descarTablaConPromocion = async () => {
+//   if (!pedido.value.Nombre.trim()) {
+//     alertify.alert(
+//       "Campo obligatorio",
+//       "❌ Por favor, ingrese el nombre del cliente antes de exportar"
+//     );
+//     return;
+//   }
+
+//   isExporting.value = true;
+//   let container = null;
+
+//   try {
+//     const fecha = new Date().toISOString().split("T")[0];
+//     const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
+//     const finalWidth = 700;
+
+//     container = document.createElement("div");
+//     container.style.width = finalWidth + "px";
+//     container.style.padding = "5px";
+//     container.style.backgroundColor = "white";
+//     container.style.boxSizing = "border-box";
+//     container.style.fontFamily = "'Segoe UI', Roboto, Arial, sans-serif";
+//     container.style.margin = "0 auto";
+//     container.style.color = "#222";
+//     container.style.border = "1px solid #e6e6e6";
+//     container.style.fontSize = "14px";
+//     container.style.lineHeight = "1.25";
+//     container.style.setProperty("-webkit-font-smoothing", "antialiased");
+//     container.style.setProperty("text-rendering", "optimizeLegibility");
+
+//     const titulo = document.createElement("h2");
+//     titulo.textContent = `Lista productos MH - ${pedido.value.Nombre} - ${fecha}`;
+//     titulo.style.textAlign = "center";
+//     titulo.style.margin = "10px 0 12px 0";
+//     titulo.style.fontSize = "14px";
+//     titulo.style.color = "#333";
+//     container.appendChild(titulo);
+
+//     const tabla = document.createElement("table");
+//     tabla.style.borderCollapse = "collapse";
+//     tabla.style.width = "100%";
+//     tabla.style.tableLayout = "fixed";
+
+//     const colgroup = document.createElement("colgroup");
+//     [40, 15, 25, 20].forEach((pct) => {
+//       const col = document.createElement("col");
+//       col.style.width = pct + "%";
+//       colgroup.appendChild(col);
+//     });
+//     tabla.appendChild(colgroup);
+
+//     const thead = document.createElement("thead");
+//     thead.innerHTML = `
+//       <tr style="background-color: #4CAF50; color: white;">
+//         <th style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">Producto</th>
+//         <th style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">Precio</th>
+//         <th style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">Promoción</th>
+//         <th style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">Descuento %</th>
+//       </tr>
+//     `;
+//     tabla.appendChild(thead);
+
+//     const tbody = document.createElement("tbody");
+//     carrito.value.forEach((item, index) => {
+//       const tr = document.createElement("tr");
+//       tr.style.backgroundColor = index % 2 === 0 ? "#f9f9f9" : "white";
+
+//       const nombre = item.NombreProducto || "";
+//       const precio =
+//         item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null
+//           ? "$" + Number(item.PrecioFarmacia).toFixed(2)
+//           : "N/D";
+//       const promo = item.Promocion || "";
+//       let descuento = "";
+//       if (item.Descuento !== undefined && item.Descuento !== null) {
+//         const dnum = Number(item.Descuento);
+//         if (!isNaN(dnum) && dnum !== 0) {
+//           descuento = String(dnum) + " %";
+//         }
+//       }
+
+//       tr.innerHTML = `
+//         <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:left; word-break:break-word;">${nombre}</td>
+//         <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${precio}</td>
+//         <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${promo}</td>
+//         <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${descuento} % </td>
+//       `;
+//       tbody.appendChild(tr);
+//     });
+//     tabla.appendChild(tbody);
+//     container.appendChild(tabla);
+
+//     container.style.position = "fixed";
+//     container.style.left = "50%";
+//     container.style.top = "-9999px";
+//     container.style.transform = "translateX(-50%)";
+//     document.body.appendChild(container);
+
+//     await new Promise((resolve) =>
+//       requestAnimationFrame(() => setTimeout(resolve, 80))
+//     );
+//     if (document.fonts && document.fonts.ready) {
+//       try {
+//         await document.fonts.ready;
+//       } catch (e) {}
+//     }
+
+//     const html2canvas = (await import("html2canvas")).default;
+//     const scaleCapture = Math.min(3, window.devicePixelRatio || 1);
+//     const canvas = await html2canvas(container, {
+//       backgroundColor: "white",
+//       scale: scaleCapture,
+//       useCORS: true,
+//       logging: false,
+//     });
+
+//     const imagen = canvas.toDataURL("image/png");
+//     const link = document.createElement("a");
+//     link.download = `lista_precios_MH_cliente_${nombreCliente}_${fecha}.png`;
+//     link.href = imagen;
+//     link.dispatchEvent(
+//       new MouseEvent("click", { bubbles: true, cancelable: true })
+//     );
+
+//     alertify.success("Imagen generada correctamente");
+//   } catch (err) {
+//     console.error("Error generando imagen:", err);
+//     alertify.error(
+//       "No se pudo generar la imagen. Intente nuevamente o use Exportar Excel."
+//     );
+//   } finally {
+//     try {
+//       if (container && document.body.contains(container)) {
+//         document.body.removeChild(container);
+//       }
+//     } catch (e) {}
+//     isExporting.value = false;
+//   }
+// };
+
 const descarTablaConPromocion = async () => {
-  // Validar que exista el nombre del cliente
   if (!pedido.value.Nombre.trim()) {
     alertify.alert(
       "Campo obligatorio",
       "❌ Por favor, ingrese el nombre del cliente antes de exportar"
     );
-
     return;
   }
 
   isExporting.value = true;
   let container = null;
+
   try {
-    // Fecha y nombre para título/archivo
     const fecha = new Date().toISOString().split("T")[0];
     const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
+    const finalWidth = 500;
 
-    // Contenedor fijo: ancho final deseado 500px y margen interno 5px
-    const finalWidth = 400; // ancho final en px (se usa también al escalar el canvas)
     container = document.createElement("div");
-    container.style.width = finalWidth + "px"; // ancho final en px
-    container.style.padding = "5px"; // margen interno de 5px
+    container.style.width = finalWidth + "px";
+    container.style.padding = "5px";
     container.style.backgroundColor = "white";
     container.style.boxSizing = "border-box";
-    container.style.fontFamily = "Arial, sans-serif";
+    container.style.fontFamily = "'Segoe UI', Roboto, Arial, sans-serif";
     container.style.margin = "0 auto";
     container.style.color = "#222";
     container.style.border = "1px solid #e6e6e6";
-
-    // Hacer el texto más nítido mediante ajustes CSS antes de la captura
     container.style.fontSize = "14px";
     container.style.lineHeight = "1.25";
-    // Optimización de renderizado de texto
-    try {
-      container.style.setProperty("-webkit-font-smoothing", "antialiased");
-      container.style.setProperty("text-rendering", "optimizeLegibility");
-    } catch (e) {}
+    container.style.setProperty("-webkit-font-smoothing", "antialiased");
+    container.style.setProperty("text-rendering", "optimizeLegibility");
 
-    // Título con cliente y fecha
     const titulo = document.createElement("h2");
     titulo.textContent = `Lista productos MH - ${pedido.value.Nombre} - ${fecha}`;
     titulo.style.textAlign = "center";
@@ -725,14 +858,12 @@ const descarTablaConPromocion = async () => {
     titulo.style.color = "#333";
     container.appendChild(titulo);
 
-    // Tabla con layout fijo y colgroup para controlar anchos de columnas
     const tabla = document.createElement("table");
     tabla.style.borderCollapse = "collapse";
-    tabla.style.width = "90%";
-    tabla.style.tableLayout = "fixed"; // fuerza distribución según colgroup
+    tabla.style.width = "100%";
+    tabla.style.tableLayout = "fixed";
 
     const colgroup = document.createElement("colgroup");
-    // porcentaje: Producto 40%, Precio 15%, Promoción 30%, Descuento 15%
     [40, 15, 25, 20].forEach((pct) => {
       const col = document.createElement("col");
       col.style.width = pct + "%";
@@ -743,10 +874,10 @@ const descarTablaConPromocion = async () => {
     const thead = document.createElement("thead");
     thead.innerHTML = `
       <tr style="background-color: #4CAF50; color: white;">
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center; vertical-align:middle;">Producto</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center; vertical-align:middle;">Precio</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center; vertical-align:middle;">Promoción</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center; vertical-align:middle;">Descuento %</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Producto</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Precio</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Promoción</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Descuento %</th>
       </tr>
     `;
     tabla.appendChild(thead);
@@ -771,40 +902,32 @@ const descarTablaConPromocion = async () => {
       }
 
       tr.innerHTML = `
-        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; vertical-align:middle; text-align:left; word-break:break-word;">${nombre}</td>
-        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; vertical-align:middle; text-align:center;">${precio}</td>
-        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; vertical-align:middle; text-align:center; word-break:break-word;">${promo}</td>
-        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; vertical-align:middle; text-align:center;">${descuento}</td>
+        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:left; word-break:break-word;">${nombre}</td>
+        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${precio}</td>
+        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${promo}</td>
+        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${descuento}</td>
       `;
-
       tbody.appendChild(tr);
     });
     tabla.appendChild(tbody);
-
     container.appendChild(tabla);
 
-    // Agregar al DOM temporalmente (fuera de flujo visible)
-    // lo hacemos transparente y fuera de pantalla para evitar salto visual en la app
     container.style.position = "fixed";
     container.style.left = "50%";
     container.style.top = "-9999px";
     container.style.transform = "translateX(-50%)";
     document.body.appendChild(container);
 
-    // Esperar render y que las fuentes se carguen para evitar texto borroso
     await new Promise((resolve) =>
       requestAnimationFrame(() => setTimeout(resolve, 80))
     );
     if (document.fonts && document.fonts.ready) {
       try {
         await document.fonts.ready;
-      } catch (e) {
-        /* ignore */
-      }
+      } catch (e) {}
     }
 
     const html2canvas = (await import("html2canvas")).default;
-    // Capture at devicePixelRatio up to 3 for better quality, then resize to exactly finalWidth
     const scaleCapture = Math.min(3, window.devicePixelRatio || 1);
     const canvas = await html2canvas(container, {
       backgroundColor: "white",
@@ -813,53 +936,26 @@ const descarTablaConPromocion = async () => {
       logging: false,
     });
 
-    // Escalar el canvas resultante a finalWidth con alta calidad
-    const finalCanvas = document.createElement("canvas");
-    const ratio = finalWidth / canvas.width;
-    finalCanvas.width = finalWidth;
-    finalCanvas.height = Math.round(canvas.height * ratio);
-    const ctx = finalCanvas.getContext("2d");
-    // Mejorar calidad al redimensionar
-    if (ctx) {
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-      if (typeof ctx.imageSmoothingEnabled !== "undefined")
-        ctx.imageSmoothingEnabled = true;
-      try {
-        ctx.imageSmoothingQuality = "high";
-      } catch (e) {}
-      ctx.drawImage(
-        canvas,
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-        0,
-        0,
-        finalCanvas.width,
-        finalCanvas.height
-      );
-    }
-
-    const imagen = finalCanvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.download = `lista_precios_MH_cliente_${nombreCliente}_${fecha}.png`;
-    link.href = imagen;
-    link.click();
-    alertify.success("Imagen generada correctamente");
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const filename = `lista_precios_MH_cliente_${nombreCliente}_${fecha}.png`;
+        saveAs(blob, filename);
+        alertify.success("Imagen descargada correctamente");
+      } else {
+        alertify.error("No se pudo generar la imagen");
+      }
+    }, "image/png");
   } catch (err) {
     console.error("Error generando imagen:", err);
     alertify.error(
       "No se pudo generar la imagen. Intente nuevamente o use Exportar Excel."
     );
   } finally {
-    // Limpiar el DOM
     try {
-      if (container && document.body.contains(container))
+      if (container && document.body.contains(container)) {
         document.body.removeChild(container);
-    } catch (e) {
-      /* ignore */
-    }
+      }
+    } catch (e) {}
     isExporting.value = false;
   }
 };
@@ -1035,6 +1131,7 @@ const descarTablaConPromocion = async () => {
 .ajs-message,
 .ajs-reset,
 .ajs-log,
+.ajs-error,
 .ajs-alert,
 .ajs-notifier.ajs-top,
 .ajs-dialog {
