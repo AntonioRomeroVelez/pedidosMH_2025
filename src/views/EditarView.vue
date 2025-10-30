@@ -157,3 +157,25 @@ const guardarCambios = () => {
   }
 };
 </script>
+
+<style scope>
+.ajs-notifier {
+  position: fixed !important;
+  top: 20px !important;
+}
+
+@media (max-width: 480px) {
+  .ajs-notifier {
+    top: 12px !important;
+    left: 50% !important;
+    transform: translateX(-20%) !important;
+    width: 90% !important;
+    font-size: 14px !important;
+  }
+
+  .ajs-message {
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+  }
+}
+</style>
