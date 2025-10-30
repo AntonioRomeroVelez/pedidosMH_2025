@@ -132,7 +132,6 @@ import alertify from "alertifyjs";
 const route = useRoute();
 const router = useRouter();
 const producto = ref(null);
-const cantidad = ref("");
 
 onMounted(() => {
   const productosGuardados = JSON.parse(
@@ -158,17 +157,83 @@ const guardarCambios = () => {
 };
 </script>
 
-<style scope>
+<style>
+.alertify-notifier {
+  z-index: 9999 !important;
+}
+
+/* Alertify: asegurar visibilidad por encima de overlays y en pantallas móviles */
+.ajs-notifier,
+.ajs-message,
+.ajs-reset,
+.ajs-log,
+.ajs-error,
+.ajs-success,
+.ajs-alert,
+.ajs-notifier.ajs-top,
+.ajs-dialog {
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}
+
+.ajs-notifier {
+  max-width: 95% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  box-sizing: border-box !important;
+  padding: 0 0.25rem !important;
+}
 .ajs-notifier {
   position: fixed !important;
   top: 20px !important;
+  z-index: 2147483647 !important;
+}
+
+.ajs-message {
+  word-break: break-word !important;
+  white-space: normal !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  padding: 12px 16px !important;
+}
+
+/* Mejorar visibilidad de los diálogos de confirmación */
+.ajs-dialog {
+  max-width: 95% !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ajs-header {
+  border-radius: 12px 12px 0 0 !important;
+  padding: 16px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.ajs-body {
+  padding: 16px !important;
+  font-size: 15px !important;
+}
+
+.ajs-footer {
+  padding: 12px 16px !important;
+  border-radius: 0 0 12px 12px !important;
+}
+
+.ajs-button {
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s !important;
 }
 
 @media (max-width: 480px) {
   .ajs-notifier {
     top: 12px !important;
     left: 50% !important;
-    transform: translateX(-20%) !important;
+    transform: translateX(-50%) !important;
     width: 90% !important;
     font-size: 14px !important;
   }
@@ -177,5 +242,40 @@ const guardarCambios = () => {
     padding: 10px 12px !important;
     font-size: 14px !important;
   }
+  .ajs-dialog {
+    margin: 16px !important;
+  }
+
+  .ajs-body {
+    padding: 12px !important;
+  }
+
+  .ajs-footer {
+    padding: 8px 12px !important;
+  }
+
+  .ajs-button {
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Mejoras para mensajes de éxito/error */
+.ajs-success {
+  background-color: #d4edda !important;
+  color: #155724 !important;
+  border-color: #c3e6cb !important;
+}
+
+.ajs-error {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+  border-color: #f5c6cb !important;
+}
+
+/* Backdrop para diálogos */
+.ajs-dim {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(2px) !important;
 }
 </style>
