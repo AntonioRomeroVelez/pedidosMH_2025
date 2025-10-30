@@ -140,6 +140,27 @@ onMounted(() => {
   producto.value = productosGuardados.find((p) => p.ID === route.params.id);
 });
 
+// const guardarCambios = () => {
+//   const productosGuardados = JSON.parse(
+//     localStorage.getItem("ListaProductos") || "[]"
+//   );
+//   const index = productosGuardados.findIndex((p) => p.ID === producto.value.ID);
+
+//   if (index !== -1) {
+//     productosGuardados[index] = producto.value;
+//     localStorage.setItem("ListaProductos", JSON.stringify(productosGuardados));
+//     alertify.success("✅ Cambios guardados correctamente");
+//     setTimeout(() => {
+//       router.push("/Productos");
+//     }, 1000); // espera medio segundo
+//   } else {
+//     alertify.error("❌ No se pudo guardar el producto");
+//   }
+// };
+
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 const guardarCambios = () => {
   const productosGuardados = JSON.parse(
     localStorage.getItem("ListaProductos") || "[]"
@@ -149,17 +170,213 @@ const guardarCambios = () => {
   if (index !== -1) {
     productosGuardados[index] = producto.value;
     localStorage.setItem("ListaProductos", JSON.stringify(productosGuardados));
-    alertify.success("✅ Cambios guardados correctamente");
-    router.push("/Productos"); // opcional: redirige al listado
+    toast.success("✅ Cambios guardados correctamente");
+    setTimeout(() => {
+      router.push("/Productos");
+    }, 1000);
   } else {
-    alertify.error("❌ No se pudo guardar el producto");
+    toast.error("❌ No se pudo guardar el producto");
   }
 };
 </script>
 
-<style>
+<style scoped>
 .alertify-notifier {
   z-index: 9999 !important;
+}
+</style>
+<style>
+@media (max-width: 480px) {
+  .ajs-notifier {
+    top: 16px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    max-width: 90% !important;
+    z-index: 999999 !important;
+  }
+
+  .ajs-message {
+    font-size: 16px !important;
+    padding: 14px 18px !important;
+    text-align: center !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
+/* Estilos del navbar */
+.custom-navbar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  padding: 0rem 0;
+  transition: all 0.3s ease;
+}
+
+/* Estilos del logo y marca */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.company-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.company-logo-mobile {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.company-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0d6efd;
+  letter-spacing: -0.5px;
+}
+
+.company-type {
+  font-size: 0.9rem;
+  color: #2028b1;
+  font-weight: 500;
+}
+
+.brand-link:hover .company-logo {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.mobile-brand-link:hover .company-logo-mobile {
+  transform: scale(1.1);
+}
+
+/* Estilos de los enlaces */
+.custom-link {
+  font-weight: 500;
+  color: #4a4a4a !important;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem !important;
+  margin: 0 0.3rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-link:hover {
+  color: #0d6efd !important;
+  background-color: rgba(32, 167, 177, 0.1);
+  transform: translateY(-1px);
+}
+
+.router-link-active {
+  color: #0d6efd !important;
+  background-color: rgba(32, 167, 177, 0.15);
+  font-weight: 600;
+}
+
+/* Estilos para móviles */
+.mobile-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0rem 1rem;
+}
+
+.mobile-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mobile-menu-button {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  font-size: 1.5rem;
+  padding: 0rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-button:hover {
+  transform: scale(1.1);
+}
+
+.mobile-menu {
+  padding: 0.5rem;
+  background: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.2s ease-out;
+  transform-origin: top;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-link {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  color: #4a4a4a;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin: 0.25rem 0;
+  font-weight: 500;
+}
+
+.mobile-link:hover {
+  background: rgba(32, 167, 177, 0.1);
+  color: #0d6efd;
+}
+
+.mobile-link.router-link-active {
+  background: rgba(32, 167, 177, 0.15);
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.containerApp {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.alertify-notifier {
+  /* z-index: 9999 !important; */
+  z-index: 2147483647 !important;
 }
 
 /* Alertify: asegurar visibilidad por encima de overlays y en pantallas móviles */

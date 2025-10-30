@@ -192,3 +192,10 @@ const agregarAlCarrito = () => {
   router.push("/Productos");
 };
 </script>
+
+
+<style scoped>
+.alertify-notifier {
+  z-index: 9999 !important;
+}
+</style>

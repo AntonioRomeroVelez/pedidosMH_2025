@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import alertify from "alertifyjs";
 
 const isMobile = ref(false);
 const menuOpen = ref(false);
@@ -378,9 +379,7 @@ function handleCloseMenu() {
   margin-top: 20px;
   width: 100%;
 }
-</style>
 
-<style>
 .alertify-notifier {
   z-index: 9999 !important;
 }

@@ -32,7 +32,6 @@
 
     <!-- Tarjetas de productos -->
     <div class="row" v-else>
-      
       <div class="container">
         <div class="row g-1 justify-content-center">
           <div
@@ -129,6 +128,7 @@
 import { ref, onMounted, computed } from "vue";
 import LoadingComponent from "./LoadingComponent.vue";
 import Fuse from "fuse.js";
+import alertify from "alertifyjs";
 
 const productos = ref([]);
 const busqueda = ref("");
@@ -199,7 +199,11 @@ const buscarProductos = () => {
 };
 </script>
 
-<style>
+<style scoped>
+.alertify-notifier {
+  z-index: 9999 !important;
+}
+
 /* Estilos base del buscador */
 .sticky-buscador {
   position: sticky;

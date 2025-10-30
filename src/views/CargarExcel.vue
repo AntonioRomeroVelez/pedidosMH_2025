@@ -254,7 +254,7 @@ const guardarEnStore = () => {
   border-radius: 8px;
 }
 .formato-tabla {
-  width: 90%;
+  width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
 }
