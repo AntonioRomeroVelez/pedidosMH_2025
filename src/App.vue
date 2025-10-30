@@ -15,10 +15,11 @@ const handleClickOutside = (event) => {
 
   try {
     // Verificar si el clic fue fuera del menú y del botón
-    const isOutside = menu && 
-      !menu.contains(event.target) && 
+    const isOutside =
+      menu &&
+      !menu.contains(event.target) &&
       !(button && button.contains(event.target)) &&
-      navbar && 
+      navbar &&
       !navbar.contains(event.target);
 
     if (isOutside) {
@@ -29,7 +30,7 @@ const handleClickOutside = (event) => {
       }
     }
   } catch (e) {
-    console.warn('Error en handleClickOutside:', e);
+    console.warn("Error en handleClickOutside:", e);
     menuOpen.value = false;
   }
 };
@@ -37,7 +38,7 @@ const handleClickOutside = (event) => {
 // Manejar pérdida de foco
 const handleBlur = (event) => {
   if (!menuOpen.value) return;
-  
+
   // Dar tiempo para detectar el nuevo elemento enfocado
   setTimeout(() => {
     const menu = document.querySelector(".mobile-menu");
@@ -45,11 +46,13 @@ const handleBlur = (event) => {
     const activeElement = document.activeElement;
 
     // Si el foco no está en el menú ni en el botón, cerrar
-    if (menu && 
-        button && 
-        activeElement && 
-        !menu.contains(activeElement) && 
-        activeElement !== button) {
+    if (
+      menu &&
+      button &&
+      activeElement &&
+      !menu.contains(activeElement) &&
+      activeElement !== button
+    ) {
       menuOpen.value = false;
     }
   }, 0);
@@ -68,21 +71,25 @@ const checkMobile = () => {
 
 onMounted(() => {
   checkMobile();
-  
+
   // Event Listeners
   window.addEventListener("resize", checkMobile);
   document.addEventListener("pointerdown", handleClickOutside, true);
   document.addEventListener("focusout", handleBlur, true);
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("close-mobile-menu", handleCloseMenu);
-  
+
   // Eventos táctiles específicos para móviles
-  if ('ontouchstart' in window) {
-    document.addEventListener("touchstart", (e) => {
-      if (menuOpen.value) {
-        handleClickOutside(e);
-      }
-    }, { passive: true });
+  if ("ontouchstart" in window) {
+    document.addEventListener(
+      "touchstart",
+      (e) => {
+        if (menuOpen.value) {
+          handleClickOutside(e);
+        }
+      },
+      { passive: true }
+    );
   }
 });
 
@@ -93,8 +100,8 @@ onBeforeUnmount(() => {
   document.removeEventListener("focusout", handleBlur, true);
   window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("close-mobile-menu", handleCloseMenu);
-  
-  if ('ontouchstart' in window) {
+
+  if ("ontouchstart" in window) {
     document.removeEventListener("touchstart", handleClickOutside);
   }
 });
@@ -370,5 +377,271 @@ function handleCloseMenu() {
 .containerApp {
   margin-top: 20px;
   width: 100%;
+}
+</style>
+
+<style>
+.alertify-notifier {
+  z-index: 9999 !important;
+}
+
+@media (max-width: 768px) {
+  .tableProductos thead {
+    display: none; /* Oculta encabezados */
+  }
+  .tableProductos,
+  .tableProductos tbody,
+  .tableProductos tr,
+  .tableProductos td {
+    display: block;
+    width: 100%;
+  }
+  .tableProductos tr {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 0.5rem;
+  }
+  .tableProductos td {
+    text-align: right;
+    position: relative;
+    padding-left: 0%;
+  }
+  .tableProductos td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    padding-left: 0.75rem;
+    font-weight: bold;
+    text-align: left;
+  }
+}
+
+/* Spinner overlay durante export */
+.export-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  z-index: 2147483646;
+}
+.export-spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid rgba(0, 0, 0, 0.08);
+  border-top-color: #0d6efd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.export-text {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Estilos de la tabla */
+.table-container {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.tableProductos {
+  width: 100% !important;
+  margin: 0 !important;
+  border-collapse: collapse;
+}
+
+.tableProductos th,
+.tableProductos td {
+  padding: 0.5rem !important;
+}
+
+/* Mobile card styles */
+.mobile-cards {
+  padding: 0.5rem;
+}
+
+.mobile-card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mobile-card:active {
+  transform: scale(0.98);
+}
+
+.mobile-card .card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.mobile-card .card-body {
+  padding: 1rem;
+}
+
+.mobile-card .product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-card .price-info {
+  text-align: right;
+  margin-left: 1rem;
+}
+
+.mobile-card .promo-info {
+  border-left: 4px solid #0d6efd;
+}
+
+.mobile-card .quantity-controls {
+  border-radius: 8px;
+}
+
+.mobile-card input[type="number"] {
+  border-radius: 6px;
+  border: 2px solid #dee2e6;
+  transition: border-color 0.2s;
+}
+
+.mobile-card input[type="number"]:focus {
+  border-color: #0d6efd;
+  box-shadow: none;
+}
+
+.mobile-card .badge {
+  font-weight: 500;
+  padding: 0.5em 0.8em;
+}
+
+/* Mejoras responsivas */
+@media (max-width: 360px) {
+  .mobile-card .price-info {
+    margin-left: 0.5rem;
+  }
+
+  .mobile-card .card-body {
+    padding: 0.75rem;
+  }
+
+  .mobile-card .quantity-controls .d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+}
+</style>
+
+<style>
+/* Alertify: asegurar visibilidad por encima de overlays y en pantallas móviles */
+.ajs-notifier,
+.ajs-message,
+.ajs-reset,
+.ajs-log,
+.ajs-error,
+.ajs-success,
+.ajs-alert,
+.ajs-notifier.ajs-top,
+.ajs-dialog {
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}
+
+.ajs-notifier {
+  max-width: 95% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  box-sizing: border-box !important;
+  padding: 0 0.25rem !important;
+}
+
+.ajs-message {
+  word-break: break-word !important;
+  white-space: normal !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  padding: 12px 16px !important;
+}
+
+/* Mejorar visibilidad de los diálogos de confirmación */
+.ajs-dialog {
+  max-width: 95% !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ajs-header {
+  border-radius: 12px 12px 0 0 !important;
+  padding: 16px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.ajs-body {
+  padding: 16px !important;
+  font-size: 15px !important;
+}
+
+.ajs-footer {
+  padding: 12px 16px !important;
+  border-radius: 0 0 12px 12px !important;
+}
+
+.ajs-button {
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s !important;
+}
+
+@media (max-width: 480px) {
+  .ajs-dialog {
+    margin: 16px !important;
+  }
+
+  .ajs-body {
+    padding: 12px !important;
+  }
+
+  .ajs-footer {
+    padding: 8px 12px !important;
+  }
+
+  .ajs-button {
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Mejoras para mensajes de éxito/error */
+.ajs-success {
+  background-color: #d4edda !important;
+  color: #155724 !important;
+  border-color: #c3e6cb !important;
+}
+
+.ajs-error {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+  border-color: #f5c6cb !important;
+}
+
+/* Backdrop para diálogos */
+.ajs-dim {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(2px) !important;
 }
 </style>
