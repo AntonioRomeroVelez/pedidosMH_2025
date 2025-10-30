@@ -395,7 +395,7 @@ const eliminarProducto = (index) => {
         localStorage.setItem("carrito", JSON.stringify(carrito.value));
         calcularTotal();
         calcularTotalesDesglosados();
-        alertify.success("Producto eliminado");
+        toast.success("Producto eliminado");
       },
       function () {
         /* cancelado */
