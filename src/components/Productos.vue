@@ -1,5 +1,5 @@
 <template>
-  <div v-if="noHayProductos !== null">
+  <div v-if="noHayProductos !== null" style="margin-top: 50%">
     <div class="alert alert-info text-center mt-3 shadow-sm">
       <i class="bi bi-box-seam"></i> {{ noHayProductos }}
     </div>

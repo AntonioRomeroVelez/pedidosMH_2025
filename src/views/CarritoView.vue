@@ -266,6 +266,9 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import alertify from "alertifyjs";
 
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 const carrito = ref([]);
 const totalCarrito = ref(0);
 const isMobile = ref(false);
@@ -647,10 +650,10 @@ const descargarExcel = async () => {
     const buffer = await workbook.xlsx.writeBuffer();
     const nombreArchivo = `${pedido.value.Tipo}_Cliente_${pedido.value.Nombre}_ciudad_${pedido.value.Ciudad}_Cliente_${pedido.value.Fecha}.xlsx`;
     saveAs(new Blob([buffer]), nombreArchivo);
-    alertify.success("Excel generado correctamente");
+    toast.success("Excel generado correctamente");
   } catch (err) {
     console.error("Error generando Excel:", err);
-    alertify.error("Ocurrió un error al generar el Excel");
+    toast.error("Ocurrió un error al generar el Excel");
   } finally {
     isExporting.value = false;
   }
@@ -666,7 +669,7 @@ const vaciarCarrito = async () => {
         carrito.value = [];
         calcularTotal();
         calcularTotalesDesglosados();
-        alertify.success("Carrito vaciado");
+        toast.success("Carrito vaciado");
       },
       function () {
         /* cancelado */
@@ -799,14 +802,14 @@ const descarTablaConPromocion = async () => {
       if (blob) {
         const filename = `lista_precios_MH_cliente_${nombreCliente}_${fecha}.png`;
         saveAs(blob, filename);
-        alertify.success("Imagen descargada correctamente");
+        toast.success("Imagen descargada correctamente");
       } else {
-        alertify.error("No se pudo generar la imagen");
+        toast.error("No se pudo generar la imagen");
       }
     }, "image/png");
   } catch (err) {
     console.error("Error generando imagen:", err);
-    alertify.error(
+    toast.error(
       "No se pudo generar la imagen. Intente nuevamente o use Exportar Excel."
     );
   } finally {
