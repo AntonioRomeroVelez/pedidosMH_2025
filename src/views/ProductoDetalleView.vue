@@ -148,11 +148,11 @@ const eliminarProducto = () => {
         (p) => p.ID !== producto.value.ID
       );
       localStorage.setItem("ListaProductos", JSON.stringify(nuevosProductos));
-      alertify.success("🗑️ Producto eliminado");
+      toast.success("🗑️ Producto eliminado");
       router.push("/Productos");
     },
     () => {
-      alertify.message("❌ Cancelado");
+      toast.message("❌ Cancelado");
     }
   );
 };
