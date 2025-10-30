@@ -7,7 +7,7 @@
     <!-- Datos del pedido -->
     <div class="row mb-4" v-if="carrito.length">
       <div class="col-md-3">
-        <label class="form-label">Nombre</label>
+        <label class="form-label">Nombre cliente</label>
         <input v-model="pedido.Nombre" type="text" class="form-control" />
       </div>
       <div class="col-md-3">

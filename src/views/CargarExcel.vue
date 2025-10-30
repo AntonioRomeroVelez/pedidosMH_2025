@@ -3,7 +3,7 @@
     <h2>📥 Cargar productos desde Excel</h2>
 
     <p>📝 El archivo debe tener las siguientes columnas:</p>
-    <div class="table-responsive">
+    <div class="table-responsive container">
       <table class="table table-bordered formato-tabla">
         <thead>
           <tr>
