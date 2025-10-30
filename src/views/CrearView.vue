@@ -116,6 +116,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import alertify from "alertifyjs";
 
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 const router = useRouter();
 
 const producto = ref({
@@ -147,7 +150,7 @@ const guardarCambios = () => {
     camposObligatorios.some((campo) => campo.trim() === "") ||
     !preciosValidos
   ) {
-    alertify.error(
+    toast.error(
       "❌ Todos los campos requeridos deben estar completos y los precios deben ser mayores a 0"
     );
     return;
@@ -160,7 +163,7 @@ const guardarCambios = () => {
   productosGuardados.push(producto.value);
   localStorage.setItem("ListaProductos", JSON.stringify(productosGuardados));
 
-  alertify.success("✅ Producto creado correctamente");
+  toast.success("✅ Producto creado correctamente");
   router.push("/Productos");
 };
 </script>
