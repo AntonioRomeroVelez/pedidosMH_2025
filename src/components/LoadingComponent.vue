@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-  // No necesitas lógica reactiva aquí, es un componente visual puro
+// No necesitas lógica reactiva aquí, es un componente visual puro
 </script>
 
 <style scoped>

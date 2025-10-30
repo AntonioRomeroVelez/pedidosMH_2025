@@ -78,6 +78,9 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import alertify from "alertifyjs";
 
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 const cantidadProductos = ref(0);
 const resultados = ref([]);
 const productos = ref([]);
@@ -110,16 +113,18 @@ const vaciarProductos = () => {
       cantidadProductos.value = 0;
       noHayProductos.value =
         "No hay productos para mostrar, puedes agregar productos en Cargar Excel";
-      alertify.success("✅ Archivos eliminados");
+      toast.success("✅ Registros eliminados");
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
       // No es necesario navegar a la misma ruta; si quieres forzar reload, podemos usar router.push o location.reload()
     },
     () => {
-      alertify.error("❌ Operación cancelada");
+      toast.error("❌ Operación cancelada");
     }
   );
 };
 </script>
-
 
 <style scoped>
 .alertify-notifier {

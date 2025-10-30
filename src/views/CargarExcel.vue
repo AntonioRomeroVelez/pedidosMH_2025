@@ -135,7 +135,8 @@ import { ref } from "vue";
 import * as XLSX from "xlsx";
 import alertify from "alertifyjs";
 import { useRouter } from "vue-router";
-
+import { useToast } from "vue-toastification";
+const toast = useToast();
 import LoadingComponent from "@/components/LoadingComponent.vue";
 const loading = ref(false);
 
@@ -208,14 +209,12 @@ const leerExcel = (event) => {
       datos.value = productosTemp;
 
       if (errores.value.length > 0) {
-        alertify.error(
-          "❌ Hay errores en el archivo. Revisa las filas marcadas."
-        );
+        toast.error("❌ Hay errores en el archivo. Revisa las filas marcadas.");
       } else {
-        alertify.success("✅ Archivo cargado correctamente");
+        toast.success("✅ Archivo cargado correctamente");
       }
     } catch (error) {
-      alertify.error("❌ Error al procesar el archivo.");
+      toast.error("❌ Error al procesar el archivo.");
       console.error("Error al leer Excel:", error);
     } finally {
       loading.value = false;
@@ -232,12 +231,12 @@ const tieneError = (index) => {
 
 const guardarEnStore = () => {
   if (errores.value.length > 0) {
-    alertify.error("❌ No se puede guardar. Corrige los errores primero.");
+    toast.error("❌ No se puede guardar. Corrige los errores primero.");
     return;
   }
   localStorage.removeItem("ListaProductos");
   localStorage.setItem("ListaProductos", JSON.stringify(datos.value));
-  alertify.success("✅ Productos guardados en memoria");
+  toast.success("✅ Productos guardados en memoria");
 
   setTimeout(() => {
     router.push("/Productos");

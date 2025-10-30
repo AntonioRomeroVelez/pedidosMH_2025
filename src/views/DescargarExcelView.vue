@@ -21,11 +21,15 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import alertify from "alertifyjs";
 
+
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 const descargarExcel = () => {
   const productos = JSON.parse(localStorage.getItem("ListaProductos") || "[]");
 
   if (!productos.length) {
-    alertify.error("❌ No hay productos para exportar");
+    toast.error("❌ No hay productos para exportar");
     return;
   }
 
@@ -46,6 +50,6 @@ const descargarExcel = () => {
   const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
   saveAs(blob, nombreArchivo);
 
-  alertify.success(`✅ Excel descargado como ${nombreArchivo}`);
+  toast.success(`✅ Excel descargado como ${nombreArchivo}`);
 };
 </script>

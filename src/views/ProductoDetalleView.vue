@@ -103,6 +103,9 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import alertify from "alertifyjs";
 
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 const route = useRoute();
 const router = useRouter();
 const producto = ref(null);
@@ -157,7 +160,7 @@ const eliminarProducto = () => {
 const agregarAlCarrito = () => {
   const cantidadNum = parseInt(cantidad.value);
   if (!cantidadNum || cantidadNum < 1) {
-    alertify.error("❌ Ingresa una cantidad válida antes de agregar.");
+    toast.error("❌ Ingresa una cantidad válida antes de agregar.");
     return;
   }
 
@@ -178,12 +181,12 @@ const agregarAlCarrito = () => {
   if (index !== -1) {
     carrito[index].cantidad += item.cantidad;
     carrito[index].unidadesEntregadas += item.unidadesEntregadas;
-    alertify.warning(
+    toast.warning(
       `⚠️ Cantidad actualizada: "${item.NombreProducto}" x${carrito[index].cantidad} (entregados: ${carrito[index].unidadesEntregadas})`
     );
   } else {
     carrito.push(item);
-    alertify.success(
+    toast.success(
       `✅ Producto agregado: "${item.NombreProducto}" x${item.cantidad} (entregados: ${item.unidadesEntregadas})`
     );
   }
@@ -192,7 +195,6 @@ const agregarAlCarrito = () => {
   router.push("/Productos");
 };
 </script>
-
 
 <style scoped>
 .alertify-notifier {
