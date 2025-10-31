@@ -110,6 +110,7 @@ const route = useRoute();
 const router = useRouter();
 const producto = ref(null);
 const cantidad = ref("");
+import { calcularPromocionYTotales } from "../servicios/utility";
 
 onMounted(() => {
   const productosGuardados = JSON.parse(
@@ -117,24 +118,6 @@ onMounted(() => {
   );
   producto.value = productosGuardados.find((p) => p.ID === route.params.id);
 });
-
-function calcularUnidadesConPromociones(cantidad, promociones) {
-  if (!promociones) return cantidad;
-
-  const lista = promociones.split(",").map((p) => p.trim());
-  let mejorExtra = 0;
-
-  for (const promo of lista) {
-    const [x, y] = promo.split("+").map((n) => parseInt(n.trim()));
-    if (isNaN(x) || isNaN(y) || x <= 0 || y < 0) continue;
-
-    const grupos = Math.floor(cantidad / x);
-    const extra = grupos * y;
-    if (extra > mejorExtra) mejorExtra = extra;
-  }
-
-  return cantidad + mejorExtra;
-}
 
 const eliminarProducto = () => {
   alertify.confirm(
@@ -164,10 +147,10 @@ const agregarAlCarrito = () => {
     return;
   }
 
-  const unidadesEntregadas = calcularUnidadesConPromociones(
+  const unidadesEntregadas = calcularPromocionYTotales(
     cantidadNum,
     producto.value.Promocion
-  );
+  ).total;
 
   const item = {
     ...producto.value,

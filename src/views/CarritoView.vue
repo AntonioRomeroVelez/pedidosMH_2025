@@ -124,7 +124,9 @@
                 />
               </td>
               <td data-label="Cantidad a recibir">
-                {{ mostarCantidadTotal(item.Promocion, item.cantidad) }}
+                {{
+                  calcularPromocionYTotales(item.cantidad, item.Promocion).total
+                }}
               </td>
               <td data-label="Acciones">
                 <button
@@ -207,7 +209,7 @@
                 <div class="ms-2">
                   <strong>A recibir:</strong>
                   <span class="badge bg-success">{{
-                    mostarCantidadTotal(item.Promocion, item.cantidad)
+                    calcularPromocionYTotales(item.cantidad, item.Promocion)
                   }}</span>
                 </div>
               </div>
@@ -274,6 +276,8 @@ const totalCarrito = ref(0);
 const isMobile = ref(false);
 const isExporting = ref(false);
 
+import { calcularPromocionYTotales } from "../servicios/utility";
+
 const pedido = ref({
   Nombre: "",
   Ciudad: "",
@@ -292,7 +296,7 @@ const calcularTotalesDesglosados = () => {
 
   carrito.value.forEach((item) => {
     const base = item.PrecioFarmacia * item.cantidad;
-    console.log("base:", base);
+    // console.log("base:", base);
     const iva = Number(item.IVA);
 
     if (iva > 0) {
@@ -302,9 +306,9 @@ const calcularTotalesDesglosados = () => {
       subtotal0.value += base;
     }
   });
-  console.log("subtotal15:", subtotal15);
-  console.log("subtotal0:", subtotal0);
-  console.log("iva15:", iva15);
+  // console.log("subtotal15:", subtotal15);
+  // console.log("subtotal0:", subtotal0);
+  // console.log("iva15:", iva15);
 
   totalCarrito.value = subtotal15.value + subtotal0.value + iva15.value;
 };
@@ -316,36 +320,6 @@ onMounted(() => {
   calcularTotalesDesglosados();
   pedido.value.Fecha = new Date().toISOString().split("T")[0];
   // Configuración global de alertify para mejorar visibilidad en móviles
-  try {
-    // Configuración del notificador
-    alertify.set("notifier", {
-      position: "top-center",
-      delay: 3,
-      closeButton: true,
-      clickToClose: true,
-      movable: false,
-    });
-
-    // Configuración de diálogos
-    alertify.set("dialogs", {
-      modal: true,
-      movable: false,
-      resizable: false,
-      maximizable: false,
-      pinnable: false,
-      closable: true,
-      closableByDimmer: true,
-      preventBodyShift: true,
-      transition: "pulse",
-      autoReset: true,
-    });
-
-    // Personalizar botones
-    alertify.defaults.glossary.ok = "Aceptar";
-    alertify.defaults.glossary.cancel = "Cancelar";
-  } catch (e) {
-    console.warn("alertify configuración no aplicada:", e);
-  }
 
   // detectar móvil por media query para renderizar tarjetas
   const mq = window.matchMedia("(max-width: 767px)");
@@ -410,43 +384,6 @@ const eliminarProducto = (index) => {
   }
 };
 
-const calcularPromocion = (promocionStr, cantidad) => {
-  if (!promocionStr || !promocionStr.includes("+"))
-    return { promo: 0, total: cantidad };
-
-  const [baseStr, extraStr] = promocionStr.split("+");
-  const base = parseInt(baseStr);
-  const extra = parseInt(extraStr);
-
-  if (isNaN(base) || isNaN(extra) || base <= 0)
-    return { promo: 0, total: cantidad };
-
-  const veces = Math.floor(cantidad / base);
-  const promo = veces * extra;
-  const total = cantidad + promo;
-  console.log("promo:", promo);
-  console.log("total:", total);
-  return { promo, total };
-};
-
-function mostarCantidadTotal(promocion, cantidad) {
-  if (!promocion || !cantidad) return cantidad;
-
-  const lista = promocion.split(",").map((p) => p.trim());
-  let mejorExtra = 0;
-
-  for (const promo of lista) {
-    const [x, y] = promo.split("+").map((n) => parseInt(n.trim()));
-    if (isNaN(x) || isNaN(y) || x <= 0 || y < 0) continue;
-
-    const grupos = Math.floor(cantidad / x);
-    const extra = grupos * y;
-    if (extra > mejorExtra) mejorExtra = extra;
-  }
-
-  return cantidad + mejorExtra;
-}
-
 ///// descaqrgar excel
 
 const descargarExcel = async () => {
@@ -487,9 +424,9 @@ const descargarExcel = async () => {
         "Fecha de Vencimiento",
       ];
       filas = carrito.value.map((item) => {
-        const { promo, total } = calcularPromocion(
-          item.Promocion,
-          item.cantidad
+        const { promo, total, detalle, cantidad } = calcularPromocionYTotales(
+          item.cantidad,
+          item.Promocion
         );
         return [
           item.cantidad,
@@ -513,7 +450,7 @@ const descargarExcel = async () => {
         const totalVista = item.PVP * item.cantidad;
         return [
           item.cantidad,
-          calcularPromocion(item.Promocion, item.cantidad).promo,
+          calcularPromocionYTotales(item.cantidad, item.Promocion).promo,
           item.NombreProducto,
           item.Marca,
           item.PrecioFarmacia,
@@ -596,7 +533,7 @@ const descargarExcel = async () => {
         "",
         "",
         "Subtotal 15%:",
-        subtotal15.value.toFixed(2),
+        `$ ${subtotal15.value.toFixed(2)}`,
       ]);
       const resumenRow2 = hoja.addRow([
         "",
@@ -604,7 +541,7 @@ const descargarExcel = async () => {
         "",
         "",
         "Subtotal 0%:",
-        subtotal0.value.toFixed(2),
+        `$ ${subtotal0.value.toFixed(2)}`,
       ]);
       const resumenRow3 = hoja.addRow([
         "",
@@ -612,7 +549,7 @@ const descargarExcel = async () => {
         "",
         "",
         "IVA 15%:",
-        iva15.value.toFixed(2),
+        `$ ${iva15.value.toFixed(2)}`,
       ]);
       const resumenRow4 = hoja.addRow([
         "",
@@ -620,7 +557,7 @@ const descargarExcel = async () => {
         "",
         "",
         "VALOR TOTAL:",
-        totalCarrito.value.toFixed(2),
+        `$ ${totalCarrito.value.toFixed(2)}`,
       ]);
 
       // Aplicar bordes y estilos

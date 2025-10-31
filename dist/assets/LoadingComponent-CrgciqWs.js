@@ -1,1 +1,0 @@
-import{_ as e,b as a,d as s,e as o}from"./index-D2s67k_l.js";const t={class:"loading-container"},r={__name:"LoadingComponent",setup(_){return(c,n)=>(s(),a("div",t,[...n[0]||(n[0]=[o("div",{class:"spinner"},null,-1),o("p",null,"Cargando...",-1)])]))}},d=e(r,[["__scopeId","data-v-e1aa2f11"]]);export{d as L};

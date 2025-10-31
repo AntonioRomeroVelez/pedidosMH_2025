@@ -37,7 +37,7 @@
           <div
             v-for="producto in productosPaginados"
             :key="producto.ID"
-            class="col-md-6 col-lg-4"
+            class="col-xs-12 col-md-6 col-lg-3"
           >
             <div
               class="card border border-primary rounded-1 shadow-sm h-100"
@@ -68,6 +68,7 @@
                       💰 PVP: ${{ producto.PVP.toFixed(2) }}
                     </span>
                   </div>
+
                   <div class="d-flex justify-content-between flex-wrap">
                     <span
                       v-if="producto.Descuento"
@@ -80,6 +81,12 @@
                       class="badge bg-danger-subtle text-danger mb-2"
                     >
                       🧾 IVA: {{ producto.IVA }}%
+                    </span>
+                    <span
+                      class="badge bg-warning-subtle text-dark mb-2"
+                      v-if="producto.Promocion"
+                    >
+                      🎁 Promoción: {{ producto.Promocion }}
                     </span>
                   </div>
                 </div>
@@ -128,7 +135,6 @@
 import { ref, onMounted, computed } from "vue";
 import LoadingComponent from "./LoadingComponent.vue";
 import Fuse from "fuse.js";
-import alertify from "alertifyjs";
 
 const productos = ref([]);
 const busqueda = ref("");
