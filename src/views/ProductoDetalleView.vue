@@ -3,7 +3,9 @@
     <div v-if="producto" class="card border-0 shadow-sm">
       <div class="card-body">
         <!-- Cantidad y botón de agregar (ahora arriba) -->
-        <div class="row g-3 align-items-center mb-4">
+        <div v-if="modo === 'gestionar'"></div>
+
+        <div class="row g-3 align-items-center mb-4" v-else>
           <div class="col-4">
             <input
               type="number"
@@ -67,24 +69,40 @@
 
         <hr class="my-4" />
 
-        <!-- Botón de regreso -->
-        <div
-          class="text-center mt-4 d-flex gap-3 align-content-center justify-content-center"
-        >
-          <button class="btn btn-danger px-2 sm" @click="eliminarProducto">
-            🗑️ Eliminar
-          </button>
-
-          <router-link
-            class="btn btn-info px-2 sm"
-            :to="'/editar/' + producto.ID"
+        <div v-if="modo === 'gestionar'">
+          <!-- <p>gestinar prodcutp</p> -->
+          <!-- Mostrar producto -->
+          <div
+            class="text-center mt-4 d-flex gap-3 align-content-center justify-content-center"
           >
-            ✏️ Editar
-          </router-link>
-          <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
-            🔙 Regresar
-          </RouterLink>
+            <button class="btn btn-danger px-2 sm" @click="eliminarProducto">
+              🗑️ Eliminar
+            </button>
+
+            <router-link
+              class="btn btn-info px-2 sm"
+              :to="'/editar/' + producto.ID"
+            >
+              ✏️ Editar
+            </router-link>
+            <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
+              🔙 Regresar
+            </RouterLink>
+          </div>
         </div>
+
+        <div v-else>
+          <!-- <p>solo ver producto</p> -->
+          <div
+            class="text-center mt-4 d-flex gap-3 align-content-center justify-content-center"
+          >
+            <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
+              🔙 Regresar
+            </RouterLink>
+          </div>
+        </div>
+
+        <!-- Botón de regreso -->
       </div>
     </div>
 
@@ -99,7 +117,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import alertify from "alertifyjs";
 
@@ -107,9 +125,13 @@ import { useToast } from "vue-toastification";
 const toast = useToast();
 
 const route = useRoute();
+
+const modo = computed(() => route.query.modo || "ver");
+
 const router = useRouter();
 const producto = ref(null);
 const cantidad = ref("");
+
 import { calcularPromocionYTotales } from "../servicios/utility";
 
 onMounted(() => {

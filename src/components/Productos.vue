@@ -91,13 +91,34 @@
                   </div>
                 </div>
 
-                <div class="text-center">
-                  <router-link
-                    class="btn btn-outline-secondary w-75"
-                    :to="'/producto/' + producto.ID"
-                  >
-                    🔍 Ver Producto
-                  </router-link>
+                <div v-if="modo === 'gestionar'">
+                  <!-- <p>gestinar prodcutp</p> -->
+                  <div class="text-center">
+                    <router-link
+                      class="btn btn-outline-secondary w-75"
+                      :to="{
+                        path: '/producto/' + producto.ID,
+                        query: { modo: 'gestionar' },
+                      }"
+                    >
+                      🔍 Ver Producto
+                    </router-link>
+                  </div>
+                </div>
+
+                <div v-else>
+                  <!-- <p>solo ver producto</p> -->
+                  <div class="text-center">
+                    <router-link
+                      class="btn btn-outline-secondary w-75"
+                      :to="{
+                        path: '/producto/' + producto.ID,
+                        query: { modo: 'ver' },
+                      }"
+                    >
+                      🔍 Ver Producto
+                    </router-link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -135,6 +156,11 @@
 import { ref, onMounted, computed } from "vue";
 import LoadingComponent from "./LoadingComponent.vue";
 import Fuse from "fuse.js";
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+
+const modo = computed(() => route.query.modo || "ver");
 
 const productos = ref([]);
 const busqueda = ref("");

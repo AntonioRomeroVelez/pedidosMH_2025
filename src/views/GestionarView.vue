@@ -14,16 +14,13 @@
               Total productos: {{ cantidadProductos }}
             </h5>
             <div class="d-flex gap-2 flex-wrap mt-2">
-              <RouterLink class="btn btn-outline-success" to="/productos"
-                >Ir a productos</RouterLink
+              
+              <RouterLink
+                class="btn btn-outline-success"
+                to="/GestionarProductos"
+                >Gestionar Productos</RouterLink
               >
-              <RouterLink class="btn btn-outline-primary" :to="'/crear'">
-                Nuevo producto
-              </RouterLink>
-
-              <button @click="vaciarProductos" class="btn btn-outline-danger">
-                Eliminar productos registrados
-              </button>
+             
             </div>
           </div>
         </div>

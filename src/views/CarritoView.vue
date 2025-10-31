@@ -126,7 +126,9 @@
                 />
               </td>
               <td data-label="Cantidad a recibir">
-                {{ cantidadRecibir }}
+                {{
+                  calcularPromocionYTotales(item.cantidad, item.Promocion).total
+                }}
               </td>
               <td data-label="Acciones">
                 <button
@@ -211,7 +213,10 @@
                 <div class="ms-2">
                   <strong>A recibir: </strong>
                   <span class="badge bg-success">
-                    {{ cantidadRecibir }}
+                    {{
+                      calcularPromocionYTotales(item.cantidad, item.Promocion)
+                        .total
+                    }}
                   </span>
                 </div>
               </div>
