@@ -118,15 +118,15 @@
                   type="number"
                   min="0"
                   v-model.number="item.cantidad"
-                  @change="actualizarCantidad(index)"
+                  @change="
+                    actualizarCantidad(index, item.cantidad, item.Promocion)
+                  "
                   class="form-control form-control-sm"
                   style="width: 80px"
                 />
               </td>
               <td data-label="Cantidad a recibir">
-                {{
-                  calcularPromocionYTotales(item.cantidad, item.Promocion).total
-                }}
+                {{ cantidadRecibir }}
               </td>
               <td data-label="Acciones">
                 <button
@@ -201,16 +201,18 @@
                     type="number"
                     min="0"
                     v-model.number="item.cantidad"
-                    @change="actualizarCantidad(index)"
+                    @change="
+                      actualizarCantidad(index, item.cantidad, item.Promocion)
+                    "
                     class="form-control"
                     style="width: 80px"
                   />
                 </div>
                 <div class="ms-2">
-                  <strong>A recibir:</strong>
-                  <span class="badge bg-success">{{
-                    calcularPromocionYTotales(item.cantidad, item.Promocion)
-                  }}</span>
+                  <strong>A recibir: </strong>
+                  <span class="badge bg-success">
+                    {{ cantidadRecibir }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -263,7 +265,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import alertify from "alertifyjs";
@@ -271,6 +273,7 @@ import alertify from "alertifyjs";
 import { useToast } from "vue-toastification";
 const toast = useToast();
 
+const cantidadRecibir = ref(0);
 const carrito = ref([]);
 const totalCarrito = ref(0);
 const isMobile = ref(false);
@@ -351,11 +354,12 @@ const calcularTotal = () => {
   }, 0);
 };
 
-const actualizarCantidad = (index) => {
+const actualizarCantidad = (index, cantidad, promocion) => {
   if (carrito.value[index].cantidad < 1) carrito.value[index].cantidad = 1;
   localStorage.setItem("carrito", JSON.stringify(carrito.value));
   calcularTotal();
   calcularTotalesDesglosados();
+  cantidadRecibir.value = calcularPromocionYTotales(cantidad, promocion).total;
 };
 
 const eliminarProducto = (index) => {
