@@ -58,6 +58,11 @@ const router = createRouter({
       name: "DescargarExcel",
       component: () => import("../views/DescargarExcelView.vue"),
     },
+    {
+      path: "/imagenespdf",
+      name: "imagenespdf",
+      component: () => import("../views/ImagenesPDF.vue"),
+    },
   ],
 });
 

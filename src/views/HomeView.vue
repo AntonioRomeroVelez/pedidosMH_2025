@@ -10,9 +10,15 @@
         <p class="marca text-2xl">Representaciones Molina Herrera</p>
       </div>
 
-      <RouterLink class="btn btn-primary" to="/Productos">
-        Lista de productos
-      </RouterLink>
+      <div class="d-flex gap-5">
+        <RouterLink class="btn btn-primary" to="/Productos">
+          Lista de productos
+        </RouterLink>
+
+        <RouterLink class="btn btn-success" to="/imagenespdf">
+          Cargar imágenes para PDF
+        </RouterLink>
+      </div>
     </div>
   </div>
 </template>
