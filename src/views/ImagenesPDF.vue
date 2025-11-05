@@ -1,8 +1,6 @@
 <template>
-  <div class="container py-4">
-    <h2 class="fw-bold mb-4 text-primary">
-      Generar e Imprimir PDF A4 con imágenes nítidas
-    </h2>
+  <div class="container py-4" style="margin-top: 80px">
+    <h2 class="fw-bold mb-4 text-primary">Imprimir varias imágenes</h2>
 
     <!-- Input para subir imágenes -->
     <div class="mb-3">

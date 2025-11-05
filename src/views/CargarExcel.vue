@@ -7,6 +7,7 @@
       <table class="table table-bordered formato-tabla">
         <thead>
           <tr>
+            <th>CODIGO</th>
             <th>NombreProducto</th>
             <th>Presentacion</th>
             <th>PrincipioActivo</th>
@@ -20,6 +21,7 @@
         </thead>
         <tbody>
           <tr>
+            <td>2343</td>
             <td>Paracetamol 500mg</td>
             <td>Caja x 10</td>
             <td>Paracetamol</td>
@@ -70,6 +72,14 @@
         Guardar productos en memoria
       </button>
 
+      <button
+        v-if="repetidos.length"
+        @click="exportarRepetidos"
+        class="btn btn-danger mx-2"
+      >
+        <i class="bi bi-file-earmark-excel"></i> Exportar productos repetidos
+      </button>
+
       <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
         Cancelar
       </RouterLink>
@@ -94,6 +104,7 @@
         <table class="table table-bordered table-sm formato-tabla">
           <thead>
             <tr>
+              <th>Codigo</th>
               <th>#</th>
               <th>NombreProducto</th>
               <th>Presentacion</th>
@@ -112,6 +123,7 @@
               :key="i"
               :class="{ 'table-danger': tieneError(i) }"
             >
+              <td>{{ p.CODIGO }}</td>
               <td>{{ i + 1 }}</td>
               <td>{{ p.NombreProducto }}</td>
               <td>{{ p.Presentacion }}</td>
@@ -131,18 +143,31 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import alertify from "alertifyjs";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
-const toast = useToast();
 import LoadingComponent from "@/components/LoadingComponent.vue";
-const loading = ref(false);
 
+const toast = useToast();
+const router = useRouter();
+
+const loading = ref(false);
 const datos = ref([]);
 const errores = ref([]);
-const router = useRouter();
+const repetidos = ref([]);
+const archivoNombre = ref("");
+
+// ✅ Cargar productos guardados al iniciar
+onMounted(() => {
+  const guardados = localStorage.getItem("ListaProductos");
+  if (guardados) {
+    datos.value = JSON.parse(guardados);
+  }
+});
 
 const leerExcel = (event) => {
   loading.value = true;
@@ -152,6 +177,8 @@ const leerExcel = (event) => {
     return;
   }
 
+  archivoNombre.value = archivo.name;
+
   const reader = new FileReader();
   reader.onload = (e) => {
     try {
@@ -159,6 +186,7 @@ const leerExcel = (event) => {
       const workbook = XLSX.read(data, { type: "array" });
 
       errores.value = [];
+      repetidos.value = [];
       let productosTemp = [];
 
       workbook.SheetNames.forEach((sheetName, indexH) => {
@@ -167,18 +195,22 @@ const leerExcel = (event) => {
 
         json.forEach((fila, index) => {
           const producto = {
-            ID: `id-${index}-${
-              fila.NombreProducto.split(" ")[0]
-            }-${Math.random().toString(36).substr(2, 5)}`,
-            NombreProducto: fila.NombreProducto ?? "",
-            Presentacion: fila.Presentacion ?? "",
-            PrincipioActivo: fila.PrincipioActivo ?? "",
-            PrecioFarmacia: parseFloat(fila.PrecioFarmacia ?? ""),
-            PVP: parseFloat(fila.PVP ?? ""),
-            Promocion: fila.Promocion ?? "",
-            Descuento: parseInt(fila.Descuento ?? 0),
-            Marca: fila.Marca ?? "",
-            IVA: parseInt(fila.IVA ?? 0),
+            Codigo: fila.CODIGO,
+            ID: `id-${index}-${Math.random().toString(36).substr(2, 5)}`,
+            NombreProducto: fila.NombreProducto ?? fila.NOMBRE ?? "",
+            Presentacion: fila.Presentacion ?? fila.PRESENTACION ?? "",
+            PrincipioActivo:
+              fila.PrincipioActivo ?? fila.PRINCIPIO_ACTIVO ?? "",
+            PrecioFarmacia:
+              parseFloat(fila.PrecioFarmacia ?? fila.P_FARMACIA ?? "") || 0,
+            PVP: parseFloat(fila.PVP ?? "") || 0,
+            Promocion: fila.Promocion ?? fila.PROMOCION ?? "",
+            Descuento:
+              parseInt(fila.Descuento ?? fila.DESCUENTO ?? 0) ||
+              parseFloat(fila.Descuento ?? fila.DESCUENTO ?? 0) ||
+              0,
+            Marca: fila.Marca ?? fila.MARCA ?? "",
+            IVA: parseInt(fila.IVA ?? 0) || 0,
           };
 
           const erroresFila = [];
@@ -199,19 +231,46 @@ const leerExcel = (event) => {
               errores: erroresFila,
               id: `${indexH}${index}`,
             });
-            console.log(`Hoja: ${sheetName}, Fila ${index + 2}`, fila);
           }
 
           productosTemp.push(producto);
         });
       });
 
-      datos.value = productosTemp;
+      // 🧠 Mezclar con productos existentes sin borrar
+      const existentes =
+        datos.value.length > 0
+          ? [...datos.value]
+          : JSON.parse(localStorage.getItem("ListaProductos") || "[]");
+
+      const codigosExistentes = new Set(existentes.map((p) => p.Codigo));
+
+      // Productos nuevos y repetidos
+      const nuevos = [];
+      const repetidosTemp = [];
+
+      productosTemp.forEach((p) => {
+        if (codigosExistentes.has(p.Codigo)) {
+          repetidosTemp.push(p);
+        } else {
+          nuevos.push(p);
+        }
+      });
+
+      // Actualizar listas
+      datos.value = [...existentes, ...nuevos];
+      repetidos.value = repetidosTemp;
+
+      if (repetidosTemp.length > 0) {
+        toast.warning(
+          `⚠️ Se detectaron ${repetidosTemp.length} productos repetidos. Puedes exportarlos.`
+        );
+      } else {
+        toast.success("✅ Archivo cargado correctamente");
+      }
 
       if (errores.value.length > 0) {
         toast.error("❌ Hay errores en el archivo. Revisa las filas marcadas.");
-      } else {
-        toast.success("✅ Archivo cargado correctamente");
       }
     } catch (error) {
       toast.error("❌ Error al procesar el archivo.");
@@ -224,6 +283,47 @@ const leerExcel = (event) => {
   reader.readAsArrayBuffer(archivo);
 };
 
+// ✅ Exportar productos repetidos
+async function exportarRepetidos() {
+  if (!repetidos.value.length) {
+    toast.info("No hay productos repetidos para exportar");
+    return;
+  }
+
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet("Productos Repetidos");
+
+  ws.columns = [
+    { header: "CODIGO", key: "Codigo", width: 15 },
+    { header: "NombreProducto", key: "NombreProducto", width: 40 },
+    { header: "Presentacion", key: "Presentacion", width: 25 },
+    { header: "PrincipioActivo", key: "PrincipioActivo", width: 30 },
+    { header: "PrecioFarmacia", key: "PrecioFarmacia", width: 15 },
+    { header: "PVP", key: "PVP", width: 12 },
+    { header: "Promocion", key: "Promocion", width: 15 },
+    { header: "Descuento", key: "Descuento", width: 12 },
+    { header: "Marca", key: "Marca", width: 20 },
+    { header: "IVA", key: "IVA", width: 10 },
+  ];
+
+  repetidos.value.forEach((p) => ws.addRow(p));
+
+  const header = ws.getRow(1);
+  header.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFB91D1D" },
+    };
+    cell.alignment = { vertical: "middle", horizontal: "center" };
+  });
+
+  const buf = await wb.xlsx.writeBuffer();
+  saveAs(new Blob([buf]), "productos_repetidos.xlsx");
+  toast.success("📦 Archivo de productos repetidos exportado correctamente");
+}
+
 const tieneError = (index) => {
   const producto = datos.value[index];
   return errores.value.some((e) => e.id === producto.ID);
@@ -234,9 +334,10 @@ const guardarEnStore = () => {
     toast.error("❌ No se puede guardar. Corrige los errores primero.");
     return;
   }
-  localStorage.removeItem("ListaProductos");
   localStorage.setItem("ListaProductos", JSON.stringify(datos.value));
-  toast.success("✅ Productos guardados en memoria");
+  toast.success(
+    `✅ Se guardaron ${datos.value.length} productos en memoria (sin borrar los anteriores).`
+  );
 
   setTimeout(() => {
     router.push("/Productos");

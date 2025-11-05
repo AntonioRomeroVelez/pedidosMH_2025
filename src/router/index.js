@@ -63,6 +63,16 @@ const router = createRouter({
       name: "imagenespdf",
       component: () => import("../views/ImagenesPDF.vue"),
     },
+    {
+      path: "/compararExcel",
+      name: "compararExcel",
+      component: () => import("../views/CompararExcel.vue"),
+    },
+    {
+      path: "/normalizarExcel",
+      name: "normalizarExcel",
+      component: () => import("../views/NormalizarExcel.vue"),
+    },
   ],
 });
 

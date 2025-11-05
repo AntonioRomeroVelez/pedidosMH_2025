@@ -25,6 +25,14 @@
         <button @click="vaciarProductos" class="btn btn-outline-danger">
           Eliminar productos registrados
         </button>
+
+        <RouterLink class="btn btn-outline-warning" to="/compararExcel">
+          Comparar 2 excel
+        </RouterLink>
+
+        <RouterLink class="btn btn-outline-warning" to="/normalizarExcel">
+          Formatear Excel
+        </RouterLink>
       </div>
     </div>
   </div>
