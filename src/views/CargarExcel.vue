@@ -36,6 +36,7 @@
       </table>
     </div>
 
+    <!-- Cargar Excel -->
     <div class="mb-4">
       <label for="excelInput" class="form-label fw-semibold text-primary">
         📄 Cargar archivo Excel
@@ -63,31 +64,51 @@
       </div>
     </div>
 
-    <div>
+    <!-- Contadores -->
+    <div v-if="datos.length || repetidos.length" class="alert alert-info">
+      <strong>📊 Resumen:</strong>
+      <ul class="mb-0">
+        <li>
+          🟢 Nuevos productos cargados: <b>{{ nuevosCount }}</b>
+        </li>
+        <li>
+          🟡 Productos repetidos detectados: <b>{{ repetidos.length }}</b>
+        </li>
+        <li>
+          📦 Total actual en memoria: <b>{{ datos.length }}</b>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="mb-4">
       <button
         @click="guardarEnStore"
         v-if="datos.length"
-        class="btn btn-success m-5"
+        class="btn btn-success m-2"
       >
-        Guardar productos en memoria
+        💾 Guardar productos en memoria
       </button>
 
       <button
         v-if="repetidos.length"
         @click="exportarRepetidos"
-        class="btn btn-danger mx-2"
+        class="btn btn-danger m-2"
       >
-        <i class="bi bi-file-earmark-excel"></i> Exportar productos repetidos
+        📤 Exportar productos repetidos
       </button>
 
-      <RouterLink class="btn btn-warning px-2 sm" to="/Productos">
+      <RouterLink class="btn btn-warning px-2 sm m-2" to="/Productos">
         Cancelar
       </RouterLink>
     </div>
 
+    <!-- Estado de carga -->
     <div v-if="loading">
       <LoadingComponent />
     </div>
+
+    <!-- Tabla de errores -->
     <div v-else>
       <div v-if="errores.length" class="mt-3">
         <h5 class="text-danger">❌ Errores detectados:</h5>
@@ -99,13 +120,14 @@
         </ul>
       </div>
 
+      <!-- Vista previa -->
       <div v-if="datos.length" class="table-responsive mt-4">
         <h4>👀 Vista previa de productos cargados</h4>
         <table class="table table-bordered table-sm formato-tabla">
           <thead>
             <tr>
-              <th>Codigo</th>
               <th>#</th>
+              <th>Codigo</th>
               <th>NombreProducto</th>
               <th>Presentacion</th>
               <th>PrincipioActivo</th>
@@ -123,8 +145,8 @@
               :key="i"
               :class="{ 'table-danger': tieneError(i) }"
             >
-              <td>{{ p.CODIGO }}</td>
               <td>{{ i + 1 }}</td>
+              <td>{{ p.Codigo }}</td>
               <td>{{ p.NombreProducto }}</td>
               <td>{{ p.Presentacion }}</td>
               <td>{{ p.PrincipioActivo }}</td>
@@ -160,8 +182,8 @@ const datos = ref([]);
 const errores = ref([]);
 const repetidos = ref([]);
 const archivoNombre = ref("");
+const nuevosCount = ref(0);
 
-// ✅ Cargar productos guardados al iniciar
 onMounted(() => {
   const guardados = localStorage.getItem("ListaProductos");
   if (guardados) {
@@ -213,31 +235,10 @@ const leerExcel = (event) => {
             IVA: parseInt(fila.IVA ?? 0) || 0,
           };
 
-          const erroresFila = [];
-          if (!producto.NombreProducto) erroresFila.push("Nombre vacío");
-          if (!producto.Presentacion) erroresFila.push("Presentación vacía");
-          if (!producto.PrincipioActivo)
-            erroresFila.push("Principio activo vacío");
-          if (isNaN(producto.PrecioFarmacia))
-            erroresFila.push("Precio farmacia inválido");
-          if (isNaN(producto.PVP)) erroresFila.push("PVP inválido");
-          if (!producto.Marca) erroresFila.push("Marca vacía");
-          if (isNaN(producto.IVA)) erroresFila.push("IVA inválido");
-
-          if (erroresFila.length > 0) {
-            errores.value.push({
-              hoja: sheetName,
-              fila: index + 2,
-              errores: erroresFila,
-              id: `${indexH}${index}`,
-            });
-          }
-
           productosTemp.push(producto);
         });
       });
 
-      // 🧠 Mezclar con productos existentes sin borrar
       const existentes =
         datos.value.length > 0
           ? [...datos.value]
@@ -245,7 +246,6 @@ const leerExcel = (event) => {
 
       const codigosExistentes = new Set(existentes.map((p) => p.Codigo));
 
-      // Productos nuevos y repetidos
       const nuevos = [];
       const repetidosTemp = [];
 
@@ -257,20 +257,16 @@ const leerExcel = (event) => {
         }
       });
 
-      // Actualizar listas
       datos.value = [...existentes, ...nuevos];
       repetidos.value = repetidosTemp;
+      nuevosCount.value = nuevos.length;
 
       if (repetidosTemp.length > 0) {
         toast.warning(
-          `⚠️ Se detectaron ${repetidosTemp.length} productos repetidos. Puedes exportarlos.`
+          `⚠️ ${repetidosTemp.length} productos repetidos. Puedes exportarlos.`
         );
       } else {
-        toast.success("✅ Archivo cargado correctamente");
-      }
-
-      if (errores.value.length > 0) {
-        toast.error("❌ Hay errores en el archivo. Revisa las filas marcadas.");
+        toast.success(`✅ ${nuevos.length} productos nuevos agregados.`);
       }
     } catch (error) {
       toast.error("❌ Error al procesar el archivo.");
@@ -283,7 +279,6 @@ const leerExcel = (event) => {
   reader.readAsArrayBuffer(archivo);
 };
 
-// ✅ Exportar productos repetidos
 async function exportarRepetidos() {
   if (!repetidos.value.length) {
     toast.info("No hay productos repetidos para exportar");
@@ -330,10 +325,6 @@ const tieneError = (index) => {
 };
 
 const guardarEnStore = () => {
-  if (errores.value.length > 0) {
-    toast.error("❌ No se puede guardar. Corrige los errores primero.");
-    return;
-  }
   localStorage.setItem("ListaProductos", JSON.stringify(datos.value));
   toast.success(
     `✅ Se guardaron ${datos.value.length} productos en memoria (sin borrar los anteriores).`
@@ -353,21 +344,14 @@ const guardarEnStore = () => {
   border: 1px solid #ccc;
   border-radius: 8px;
 }
-.formato-tabla {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-.formato-tabla th,
-.formato-tabla td {
-  border: 1px solid #ddd;
-  padding: 4px;
-  text-align: center;
-}
 .formato-tabla th {
   background-color: #f0de8d !important;
 }
 .table-danger {
   background-color: #f8d7da !important;
+}
+.alert-info ul {
+  list-style: none;
+  padding-left: 0;
 }
 </style>
