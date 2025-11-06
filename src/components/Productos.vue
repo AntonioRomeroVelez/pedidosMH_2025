@@ -1,146 +1,144 @@
 <template>
-  <div v-if="noHayProductos !== null" style="margin-top: 50%">
-    <div class="alert alert-info text-center mt-3 shadow-sm">
-      <i class="bi bi-box-seam"></i> {{ noHayProductos }}
-    </div>
-  </div>
-
-  <div class="container py-4" v-else>
-    <!-- 🔍 Buscador -->
-    <div class="sticky-buscador">
-      <div class="input-group">
-        <span class="input-group-text border-0 bg-white">
-          <i class="bi bi-search text-primary"></i>
-        </span>
-        <input
-          v-model="busqueda"
-          type="text"
-          class="form-control form-control-lg"
-          placeholder="Buscar por nombre, marca o principio activo..."
-          @keyup.enter="buscarProductos"
-        />
-        <button class="btn btn-primary btn-lg" @click="buscarProductos">
-          <i class="bi bi-arrow-right"></i>
-        </button>
+  <div>
+    <!-- 🧩 Mensaje sin productos -->
+    <div
+      v-if="noHayProductos !== null"
+      class="d-flex justify-content-center align-items-center"
+      style="height: 80vh"
+    >
+      <div class="alert alert-info text-center shadow-sm p-4">
+        <i class="bi bi-box-seam fs-3 text-primary mb-2 d-block"></i>
+        <h5 class="fw-bold mb-1">Sin productos disponibles</h5>
+        <p class="mb-0 small text-muted">{{ noHayProductos }}</p>
       </div>
     </div>
 
-    <!-- Mensaje carga -->
-    <div v-if="loading">
-      <LoadingComponent />
-    </div>
+    <!-- 🧪 Contenedor principal -->
+    <div class="container py-4" v-else>
+      <!-- 🔍 Buscador -->
+      <div class="card border-0 shadow-sm sticky-buscador mb-4">
+        <div class="card-body p-3">
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-primary"></i>
+            </span>
+            <input
+              v-model="busqueda"
+              type="text"
+              class="form-control border-start-0"
+              placeholder="Buscar por nombre, marca o principio activo..."
+              @keyup.enter="buscarProductos"
+            />
+            <button class="btn btn-primary" @click="buscarProductos">
+              Buscar <i class="bi bi-arrow-right-short ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
 
-    <!-- Tarjetas de productos -->
-    <div class="row" v-else>
-      <div class="container">
-        <div class="row g-1 justify-content-center">
+      <!-- ⏳ Cargando -->
+      <div v-if="loading" class="text-center py-5">
+        <LoadingComponent />
+      </div>
+
+      <!-- 📦 Lista de productos -->
+      <div v-else>
+        <div class="row g-3 justify-content-center">
           <div
             v-for="producto in productosPaginados"
             :key="producto.ID"
-            class="col-xs-12 col-md-6 col-lg-3"
+            class="col-12 col-sm-6 col-lg-3"
           >
-            <div
-              class="card border border-primary rounded-1 shadow-sm h-100"
-              style="border-width: 2px"
-            >
+            <div class="card border-0 shadow-sm h-100 hover-card">
               <div class="card-body d-flex flex-column justify-content-between">
-                <div class="mb-3">
+                <!-- Título y marca -->
+                <div>
                   <h5
-                    class="card-title text-primary fw-bold d-flex align-items-center"
+                    class="text-primary fw-bold mb-2 d-flex align-items-center"
                   >
-                    🧪 {{ producto.NombreProducto }}
+                    <i class="bi bi-capsule me-2"></i>
+                    {{ producto.NombreProducto }}
                   </h5>
-                  <p class="card-subtitle text-muted mb-1">
+                  <p class="text-muted mb-1 small">
                     {{ producto.Marca }} | {{ producto.Presentacion }}
                   </p>
-                  <p class="card-subtitle text-muted mb-1">
+                  <p class="text-muted mb-2 small">
                     <strong>🧬 Principio Activo:</strong><br />
                     {{ producto.PrincipioActivo }}
                   </p>
                 </div>
 
+                <!-- Precios -->
                 <div class="mb-3">
                   <div class="d-flex justify-content-between flex-wrap">
-                    <span class="badge bg-light text-dark border mb-2">
-                      🏥 P. Farmacia: ${{ producto.PrecioFarmacia.toFixed(2) }}
+                    <span class="badge bg-light text-dark border">
+                      🏥 Farmacia: ${{ producto.PrecioFarmacia.toFixed(2) }}
                     </span>
-                    <span class="badge bg-light text-dark border mb-2">
+                    <span class="badge bg-light text-dark border">
                       💰 PVP: ${{ producto.PVP.toFixed(2) }}
                     </span>
                   </div>
 
-                  <div class="d-flex justify-content-between flex-wrap">
+                  <!-- Descuentos y promoción -->
+                  <div class="d-flex justify-content-between flex-wrap mt-2">
                     <span
                       v-if="producto.Descuento"
-                      class="badge bg-success-subtle text-success mb-2"
+                      class="badge bg-success-subtle text-success"
                     >
-                      🎁 Descuento: {{ producto.Descuento }}%
+                      🎁 {{ producto.Descuento }}% descuento
                     </span>
                     <span
                       v-if="producto.IVA"
-                      class="badge bg-danger-subtle text-danger mb-2"
+                      class="badge bg-danger-subtle text-danger"
                     >
-                      🧾 IVA: {{ producto.IVA }}%
+                      🧾 IVA {{ producto.IVA }}%
                     </span>
                     <span
-                      class="badge bg-warning-subtle text-dark mb-2"
                       v-if="producto.Promocion"
+                      class="badge bg-warning-subtle text-dark"
                     >
-                      🎁 Promoción: {{ producto.Promocion }}
+                      🎉 {{ producto.Promocion }}
                     </span>
                   </div>
                 </div>
 
-                <div v-if="modo === 'gestionar'">
-                  <!-- <p>gestinar prodcutp</p> -->
-                  <div class="text-center">
-                    <router-link
-                      class="btn btn-outline-secondary w-75"
-                      :to="{
-                        path: '/producto/' + producto.ID,
-                        query: { modo: 'gestionar' },
-                      }"
-                    >
-                      🔍 Ver Producto
-                    </router-link>
-                  </div>
-                </div>
-
-                <div v-else>
-                  <!-- <p>solo ver producto</p> -->
-                  <div class="text-center">
-                    <router-link
-                      class="btn btn-outline-secondary w-75"
-                      :to="{
-                        path: '/producto/' + producto.ID,
-                        query: { modo: 'ver' },
-                      }"
-                    >
-                      🔍 Ver Producto
-                    </router-link>
-                  </div>
+                <!-- Botón de acción -->
+                <div class="text-center">
+                  <router-link
+                    class="btn btn-outline-primary w-75"
+                    :to="{
+                      path: '/producto/' + producto.ID,
+                      query: {
+                        modo: modo === 'gestionar' ? 'gestionar' : 'ver',
+                      },
+                    }"
+                  >
+                    🔍 Ver Producto
+                  </router-link>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 📄 Controles de paginación -->
-        <div class="d-flex justify-content-center align-items-center mt-4">
+        <!-- 📄 Paginación -->
+        <div
+          class="d-flex justify-content-center align-items-center mt-5 gap-3"
+        >
           <button
-            class="btn btn-outline-primary me-2"
+            class="btn btn-outline-primary"
             @click="paginaAnterior"
             :disabled="paginaActual === 1"
           >
             ⬅️ Anterior
           </button>
 
-          <span class="fw-bold">
+          <span class="fw-bold text-secondary">
             Página {{ paginaActual }} / {{ totalPaginas }}
           </span>
 
           <button
-            class="btn btn-outline-primary ms-2"
+            class="btn btn-outline-primary"
             @click="paginaSiguiente"
             :disabled="paginaActual === totalPaginas"
           >
@@ -151,6 +149,32 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+.hover-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-buscador {
+  position: sticky;
+  top: 70px;
+  z-index: 10;
+  background: #f8f9fa;
+}
+
+.card-body {
+  font-size: 0.95rem;
+}
+
+.btn i {
+  vertical-align: middle;
+}
+</style>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
@@ -231,7 +255,7 @@ const buscarProductos = () => {
 };
 </script>
 
-<style scoped>
+<!-- <style scoped>
 .alertify-notifier {
   z-index: 9999 !important;
 }
@@ -362,4 +386,4 @@ const buscarProductos = () => {
     font-size: 0.9rem;
   }
 }
-</style>
+</style> -->

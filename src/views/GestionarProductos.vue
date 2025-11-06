@@ -1,42 +1,64 @@
 <template>
-  <div style="margin-top: 100px">
-    <div class="container">
-      <h1>Gestión de productos</h1>
-      <!-- <RouterLink class="btn btn-outline-success" to="/productos"
-        >Ir a productos</RouterLink
-      > -->
-      <div
-        class="text-center mt-4 d-flex gap-3 align-content-center justify-content-center flex-wrap"
+  <div class="container py-5" style="margin-top: 80px">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold text-primary">📦 Gestión de Productos</h2>
+      <p class="text-muted">
+        Administra, crea o elimina productos registrados en el sistema.
+      </p>
+      <hr class="w-25 mx-auto opacity-75" />
+    </div>
+
+    <div class="d-flex justify-content-center flex-wrap gap-3 mt-4">
+      <!-- Ir a productos -->
+      <router-link
+        class="btn btn-success d-flex align-items-center px-4 py-2"
+        :to="{ path: '/productos', query: { modo: 'gestionar' } }"
       >
-        <router-link
-          class="btn btn-outline-success"
-          :to="{
-            path: '/productos',
-            query: { modo: 'gestionar' },
-          }"
-        >
-          Ir a productos
-        </router-link>
+        <i class="bi bi-box-seam me-2 fs-5"></i>
+        Ir a productos
+      </router-link>
 
-        <RouterLink class="btn btn-outline-primary" :to="'/crear'">
-          Nuevo producto
-        </RouterLink>
+      <!-- Crear nuevo producto -->
+      <RouterLink
+        class="btn btn-primary d-flex align-items-center px-4 py-2"
+        :to="'/crear'"
+      >
+        <i class="bi bi-plus-circle me-2 fs-5"></i>
+        Nuevo producto
+      </RouterLink>
 
-        <button @click="vaciarProductos" class="btn btn-outline-danger">
-          Eliminar productos registrados
-        </button>
-
-        <RouterLink class="btn btn-outline-warning" to="/compararExcel">
-          Comparar 2 excel
-        </RouterLink>
-
-        <RouterLink class="btn btn-outline-warning" to="/normalizarExcel">
-          Formatear Excel
-        </RouterLink>
-      </div>
+      <!-- Eliminar productos -->
+      <button
+        @click="vaciarProductos"
+        class="btn btn-danger d-flex align-items-center px-4 py-2"
+      >
+        <i class="bi bi-trash3 me-2 fs-5"></i>
+        Eliminar productos registrados
+      </button>
     </div>
   </div>
 </template>
+
+<style scoped>
+.btn {
+  font-weight: 500;
+  border-width: 2px;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+h2 {
+  letter-spacing: 0.5px;
+}
+
+hr {
+  border-top: 3px solid #0d6efd;
+  width: 80px;
+}
+</style>
 
 <script setup>
 import { ref, onMounted } from "vue";

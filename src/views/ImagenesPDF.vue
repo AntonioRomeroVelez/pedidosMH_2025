@@ -1,74 +1,113 @@
 <template>
-  <div class="container py-4" style="margin-top: 80px">
-    <h2 class="fw-bold mb-4 text-primary">Imprimir varias imágenes</h2>
+  <div class="container py-5" style="margin-top: 80px">
+    <!-- Título -->
+    <div class="text-center mb-5">
+      <h2 class="fw-bold text-primary mb-2">🖨️ Imprimir varias imágenes</h2>
+      <p class="text-muted mb-0">
+        Carga tus imágenes, revisa la vista previa y genera tus archivos PDF.
+      </p>
+    </div>
 
-    <!-- Input para subir imágenes -->
-    <div class="mb-3">
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        class="form-control"
-        @change="onFileChange"
-      />
-      <div class="form-text">
-        Puedes agregar más imágenes o eliminarlas si lo deseas.
+    <!-- Subir imágenes -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title text-secondary mb-3">
+          <i class="bi bi-upload me-2"></i>Agregar imágenes
+        </h5>
+
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          class="form-control mb-2"
+          @change="onFileChange"
+        />
+        <div class="form-text">
+          Puedes agregar más imágenes o eliminar las que ya no necesites.
+        </div>
       </div>
     </div>
 
-    <!-- Galería de imágenes -->
-    <div class="row g-3">
+    <!-- Galería -->
+    <div v-if="images.length" class="row g-4">
       <div
         v-for="(img, index) in images"
         :key="img.id"
         class="col-6 col-md-4 col-lg-3"
       >
-        <div class="card shadow-sm position-relative">
+        <div class="card shadow-sm h-100 border-0 position-relative hover-card">
           <img
             :src="img.url"
-            class="card-img-top"
-            style="height: 160px; object-fit: contain; background: #f8f9fa"
+            class="card-img-top p-2 bg-light"
+            style="height: 170px; object-fit: contain"
             alt="Vista previa"
           />
-          <div class="card-body p-2 text-center">
-            <p class="small text-muted mb-0">{{ img.name }}</p>
+          <div class="card-body text-center py-2">
+            <p class="small text-muted text-truncate mb-0">{{ img.name }}</p>
           </div>
           <button
             type="button"
-            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+            class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle"
+            title="Eliminar"
             @click="removeImage(index)"
           >
-            ✕
+            <i class="bi bi-x-lg"></i>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Si no hay imágenes -->
-    <div v-if="!images.length" class="alert alert-secondary mt-3">
-      No hay imágenes cargadas.
+    <!-- Estado vacío -->
+    <div v-else class="alert alert-light border mt-4 text-center shadow-sm">
+      <i class="bi bi-images text-secondary fs-4 me-2"></i>
+      No hay imágenes cargadas actualmente.
     </div>
 
     <!-- Botones de acción -->
-    <div v-if="images.length" class="mt-4 d-flex flex-wrap gap-2">
-      <button @click="generateOnePdfPerImage" class="btn btn-primary">
-        <i class="bi bi-file-earmark-pdf me-1"></i> Un PDF por imagen
-      </button>
+    <div v-if="images.length" class="mt-5 text-center">
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+        <button @click="generateOnePdfPerImage" class="btn btn-primary">
+          <i class="bi bi-file-earmark-pdf me-2"></i>Un PDF por imagen
+        </button>
 
-      <button @click="generateSinglePdf" class="btn btn-success">
-        <i class="bi bi-collection me-1"></i> Un solo PDF con todas
-      </button>
+        <button @click="generateSinglePdf" class="btn btn-success">
+          <i class="bi bi-collection me-2"></i>Un solo PDF con todas
+        </button>
 
-      <button @click="printPdfDirectly" class="btn btn-warning text-dark">
-        <i class="bi bi-printer me-1"></i> Imprimir directamente
-      </button>
+        <button @click="printPdfDirectly" class="btn btn-warning text-dark">
+          <i class="bi bi-printer me-2"></i>Imprimir directamente
+        </button>
 
-      <button @click="clearAll" class="btn btn-outline-danger ms-auto">
-        <i class="bi bi-trash me-1"></i> Vaciar todo
-      </button>
+        <button @click="clearAll" class="btn btn-outline-danger">
+          <i class="bi bi-trash me-2"></i>Vaciar todo
+        </button>
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.form-text {
+  font-size: 0.9rem;
+}
+
+button i {
+  vertical-align: middle;
+}
+
+.alert-light {
+  background: #f8f9fa;
+}
+</style>
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
@@ -225,10 +264,3 @@ const printPdfDirectly = async () => {
   }
 };
 </script>
-
-<style scoped>
-.drag-ghost {
-  opacity: 0.4;
-  transform: scale(0.98);
-}
-</style>
