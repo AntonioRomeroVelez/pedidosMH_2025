@@ -232,7 +232,7 @@ const leerExcel = (event) => {
           const producto = {
             ID: codigo || `id-${Math.random().toString(36).substr(2, 5)}`,
             Codigo: codigo,
-            Marca: filaNormalizada["MARCA"] || "",
+            Marca: filaNormalizada["MARCA"].replace("MARCA", "") || "",
             NombreProducto: filaNormalizada["NOMBRE"] || "",
             Presentacion: filaNormalizada["PRESENTACION"] || "",
             PrincipioActivo: filaNormalizada["PRINCIPIO_ACTIVO"] || "",
