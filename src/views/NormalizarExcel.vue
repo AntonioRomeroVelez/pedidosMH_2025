@@ -347,7 +347,7 @@ async function exportar() {
   const ws = wb.addWorksheet("Productos");
 
   ws.columns = [
-    { header: "CÓDIGO", key: "CODIGO", width: 30 },
+    { header: "CODIGO", key: "CODIGO", width: 30 },
     { header: "MARCA", key: "MARCA", width: 30 },
     { header: "NOMBRE", key: "NOMBRE", width: 40 },
     { header: "PRESENTACION", key: "PRESENTACION", width: 20 },

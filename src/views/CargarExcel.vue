@@ -126,8 +126,8 @@
         <table class="table table-bordered table-sm formato-tabla">
           <thead>
             <tr>
-              <th>#</th>
               <th>Codigo</th>
+              <th>#</th>
               <th>NombreProducto</th>
               <th>Presentacion</th>
               <th>PrincipioActivo</th>
@@ -145,8 +145,8 @@
               :key="i"
               :class="{ 'table-danger': tieneError(i) }"
             >
-              <td>{{ i + 1 }}</td>
               <td>{{ p.Codigo }}</td>
+              <td>{{ i + 1 }}</td>
               <td>{{ p.NombreProducto }}</td>
               <td>{{ p.Presentacion }}</td>
               <td>{{ p.PrincipioActivo }}</td>
@@ -169,7 +169,6 @@ import { ref, onMounted } from "vue";
 import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import alertify from "alertifyjs";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import LoadingComponent from "@/components/LoadingComponent.vue";
@@ -211,34 +210,56 @@ const leerExcel = (event) => {
       repetidos.value = [];
       let productosTemp = [];
 
-      workbook.SheetNames.forEach((sheetName, indexH) => {
+      workbook.SheetNames.forEach((sheetName) => {
         const hoja = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(hoja);
 
-        json.forEach((fila, index) => {
+        json.forEach((fila) => {
+          // 🔹 Normalizar claves (quita tildes, espacios y pasa a mayúsculas)
+          const filaNormalizada = {};
+          Object.keys(fila).forEach((k) => {
+            const keyLimpia = k
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .trim()
+              .toUpperCase();
+            filaNormalizada[keyLimpia] = fila[k];
+          });
+
+          // 🔹 Crear producto con ID = CODIGO
+          const codigo = filaNormalizada["CODIGO"]?.toString().trim() || "";
+
           const producto = {
-            Codigo: fila.CODIGO,
-            ID: `id-${index}-${Math.random().toString(36).substr(2, 5)}`,
-            NombreProducto: fila.NombreProducto ?? fila.NOMBRE ?? "",
-            Presentacion: fila.Presentacion ?? fila.PRESENTACION ?? "",
-            PrincipioActivo:
-              fila.PrincipioActivo ?? fila.PRINCIPIO_ACTIVO ?? "",
+            ID: codigo || `id-${Math.random().toString(36).substr(2, 5)}`,
+            Codigo: codigo,
+            Marca: filaNormalizada["MARCA"] || "",
+            NombreProducto: filaNormalizada["NOMBRE"] || "",
+            Presentacion: filaNormalizada["PRESENTACION"] || "",
+            PrincipioActivo: filaNormalizada["PRINCIPIO_ACTIVO"] || "",
             PrecioFarmacia:
-              parseFloat(fila.PrecioFarmacia ?? fila.P_FARMACIA ?? "") || 0,
-            PVP: parseFloat(fila.PVP ?? "") || 0,
-            Promocion: fila.Promocion ?? fila.PROMOCION ?? "",
+              parseFloat(
+                (filaNormalizada["P_FARMACIA"] || "0")
+                  .toString()
+                  .replace(",", ".")
+              ) || 0,
+            PVP:
+              parseFloat(
+                (filaNormalizada["PVP"] || "0").toString().replace(",", ".")
+              ) || 0,
+            Promocion: filaNormalizada["PROMOCION"] || "",
             Descuento:
-              parseInt(fila.Descuento ?? fila.DESCUENTO ?? 0) ||
-              parseFloat(fila.Descuento ?? fila.DESCUENTO ?? 0) ||
-              0,
-            Marca: fila.Marca ?? fila.MARCA ?? "",
-            IVA: parseInt(fila.IVA ?? 0) || 0,
+              parseFloat((filaNormalizada["DESCUENTO"] || "0").toString()) || 0,
+            IVA:
+              parseFloat(
+                (filaNormalizada["IVA"] || "0").toString().replace(",", ".")
+              ) || 0,
           };
 
           productosTemp.push(producto);
         });
       });
 
+      // 🔹 Verificar repetidos por código
       const existentes =
         datos.value.length > 0
           ? [...datos.value]
