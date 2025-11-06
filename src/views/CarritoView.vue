@@ -83,7 +83,7 @@
               <th class="text-wrap fs-6 text">Nombre</th>
               <th class="text-wrap fs-6 text">Presentación</th>
               <th class="text-wrap fs-6 text">Principio Activo</th>
-              <th class="text-wrap fs-6 text">PVP</th>
+              <th class="text-wrap fs-6 text">P FARMACIA</th>
               <th class="text-wrap fs-6 text">Promoción</th>
               <th class="text-wrap fs-6 text">Descuento</th>
               <th class="text-wrap fs-6 text">Marca</th>
@@ -428,7 +428,7 @@ const descargarExcel = async () => {
       encabezados = [
         "Cantidad",
         "Promoción",
-        "NombreProducto",
+        "Nombre Producto",
         "Lote",
         "Fecha de Vencimiento",
       ];
@@ -452,7 +452,7 @@ const descargarExcel = async () => {
         "Promoción",
         "Nombre Producto",
         "Marca",
-        "Precio",
+        "Precio Farmacia",
         "Total",
       ];
       filas = carrito.value.map((item) => {

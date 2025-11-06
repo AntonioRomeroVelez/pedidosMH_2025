@@ -19,8 +19,6 @@
 <script setup>
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import alertify from "alertifyjs";
-
 
 import { useToast } from "vue-toastification";
 const toast = useToast();
@@ -43,7 +41,7 @@ const descargarExcel = () => {
   const yyyy = fecha.getFullYear();
   const mm = String(fecha.getMonth() + 1).padStart(2, "0");
   const dd = String(fecha.getDate()).padStart(2, "0");
-  const nombreArchivo = `productos_${yyyy}-${mm}-${dd}.xlsx`;
+  const nombreArchivo = `productos_${yyyy}-${mm}-${dd}DESCARGADOS_APP.xlsx`;
 
   // Convierte a archivo y lo descarga
   const excelBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array" });

@@ -8,20 +8,21 @@
         <thead>
           <tr>
             <th>CODIGO</th>
-            <th>NombreProducto</th>
+            <th>Marca</th>
+            <th>Nombre</th>
             <th>Presentacion</th>
-            <th>PrincipioActivo</th>
-            <th>PrecioFarmacia</th>
+            <th>Principio_Activo</th>
+            <th>P_Farmacia</th>
             <th>PVP</th>
             <th>Promocion</th>
             <th>Descuento</th>
-            <th>Marca</th>
             <th>IVA</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>2343</td>
+            <td>Genfar</td>
             <td>Paracetamol 500mg</td>
             <td>Caja x 10</td>
             <td>Paracetamol</td>
@@ -29,7 +30,6 @@
             <td>2.00</td>
             <td>2x1</td>
             <td>10</td>
-            <td>Genfar</td>
             <td>15</td>
           </tr>
         </tbody>
@@ -128,14 +128,14 @@
             <tr>
               <th>Codigo</th>
               <th>#</th>
-              <th>NombreProducto</th>
+              <th>Marca</th>
+              <th>Nombre_Producto</th>
               <th>Presentacion</th>
-              <th>PrincipioActivo</th>
-              <th>PrecioFarmacia</th>
+              <th>Principio_Activo</th>
+              <th>P_Farmacia</th>
               <th>PVP</th>
               <th>Promocion</th>
               <th>Descuento</th>
-              <th>Marca</th>
               <th>IVA</th>
             </tr>
           </thead>
@@ -147,6 +147,7 @@
             >
               <td>{{ p.Codigo }}</td>
               <td>{{ i + 1 }}</td>
+              <td>{{ p.Marca }}</td>
               <td>{{ p.NombreProducto }}</td>
               <td>{{ p.Presentacion }}</td>
               <td>{{ p.PrincipioActivo }}</td>
@@ -154,7 +155,6 @@
               <td>{{ p.PVP }}</td>
               <td>{{ p.Promocion }}</td>
               <td>{{ p.Descuento }}</td>
-              <td>{{ p.Marca }}</td>
               <td>{{ p.IVA }}</td>
             </tr>
           </tbody>
@@ -311,6 +311,7 @@ async function exportarRepetidos() {
 
   ws.columns = [
     { header: "CODIGO", key: "Codigo", width: 15 },
+    { header: "Marca", key: "Marca", width: 20 },
     { header: "NombreProducto", key: "NombreProducto", width: 40 },
     { header: "Presentacion", key: "Presentacion", width: 25 },
     { header: "PrincipioActivo", key: "PrincipioActivo", width: 30 },
@@ -318,7 +319,6 @@ async function exportarRepetidos() {
     { header: "PVP", key: "PVP", width: 12 },
     { header: "Promocion", key: "Promocion", width: 15 },
     { header: "Descuento", key: "Descuento", width: 12 },
-    { header: "Marca", key: "Marca", width: 20 },
     { header: "IVA", key: "IVA", width: 10 },
   ];
 

@@ -1,13 +1,13 @@
 <template>
   <div class="container py-4" style="margin-top: 80px">
-    <h2 class="text-center mb-4">🧾 Comparador de Archivos Excel</h2>
+    <h2 class="text-center mb-4">📊 Comparador de Archivos Excel</h2>
 
     <div class="row g-4">
       <!-- Archivo anterior -->
       <div class="col-md-6">
         <div class="card shadow-sm">
           <div class="card-body">
-            <h5 class="card-title">Archivo anterior</h5>
+            <h5 class="card-title">📘 Archivo base (anterior)</h5>
             <input
               type="file"
               accept=".xlsx,.xls"
@@ -17,21 +17,6 @@
             <div v-if="baseNombre" class="mt-2 text-success small">
               <i class="bi bi-file-earmark-excel"></i> {{ baseNombre }}
             </div>
-
-            <!-- Selector de hoja -->
-            <div v-if="baseHojas.length" class="mt-3">
-              <label class="form-label">Seleccionar hoja:</label>
-              <select
-                class="form-select"
-                v-model="baseHojaSeleccionada"
-                @change="cargarHoja('base')"
-              >
-                <option disabled value="">-- Selecciona una hoja --</option>
-                <option v-for="(h, i) in baseHojas" :key="i" :value="h">
-                  {{ h }}
-                </option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -40,7 +25,7 @@
       <div class="col-md-6">
         <div class="card shadow-sm">
           <div class="card-body">
-            <h5 class="card-title">Archivo nuevo</h5>
+            <h5 class="card-title">📗 Archivo nuevo</h5>
             <input
               type="file"
               accept=".xlsx,.xls"
@@ -49,21 +34,6 @@
             />
             <div v-if="nuevoNombre" class="mt-2 text-success small">
               <i class="bi bi-file-earmark-excel"></i> {{ nuevoNombre }}
-            </div>
-
-            <!-- Selector de hoja -->
-            <div v-if="nuevoHojas.length" class="mt-3">
-              <label class="form-label">Seleccionar hoja:</label>
-              <select
-                class="form-select"
-                v-model="nuevoHojaSeleccionada"
-                @change="cargarHoja('nuevo')"
-              >
-                <option disabled value="">-- Selecciona una hoja --</option>
-                <option v-for="(h, i) in nuevoHojas" :key="i" :value="h">
-                  {{ h }}
-                </option>
-              </select>
             </div>
           </div>
         </div>
@@ -85,8 +55,21 @@
         class="btn btn-success px-4"
         @click="exportarExcel"
       >
-        <i class="bi bi-file-earmark-arrow-down"></i> Exportar resultado
+        <i class="bi bi-file-earmark-arrow-down"></i> Descargar plantilla
+        actualizada
       </button>
+    </div>
+
+    <!-- 🔍 Filtro de estado -->
+    <div v-if="resultado.length" class="mt-4 text-center">
+      <label class="fw-bold me-2">Filtrar por estado:</label>
+      <select v-model="filtroEstado" class="form-select d-inline-block w-auto">
+        <option value="Todos">Todos</option>
+        <option value="Nuevo">Nuevos</option>
+        <option value="Actualizado">Actualizados</option>
+        <option value="Eliminado">Eliminados</option>
+        <option value="Sin cambios">Sin cambios</option>
+      </select>
     </div>
 
     <!-- Resultados -->
@@ -96,32 +79,44 @@
         <table class="table table-bordered table-hover align-middle">
           <thead class="table-light">
             <tr>
-              <th>Nombre</th>
-              <th>Precio</th>
-              <th>Promoción</th>
-              <th>Presentación</th>
-              <th>Estado</th>
-              <th>Cambios</th>
+              <th>CODIGO</th>
+              <th>MARCA</th>
+              <th>NOMBRE</th>
+              <th>PRESENTACION</th>
+              <th>PRINCIPIO_ACTIVO</th>
+              <th>P_FARMACIA</th>
+              <th>PVP</th>
+              <th>PROMOCION</th>
+              <th>DESCUENTO</th>
+              <th>IVA</th>
+              <th>ESTADO</th>
+              <th>DETALLE_CAMBIO</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              v-for="(r, i) in resultado"
+              v-for="(r, i) in resultadoFiltrado"
               :key="i"
               :class="{
-                'table-success': r.estado === 'Nuevo',
-                'table-danger': r.estado === 'Eliminado',
-                'table-warning': r.estado === 'Cambiado',
+                'table-success': r.ESTADO === 'Nuevo',
+                'table-warning': r.ESTADO === 'Actualizado',
+                'table-danger': r.ESTADO === 'Eliminado',
               }"
             >
-              <td>{{ r.nombre }}</td>
-              <td>{{ r.precio }}</td>
-              <td>{{ r.promociones }}</td>
-              <td>{{ r.presentacion }}</td>
+              <td>{{ r.CODIGO }}</td>
+              <td>{{ r.MARCA }}</td>
+              <td>{{ r.NOMBRE }}</td>
+              <td>{{ r.PRESENTACION }}</td>
+              <td>{{ r.PRINCIPIO_ACTIVO }}</td>
+              <td>{{ r.P_FARMACIA }}</td>
+              <td>{{ r.PVP }}</td>
+              <td>{{ r.PROMOCION }}</td>
+              <td>{{ r.DESCUENTO }}</td>
+              <td>{{ r.IVA }}</td>
               <td>
-                <strong>{{ r.estado }}</strong>
+                <strong>{{ r.ESTADO }}</strong>
               </td>
-              <td>{{ r.cambios?.join(", ") }}</td>
+              <td>{{ r.DETALLE_CAMBIO }}</td>
             </tr>
           </tbody>
         </table>
@@ -132,129 +127,222 @@
 
 <script setup>
 import * as XLSX from "xlsx";
-import { ref } from "vue";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+import { ref, computed } from "vue";
 
-// Datos de archivos
 const baseData = ref([]);
 const nuevoData = ref([]);
 const resultado = ref([]);
 
-// Nombres y hojas
 const baseNombre = ref("");
 const nuevoNombre = ref("");
-const baseWorkbook = ref(null);
-const nuevoWorkbook = ref(null);
-const baseHojas = ref([]);
-const nuevoHojas = ref([]);
-const baseHojaSeleccionada = ref("");
-const nuevoHojaSeleccionada = ref("");
+const filtroEstado = ref("Todos");
+
+// 🔧 Función de limpieza para comparación más precisa
+function limpiarTexto(texto) {
+  return texto
+    ? texto.toString().toLowerCase().replace(/\s+/g, " ").trim()
+    : "";
+}
 
 /**
- * Lee el archivo Excel y guarda el workbook completo
+ * Lee el archivo Excel (solo primera hoja)
  */
 function leerArchivo(e, tipo) {
   const file = e.target.files[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    const data = new Uint8Array(evt.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-    const hojas = workbook.SheetNames;
+  try {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    if (tipo === "base") {
-      baseWorkbook.value = workbook;
-      baseHojas.value = hojas;
-      baseNombre.value = file.name;
-      baseHojaSeleccionada.value = ""; // reset
-      baseData.value = [];
-    } else {
-      nuevoWorkbook.value = workbook;
-      nuevoHojas.value = hojas;
-      nuevoNombre.value = file.name;
-      nuevoHojaSeleccionada.value = "";
-      nuevoData.value = [];
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
+      const normalizado = json.map((r) => ({
+        CODIGO: r.CODIGO?.toString().trim() || "",
+        MARCA: r.MARCA?.toString().trim() || "",
+        NOMBRE: r.NOMBRE?.toString().trim() || "",
+        PRESENTACION: r.PRESENTACION?.toString().trim() || "",
+        PRINCIPIO_ACTIVO: r.PRINCIPIO_ACTIVO?.toString().trim() || "",
+        P_FARMACIA: parseFloat(r.P_FARMACIA) || 0,
+        PVP: parseFloat(r.PVP) || 0,
+        PROMOCION: r.PROMOCION?.toString().trim() || "",
+        DESCUENTO: r.DESCUENTO?.toString().trim() || "",
+        IVA: r.IVA?.toString().trim() || "",
+      }));
 
-/**
- * Carga los datos de una hoja seleccionada
- */
-function cargarHoja(tipo) {
-  let workbook, hojaSeleccionada, destino;
-
-  if (tipo === "base") {
-    workbook = baseWorkbook.value;
-    hojaSeleccionada = baseHojaSeleccionada.value;
-    destino = baseData;
-  } else {
-    workbook = nuevoWorkbook.value;
-    hojaSeleccionada = nuevoHojaSeleccionada.value;
-    destino = nuevoData;
+      if (tipo === "base") {
+        baseData.value = normalizado;
+        baseNombre.value = file.name;
+      } else {
+        nuevoData.value = normalizado;
+        nuevoNombre.value = file.name;
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } catch (error) {
+    alert(
+      "⚠️ Error al leer el archivo. Verifica que el formato sea válido (.xlsx o .xls)."
+    );
   }
-
-  if (!workbook || !hojaSeleccionada) return;
-
-  const hoja = workbook.Sheets[hojaSeleccionada];
-  const json = XLSX.utils.sheet_to_json(hoja, { defval: "" });
-
-  // Normaliza los datos (ajusta los nombres de columna según tu Excel)
-  destino.value = json.map((p) => ({
-    nombre: p.Nombre?.trim() || p.Producto || "",
-    precio: parseFloat(p.Precio) || 0,
-    presentacion: p.Presentacion || "",
-    principio_activo: p["Principio Activo"] || "",
-    ica: p.ICA || "",
-    promociones: p.Promocion || p.Promociones || "",
-  }));
 }
 
 /**
  * Compara ambos archivos
  */
 function comparar() {
-  const baseMap = new Map(baseData.value.map((p) => [p.nombre, p]));
-  const resultadoTmp = [];
+  if (!baseData.value.length || !nuevoData.value.length) {
+    alert("⚠️ Debes cargar ambos archivos antes de comparar.");
+    return;
+  }
 
-  for (const prod of nuevoData.value) {
-    const anterior = baseMap.get(prod.nombre);
+  const marcasNuevas = new Set(
+    nuevoData.value.map((p) => limpiarTexto(p.MARCA))
+  );
+  const baseFiltrada = baseData.value.filter((p) =>
+    marcasNuevas.has(limpiarTexto(p.MARCA))
+  );
+
+  const resultadoTmp = [];
+  const baseKeyMap = new Map();
+
+  for (const prod of baseFiltrada) {
+    const key = [
+      limpiarTexto(prod.MARCA),
+      limpiarTexto(prod.NOMBRE),
+      limpiarTexto(prod.PRESENTACION),
+      limpiarTexto(prod.PRINCIPIO_ACTIVO),
+    ].join("|");
+    baseKeyMap.set(key, prod);
+  }
+
+  for (const nuevo of nuevoData.value) {
+    const key = [
+      limpiarTexto(nuevo.MARCA),
+      limpiarTexto(nuevo.NOMBRE),
+      limpiarTexto(nuevo.PRESENTACION),
+      limpiarTexto(nuevo.PRINCIPIO_ACTIVO),
+    ].join("|");
+
+    const anterior = baseKeyMap.get(key);
 
     if (!anterior) {
-      resultadoTmp.push({ ...prod, estado: "Nuevo" });
+      resultadoTmp.push({
+        ...nuevo,
+        ESTADO: "Nuevo",
+        DETALLE_CAMBIO: "Registro nuevo",
+      });
+      baseData.value.push({
+        ...nuevo,
+        ESTADO: "Nuevo",
+        DETALLE_CAMBIO: "Registro nuevo",
+      });
     } else {
       const cambios = [];
-      if (prod.precio !== anterior.precio) cambios.push("Precio");
-      if (prod.promociones !== anterior.promociones) cambios.push("Promoción");
-      if (prod.presentacion !== anterior.presentacion)
-        cambios.push("Presentación");
+
+      if (nuevo.P_FARMACIA !== anterior.P_FARMACIA) cambios.push("P_FARMACIA");
+      if (nuevo.PVP !== anterior.PVP) cambios.push("PVP");
+      if (nuevo.PROMOCION !== anterior.PROMOCION) cambios.push("PROMOCION");
+      if (nuevo.DESCUENTO !== anterior.DESCUENTO) cambios.push("DESCUENTO");
+      if (nuevo.IVA !== anterior.IVA) cambios.push("IVA");
+
       if (cambios.length) {
-        resultadoTmp.push({ ...prod, estado: "Cambiado", cambios });
+        Object.assign(anterior, nuevo, {
+          ESTADO: "Actualizado",
+          DETALLE_CAMBIO: cambios.join(", "),
+        });
+        resultadoTmp.push({ ...anterior });
       } else {
-        resultadoTmp.push({ ...prod, estado: "Sin cambios" });
+        Object.assign(anterior, { ESTADO: "Sin cambios", DETALLE_CAMBIO: "" });
+        resultadoTmp.push({ ...anterior });
       }
-      baseMap.delete(prod.nombre);
+
+      baseKeyMap.delete(key);
     }
   }
 
-  for (const eliminado of baseMap.values()) {
-    resultadoTmp.push({ ...eliminado, estado: "Eliminado" });
+  for (const eliminado of baseKeyMap.values()) {
+    eliminado.ESTADO = "Eliminado";
+    eliminado.DETALLE_CAMBIO = "Producto eliminado (no está en nuevo Excel)";
+    resultadoTmp.push(eliminado);
   }
 
-  resultado.value = resultadoTmp;
+  resultado.value = resultadoTmp.sort((a, b) => {
+    const marcaCmp = a.MARCA.localeCompare(b.MARCA);
+    return marcaCmp !== 0 ? marcaCmp : a.NOMBRE.localeCompare(b.NOMBRE);
+  });
 }
 
 /**
- * Exporta los resultados a un archivo Excel
+ * Filtrado en la tabla
  */
-function exportarExcel() {
+const resultadoFiltrado = computed(() => {
+  if (filtroEstado.value === "Todos") return resultado.value;
+  return resultado.value.filter((r) => r.ESTADO === filtroEstado.value);
+});
+
+/**
+ * Exportar Excel con colores
+ */
+async function exportarExcel() {
   if (!resultado.value.length) return;
 
-  const ws = XLSX.utils.json_to_sheet(resultado.value);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Resultado");
-  XLSX.writeFile(wb, "resultado_comparacion.xlsx");
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet("Productos Actualizados");
+
+  const headers = [
+    "CODIGO",
+    "MARCA",
+    "NOMBRE",
+    "PRESENTACION",
+    "PRINCIPIO_ACTIVO",
+    "P_FARMACIA",
+    "PVP",
+    "PROMOCION",
+    "DESCUENTO",
+    "IVA",
+    "ESTADO",
+    "DETALLE_CAMBIO",
+  ];
+
+  ws.addRow(headers);
+  const headerRow = ws.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF1F4E78" },
+    };
+    cell.alignment = { vertical: "middle", horizontal: "center" };
+  });
+
+  for (const p of resultado.value) {
+    const row = ws.addRow(Object.values(p));
+    let color = "FFFFFFFF";
+    if (p.ESTADO === "Nuevo") color = "FFB7E1CD";
+    else if (p.ESTADO === "Actualizado") color = "FFFFF3CD";
+    else if (p.ESTADO === "Eliminado") color = "FFF8D7DA";
+
+    row.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: color },
+      };
+    });
+  }
+
+  const fecha = new Date().toISOString().split("T")[0];
+  const nombreExport = baseNombre.value
+    ? baseNombre.value.replace(/\.xlsx$/i, `_Revisado_${fecha}.xlsx`)
+    : `Productos_Revisados_${fecha}.xlsx`;
+
+  const buf = await wb.xlsx.writeBuffer();
+  saveAs(new Blob([buf]), nombreExport);
 }
 </script>
 
