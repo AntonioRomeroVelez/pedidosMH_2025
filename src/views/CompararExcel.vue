@@ -190,35 +190,38 @@ function leerArchivo(e, tipo) {
   }
 }
 
-/**
- * Compara ambos archivos
- */
 function comparar() {
   if (!baseData.value.length || !nuevoData.value.length) {
     alert("⚠️ Debes cargar ambos archivos antes de comparar.");
     return;
   }
 
-  const marcasNuevas = new Set(
-    nuevoData.value.map((p) => limpiarTexto(p.MARCA))
-  );
-  const baseFiltrada = baseData.value.filter((p) =>
-    marcasNuevas.has(limpiarTexto(p.MARCA))
-  );
-
   const resultadoTmp = [];
   const baseKeyMap = new Map();
 
-  for (const prod of baseFiltrada) {
+  // 🔹 Conjuntos de marcas
+  const marcasBase = new Set(baseData.value.map((p) => limpiarTexto(p.MARCA)));
+  const marcasNuevas = new Set(
+    nuevoData.value.map((p) => limpiarTexto(p.MARCA))
+  );
+
+  // 🔹 Marcas comunes (para comparar)
+  const marcasComunes = new Set(
+    [...marcasBase].filter((m) => marcasNuevas.has(m))
+  );
+
+  // 🧩 Indexar todos los productos base
+  for (const prod of baseData.value) {
     const key = [
       limpiarTexto(prod.MARCA),
       limpiarTexto(prod.NOMBRE),
       limpiarTexto(prod.PRESENTACION),
       limpiarTexto(prod.PRINCIPIO_ACTIVO),
     ].join("|");
-    baseKeyMap.set(key, prod);
+    baseKeyMap.set(key, { ...prod });
   }
 
+  // 🔁 Recorrer productos nuevos
   for (const nuevo of nuevoData.value) {
     const key = [
       limpiarTexto(nuevo.MARCA),
@@ -228,14 +231,20 @@ function comparar() {
     ].join("|");
 
     const anterior = baseKeyMap.get(key);
+    const marcaNueva = limpiarTexto(nuevo.MARCA);
+
+    if (!marcasComunes.has(marcaNueva)) {
+      // Marca solo existe en el nuevo Excel (sin comparar)
+      resultadoTmp.push({
+        ...nuevo,
+        ESTADO: "Nueva marca",
+        DETALLE_CAMBIO: "Marca nueva (no existía en base)",
+      });
+      continue;
+    }
 
     if (!anterior) {
       resultadoTmp.push({
-        ...nuevo,
-        ESTADO: "Nuevo",
-        DETALLE_CAMBIO: "Registro nuevo",
-      });
-      baseData.value.push({
         ...nuevo,
         ESTADO: "Nuevo",
         DETALLE_CAMBIO: "Registro nuevo",
@@ -250,26 +259,45 @@ function comparar() {
       if (nuevo.IVA !== anterior.IVA) cambios.push("IVA");
 
       if (cambios.length) {
-        Object.assign(anterior, nuevo, {
+        resultadoTmp.push({
+          ...nuevo,
           ESTADO: "Actualizado",
-          DETALLE_CAMBIO: cambios.join(", "),
+          DETALLE_CAMBIO: `Modificado: ${cambios.join(", ")}`,
         });
-        resultadoTmp.push({ ...anterior });
       } else {
-        Object.assign(anterior, { ESTADO: "Sin cambios", DETALLE_CAMBIO: "" });
-        resultadoTmp.push({ ...anterior });
+        resultadoTmp.push({
+          ...nuevo,
+          ESTADO: "Sin cambios",
+          DETALLE_CAMBIO: "",
+        });
       }
 
       baseKeyMap.delete(key);
     }
   }
 
-  for (const eliminado of baseKeyMap.values()) {
-    eliminado.ESTADO = "Eliminado";
-    eliminado.DETALLE_CAMBIO = "Producto eliminado (no está en nuevo Excel)";
-    resultadoTmp.push(eliminado);
+  // 🚫 Revisar los que quedan en el base (no eliminados)
+  for (const restante of baseKeyMap.values()) {
+    const marcaBase = limpiarTexto(restante.MARCA);
+
+    if (!marcasComunes.has(marcaBase)) {
+      // Marca no existe en el nuevo → se incluye, pero no se marca como eliminado
+      resultadoTmp.push({
+        ...restante,
+        ESTADO: "Marca no comparada",
+        DETALLE_CAMBIO: "Marca no está en el nuevo Excel",
+      });
+    } else {
+      // Producto eliminado dentro de una marca comparada
+      resultadoTmp.push({
+        ...restante,
+        ESTADO: "Eliminado",
+        DETALLE_CAMBIO: "Producto eliminado (no está en nuevo Excel)",
+      });
+    }
   }
 
+  // ✅ Orden final por marca y nombre
   resultado.value = resultadoTmp.sort((a, b) => {
     const marcaCmp = a.MARCA.localeCompare(b.MARCA);
     return marcaCmp !== 0 ? marcaCmp : a.NOMBRE.localeCompare(b.NOMBRE);
@@ -285,7 +313,7 @@ const resultadoFiltrado = computed(() => {
 });
 
 /**
- * Exportar Excel con colores
+ * Exportar Excel completo con todas las filas (base + cambios)
  */
 async function exportarExcel() {
   if (!resultado.value.length) return;
@@ -322,10 +350,11 @@ async function exportarExcel() {
 
   for (const p of resultado.value) {
     const row = ws.addRow(Object.values(p));
+
     let color = "FFFFFFFF";
-    if (p.ESTADO === "Nuevo") color = "FFB7E1CD";
-    else if (p.ESTADO === "Actualizado") color = "FFFFF3CD";
-    else if (p.ESTADO === "Eliminado") color = "FFF8D7DA";
+    if (p.ESTADO === "Nuevo") color = "FFB7E1CD"; // verde suave
+    else if (p.ESTADO === "Actualizado") color = "FFFFF3CD"; // amarillo
+    else if (p.ESTADO === "Eliminado") color = "FFF8D7DA"; // rojo claro
 
     row.eachCell((cell) => {
       cell.fill = {
@@ -336,10 +365,20 @@ async function exportarExcel() {
     });
   }
 
+  // Auto ajustar anchos
+  ws.columns.forEach((col) => {
+    let maxLength = 10;
+    col.eachCell({ includeEmpty: true }, (cell) => {
+      const length = cell.value ? cell.value.toString().length : 10;
+      if (length > maxLength) maxLength = length;
+    });
+    col.width = maxLength + 2;
+  });
+
   const fecha = new Date().toISOString().split("T")[0];
   const nombreExport = baseNombre.value
-    ? baseNombre.value.replace(/\.xlsx$/i, `_Revisado_${fecha}.xlsx`)
-    : `Productos_Revisados_${fecha}.xlsx`;
+    ? baseNombre.value.replace(/\.xlsx$/i, `_Actualizado_${fecha}.xlsx`)
+    : `Productos_Actualizados_${fecha}.xlsx`;
 
   const buf = await wb.xlsx.writeBuffer();
   saveAs(new Blob([buf]), nombreExport);
