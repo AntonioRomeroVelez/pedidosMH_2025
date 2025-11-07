@@ -456,7 +456,7 @@ const descargarExcel = async () => {
         "Total",
       ];
       filas = carrito.value.map((item) => {
-        const totalVista = item.PVP * item.cantidad;
+        const totalVista = item.PrecioFarmacia * item.cantidad;
         return [
           item.cantidad,
           calcularPromocionYTotales(item.cantidad, item.Promocion).promo,
