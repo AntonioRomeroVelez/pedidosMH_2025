@@ -121,44 +121,82 @@
       </div>
 
       <!-- Vista previa -->
-      <div v-if="datos.length" class="table-responsive mt-4">
-        <h4>👀 Vista previa de productos cargados</h4>
-        <table class="table table-bordered table-sm formato-tabla">
-          <thead>
-            <tr>
-              <th>Codigo</th>
-              <th>#</th>
-              <th>Marca</th>
-              <th>Nombre_Producto</th>
-              <th>Presentacion</th>
-              <th>Principio_Activo</th>
-              <th>P_Farmacia</th>
-              <th>PVP</th>
-              <th>Promocion</th>
-              <th>Descuento</th>
-              <th>IVA</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(p, i) in datos"
-              :key="i"
-              :class="{ 'table-danger': tieneError(i) }"
+      <!-- 🧾 Vista previa responsiva con encabezado fijo y filtro -->
+      <div v-if="datos.length" class="vista-previa mt-4">
+        <div
+          class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-3"
+        >
+          <h4 class="fw-bold text-primary mb-0">
+            👀 Vista previa de productos cargados
+          </h4>
+
+          <!-- Controles de filtro -->
+          <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <input
+              v-model="filtroTexto"
+              type="text"
+              class="form-control"
+              placeholder="🔍 Buscar por nombre, marca, presentación o principio activo..."
+              style="max-width: 300px"
+            />
+
+            <select
+              v-model="filtroTipo"
+              class="form-select"
+              style="max-width: 220px"
             >
-              <td>{{ p.Codigo }}</td>
-              <td>{{ i + 1 }}</td>
-              <td>{{ p.Marca }}</td>
-              <td>{{ p.NombreProducto }}</td>
-              <td>{{ p.Presentacion }}</td>
-              <td>{{ p.PrincipioActivo }}</td>
-              <td>{{ p.PrecioFarmacia }}</td>
-              <td>{{ p.PVP }}</td>
-              <td>{{ p.Promocion }}</td>
-              <td>{{ p.Descuento }}</td>
-              <td>{{ p.IVA }}</td>
-            </tr>
-          </tbody>
-        </table>
+              <option value="todos">Mostrar todos</option>
+              <option value="repetidos">Solo repetidos</option>
+              <option value="validos">Solo válidos</option>
+            </select>
+          </div>
+        </div>
+
+        <div
+          class="table-responsive shadow-sm rounded-4 border position-relative"
+          style="max-height: 70vh; overflow-y: auto"
+        >
+          <table
+            class="table table-hover align-middle text-center table-striped"
+            style="min-width: 950px; word-wrap: break-word; table-layout: fixed"
+          >
+            <thead class="table-primary sticky-header">
+              <tr>
+                <th scope="col" style="min-width: 40px">Código</th>
+                <th scope="col" style="width: 20px">#</th>
+                <th scope="col" style="min-width: 140px">Marca</th>
+                <th scope="col" style="min-width: 200px">Nombre Producto</th>
+                <th scope="col" style="min-width: 140px">Presentación</th>
+                <th scope="col" style="min-width: 160px">Principio Activo</th>
+                <th scope="col" style="min-width: 100px">P. Farmacia</th>
+                <th scope="col" style="min-width: 90px">PVP</th>
+                <th scope="col" style="min-width: 120px">Promoción</th>
+                <th scope="col" style="min-width: 120px">Descuento</th>
+                <th scope="col" style="min-width: 70px">IVA</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr
+                v-for="(p, i) in productosFiltrados"
+                :key="i"
+                :class="{ 'table-danger': p.duplicado }"
+              >
+                <td class="text-break">{{ p.Codigo }}</td>
+                <td>{{ i + 1 }}</td>
+                <td class="text-break">{{ p.Marca }}</td>
+                <td class="text-break">{{ p.NombreProducto }}</td>
+                <td class="text-break">{{ p.Presentacion }}</td>
+                <td class="text-break">{{ p.PrincipioActivo }}</td>
+                <td>{{ p.PrecioFarmacia }}</td>
+                <td>{{ p.PVP }}</td>
+                <td class="text-break">{{ p.Promocion }}</td>
+                <td>{{ p.Descuento }}</td>
+                <td>{{ p.IVA }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -166,6 +204,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { computed } from "vue";
 import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -182,6 +221,28 @@ const errores = ref([]);
 const repetidos = ref([]);
 const archivoNombre = ref("");
 const nuevosCount = ref(0);
+const hayDuplicadosInternos = ref(false);
+
+// 🔹 Filtros
+const filtroTexto = ref("");
+const filtroTipo = ref("todos");
+
+const productosFiltrados = computed(() => {
+  const texto = filtroTexto.value.trim().toLowerCase();
+
+  return datos.value.filter((p) => {
+    // Filtro por tipo
+    if (filtroTipo.value === "repetidos" && !p.duplicado) return false;
+    if (filtroTipo.value === "validos" && p.duplicado) return false;
+
+    // Filtro de texto
+    if (!texto) return true;
+
+    return [p.NombreProducto, p.Marca, p.Presentacion, p.PrincipioActivo]
+      .map((v) => (v || "").toString().toLowerCase())
+      .some((v) => v.includes(texto));
+  });
+});
 
 onMounted(() => {
   const guardados = localStorage.getItem("ListaProductos");
@@ -208,6 +269,7 @@ const leerExcel = (event) => {
 
       errores.value = [];
       repetidos.value = [];
+      hayDuplicadosInternos.value = false;
       let productosTemp = [];
 
       workbook.SheetNames.forEach((sheetName) => {
@@ -215,7 +277,6 @@ const leerExcel = (event) => {
         const json = XLSX.utils.sheet_to_json(hoja);
 
         json.forEach((fila) => {
-          // 🔹 Normalizar claves (quita tildes, espacios y pasa a mayúsculas)
           const filaNormalizada = {};
           Object.keys(fila).forEach((k) => {
             const keyLimpia = k
@@ -226,26 +287,29 @@ const leerExcel = (event) => {
             filaNormalizada[keyLimpia] = fila[k];
           });
 
-          // 🔹 Crear producto con ID = CODIGO
           const codigo = filaNormalizada["CODIGO"]?.toString().trim() || "";
 
           const producto = {
             ID: codigo || `id-${Math.random().toString(36).substr(2, 5)}`,
             Codigo: codigo,
-            Marca: filaNormalizada["MARCA"].replace("MARCA", "") || "",
-            NombreProducto: filaNormalizada["NOMBRE"] || "",
-            Presentacion: filaNormalizada["PRESENTACION"] || "",
-            PrincipioActivo: filaNormalizada["PRINCIPIO_ACTIVO"] || "",
-            PrecioFarmacia:
+            Marca: filaNormalizada["MARCA"]?.toString().trim() || "",
+            NombreProducto: filaNormalizada["NOMBRE"]?.toString().trim() || "",
+            Presentacion:
+              filaNormalizada["PRESENTACION"]?.toString().trim() || "",
+            PrincipioActivo:
+              filaNormalizada["PRINCIPIO_ACTIVO"]?.toString().trim() || "",
+            PrecioFarmacia: (
               parseFloat(
                 (filaNormalizada["P_FARMACIA"] || "0")
                   .toString()
                   .replace(",", ".")
-              ) || 0,
-            PVP:
+              ) || 0
+            ).toFixed(2),
+            PVP: (
               parseFloat(
                 (filaNormalizada["PVP"] || "0").toString().replace(",", ".")
-              ) || 0,
+              ) || 0
+            ).toFixed(2),
             Promocion: filaNormalizada["PROMOCION"] || "",
             Descuento:
               parseFloat((filaNormalizada["DESCUENTO"] || "0").toString()) || 0,
@@ -253,41 +317,49 @@ const leerExcel = (event) => {
               parseFloat(
                 (filaNormalizada["IVA"] || "0").toString().replace(",", ".")
               ) || 0,
+            duplicado: false, // Para marcar visualmente los repetidos
           };
 
           productosTemp.push(producto);
         });
       });
 
-      // 🔹 Verificar repetidos por código
-      const existentes =
-        datos.value.length > 0
-          ? [...datos.value]
-          : JSON.parse(localStorage.getItem("ListaProductos") || "[]");
+      // 🔹 Limpiar texto (sin espacios, sin tildes, en minúsculas)
+      const limpiarTexto = (txt) =>
+        (txt || "")
+          .toString()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, "")
+          .toLowerCase();
 
-      const codigosExistentes = new Set(existentes.map((p) => p.Codigo));
-
-      const nuevos = [];
-      const repetidosTemp = [];
+      // 🔹 Detectar duplicados internos (dentro del mismo Excel)
+      const mapaFirmas = new Map();
 
       productosTemp.forEach((p) => {
-        if (codigosExistentes.has(p.Codigo)) {
-          repetidosTemp.push(p);
+        const firma = `${limpiarTexto(p.Marca)}|${limpiarTexto(
+          p.NombreProducto
+        )}|${limpiarTexto(p.Presentacion)}|${limpiarTexto(p.PrincipioActivo)}`;
+
+        if (mapaFirmas.has(firma)) {
+          p.duplicado = true;
+          mapaFirmas.get(firma).duplicado = true;
+          hayDuplicadosInternos.value = true;
         } else {
-          nuevos.push(p);
+          mapaFirmas.set(firma, p);
         }
       });
 
-      datos.value = [...existentes, ...nuevos];
-      repetidos.value = repetidosTemp;
-      nuevosCount.value = nuevos.length;
+      datos.value = productosTemp;
 
-      if (repetidosTemp.length > 0) {
-        toast.warning(
-          `⚠️ ${repetidosTemp.length} productos repetidos. Puedes exportarlos.`
+      if (hayDuplicadosInternos.value) {
+        toast.error(
+          "⚠️ Se detectaron productos duplicados en el archivo. Revisa los resaltados en rojo."
         );
       } else {
-        toast.success(`✅ ${nuevos.length} productos nuevos agregados.`);
+        toast.success(
+          "✅ Archivo cargado correctamente, sin duplicados internos."
+        );
       }
     } catch (error) {
       toast.error("❌ Error al procesar el archivo.");
@@ -300,6 +372,25 @@ const leerExcel = (event) => {
   reader.readAsArrayBuffer(archivo);
 };
 
+// 🔹 Bloquear guardar si hay duplicados
+const guardarEnStore = () => {
+  if (hayDuplicadosInternos.value) {
+    toast.error(
+      "❌ No se puede guardar. Elimina los productos duplicados primero."
+    );
+    return;
+  }
+
+  localStorage.setItem("ListaProductos", JSON.stringify(datos.value));
+  toast.success(
+    `✅ Se guardaron ${datos.value.length} productos en memoria correctamente.`
+  );
+  setTimeout(() => {
+    router.push("/Productos");
+  }, 1000);
+};
+
+// 🔹 Exportar duplicados
 async function exportarRepetidos() {
   if (!repetidos.value.length) {
     toast.info("No hay productos repetidos para exportar");
@@ -315,11 +406,6 @@ async function exportarRepetidos() {
     { header: "NombreProducto", key: "NombreProducto", width: 40 },
     { header: "Presentacion", key: "Presentacion", width: 25 },
     { header: "PrincipioActivo", key: "PrincipioActivo", width: 30 },
-    { header: "PrecioFarmacia", key: "PrecioFarmacia", width: 15 },
-    { header: "PVP", key: "PVP", width: 12 },
-    { header: "Promocion", key: "Promocion", width: 15 },
-    { header: "Descuento", key: "Descuento", width: 12 },
-    { header: "IVA", key: "IVA", width: 10 },
   ];
 
   repetidos.value.forEach((p) => ws.addRow(p));
@@ -340,21 +426,7 @@ async function exportarRepetidos() {
   toast.success("📦 Archivo de productos repetidos exportado correctamente");
 }
 
-const tieneError = (index) => {
-  const producto = datos.value[index];
-  return errores.value.some((e) => e.id === producto.ID);
-};
-
-const guardarEnStore = () => {
-  localStorage.setItem("ListaProductos", JSON.stringify(datos.value));
-  toast.success(
-    `✅ Se guardaron ${datos.value.length} productos en memoria (sin borrar los anteriores).`
-  );
-
-  setTimeout(() => {
-    router.push("/Productos");
-  }, 1000);
-};
+const tieneError = (index) => datos.value[index]?.duplicado;
 </script>
 
 <style scoped>
@@ -374,5 +446,64 @@ const guardarEnStore = () => {
 .alert-info ul {
   list-style: none;
   padding-left: 0;
+}
+
+/* Contenedor de la tabla */
+.vista-previa .table-responsive {
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: 70vh;
+  border-radius: 12px;
+}
+
+/* Encabezado fijo */
+.sticky-header th {
+  position: sticky;
+  top: 0;
+  background-color: #0d6efd !important; /* Azul Bootstrap */
+  color: white;
+  z-index: 2;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Ajustes visuales */
+.table th,
+.table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Vista móvil */
+@media (max-width: 768px) {
+  .vista-previa h4 {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .table {
+    font-size: 0.75rem;
+  }
+
+  .sticky-header th {
+    font-size: 0.8rem;
+  }
+}
+</style>
+<style scoped>
+.sticky-header th {
+  position: sticky;
+  top: 0;
+  background-color: #eaf3ff;
+  z-index: 2;
+  white-space: normal; /* permite el salto de línea */
+}
+.text-break {
+  white-space: normal !important;
+  word-break: break-word !important;
 }
 </style>
