@@ -1,8 +1,9 @@
 <template>
   <div class="cargar-excel container" style="margin-top: 60px">
     <h2>📥 Cargar productos desde Excel</h2>
-
     <p>📝 El archivo debe tener las siguientes columnas:</p>
+
+    <!-- Tabla de formato esperado -->
     <div class="table-responsive container">
       <table class="table table-bordered formato-tabla">
         <thead>
@@ -41,7 +42,6 @@
       <label for="excelInput" class="form-label fw-semibold text-primary">
         📄 Cargar archivo Excel
       </label>
-
       <div class="input-group">
         <label
           class="input-group-text bg-success text-white"
@@ -58,7 +58,6 @@
           accept=".xlsx, .xls"
         />
       </div>
-
       <div v-if="archivoNombre" class="form-text text-success mt-2">
         Archivo seleccionado: {{ archivoNombre }}
       </div>
@@ -80,7 +79,7 @@
       </ul>
     </div>
 
-    <!-- Botones de acción -->
+    <!-- Botones -->
     <div class="mb-4">
       <button
         @click="guardarEnStore"
@@ -89,7 +88,6 @@
       >
         💾 Guardar productos en memoria
       </button>
-
       <button
         v-if="repetidos.length"
         @click="exportarRepetidos"
@@ -97,7 +95,6 @@
       >
         📤 Exportar productos repetidos
       </button>
-
       <RouterLink class="btn btn-warning px-2 sm m-2" to="/Productos">
         Cancelar
       </RouterLink>
@@ -108,49 +105,23 @@
       <LoadingComponent />
     </div>
 
-    <!-- Tabla de errores -->
+    <!-- Vista previa -->
     <div v-else>
-      <div v-if="errores.length" class="mt-3">
-        <h5 class="text-danger">❌ Errores detectados:</h5>
-        <ul>
-          <li v-for="error in errores" :key="`${error.hoja}-${error.fila}`">
-            <strong>Hoja {{ error.hoja }}, Fila {{ error.fila }}:</strong>
-            {{ error.errores.join(", ") }}
-          </li>
-        </ul>
+      <!-- Filtro de repetidos -->
+      <div v-if="datos.length" class="mb-3 text-end">
+        <label class="me-2 fw-semibold text-primary">🔍 Mostrar:</label>
+        <select v-model="filtro" class="form-select d-inline w-auto">
+          <option value="todos">Todos</option>
+          <option value="repetidos">Solo repetidos</option>
+          <option value="noRepetidos">Solo no repetidos</option>
+        </select>
       </div>
 
-      <!-- Vista previa -->
-      <!-- 🧾 Vista previa responsiva con encabezado fijo y filtro -->
+      <!-- Vista previa responsiva -->
       <div v-if="datos.length" class="vista-previa mt-4">
-        <div
-          class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-3"
-        >
-          <h4 class="fw-bold text-primary mb-0">
-            👀 Vista previa de productos cargados
-          </h4>
-
-          <!-- Controles de filtro -->
-          <div class="d-flex flex-wrap gap-2 justify-content-center">
-            <input
-              v-model="filtroTexto"
-              type="text"
-              class="form-control"
-              placeholder="🔍 Buscar por nombre, marca, presentación o principio activo..."
-              style="max-width: 300px"
-            />
-
-            <select
-              v-model="filtroTipo"
-              class="form-select"
-              style="max-width: 220px"
-            >
-              <option value="todos">Mostrar todos</option>
-              <option value="repetidos">Solo repetidos</option>
-              <option value="validos">Solo válidos</option>
-            </select>
-          </div>
-        </div>
+        <h4 class="fw-bold text-primary mb-3 text-center text-md-start">
+          👀 Vista previa de productos cargados
+        </h4>
 
         <div
           class="table-responsive shadow-sm rounded-4 border position-relative"
@@ -175,7 +146,6 @@
                 <th scope="col" style="min-width: 70px">IVA</th>
               </tr>
             </thead>
-
             <tbody>
               <tr
                 v-for="(p, i) in productosFiltrados"
@@ -188,8 +158,8 @@
                 <td class="text-break">{{ p.NombreProducto }}</td>
                 <td class="text-break">{{ p.Presentacion }}</td>
                 <td class="text-break">{{ p.PrincipioActivo }}</td>
-                <td>{{ p.PrecioFarmacia }}</td>
-                <td>{{ p.PVP }}</td>
+                <td>{{ p.PrecioFarmacia.toFixed(2) }}</td>
+                <td>{{ p.PVP.toFixed(2) }}</td>
                 <td class="text-break">{{ p.Promocion }}</td>
                 <td>{{ p.Descuento }}</td>
                 <td>{{ p.IVA }}</td>
@@ -203,8 +173,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -222,33 +191,23 @@ const repetidos = ref([]);
 const archivoNombre = ref("");
 const nuevosCount = ref(0);
 const hayDuplicadosInternos = ref(false);
-
-// 🔹 Filtros
-const filtroTexto = ref("");
-const filtroTipo = ref("todos");
-
-const productosFiltrados = computed(() => {
-  const texto = filtroTexto.value.trim().toLowerCase();
-
-  return datos.value.filter((p) => {
-    // Filtro por tipo
-    if (filtroTipo.value === "repetidos" && !p.duplicado) return false;
-    if (filtroTipo.value === "validos" && p.duplicado) return false;
-
-    // Filtro de texto
-    if (!texto) return true;
-
-    return [p.NombreProducto, p.Marca, p.Presentacion, p.PrincipioActivo]
-      .map((v) => (v || "").toString().toLowerCase())
-      .some((v) => v.includes(texto));
-  });
-});
+const filtro = ref("todos");
 
 onMounted(() => {
   const guardados = localStorage.getItem("ListaProductos");
   if (guardados) {
     datos.value = JSON.parse(guardados);
   }
+});
+
+// Computed para aplicar filtro
+const productosFiltrados = computed(() => {
+  if (filtro.value === "repetidos") {
+    return datos.value.filter((p) => p.duplicado);
+  } else if (filtro.value === "noRepetidos") {
+    return datos.value.filter((p) => !p.duplicado);
+  }
+  return datos.value;
 });
 
 const leerExcel = (event) => {
@@ -260,13 +219,11 @@ const leerExcel = (event) => {
   }
 
   archivoNombre.value = archivo.name;
-
   const reader = new FileReader();
   reader.onload = (e) => {
     try {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
-
       errores.value = [];
       repetidos.value = [];
       hayDuplicadosInternos.value = false;
@@ -298,18 +255,16 @@ const leerExcel = (event) => {
               filaNormalizada["PRESENTACION"]?.toString().trim() || "",
             PrincipioActivo:
               filaNormalizada["PRINCIPIO_ACTIVO"]?.toString().trim() || "",
-            PrecioFarmacia: (
+            PrecioFarmacia:
               parseFloat(
                 (filaNormalizada["P_FARMACIA"] || "0")
                   .toString()
                   .replace(",", ".")
-              ) || 0
-            ).toFixed(2),
-            PVP: (
+              ) || 0,
+            PVP:
               parseFloat(
                 (filaNormalizada["PVP"] || "0").toString().replace(",", ".")
-              ) || 0
-            ).toFixed(2),
+              ) || 0,
             Promocion: filaNormalizada["PROMOCION"] || "",
             Descuento:
               parseFloat((filaNormalizada["DESCUENTO"] || "0").toString()) || 0,
@@ -317,14 +272,14 @@ const leerExcel = (event) => {
               parseFloat(
                 (filaNormalizada["IVA"] || "0").toString().replace(",", ".")
               ) || 0,
-            duplicado: false, // Para marcar visualmente los repetidos
+            duplicado: false,
           };
 
           productosTemp.push(producto);
         });
       });
 
-      // 🔹 Limpiar texto (sin espacios, sin tildes, en minúsculas)
+      // Limpiar texto (sin espacios, sin tildes, en minúsculas)
       const limpiarTexto = (txt) =>
         (txt || "")
           .toString()
@@ -333,9 +288,8 @@ const leerExcel = (event) => {
           .replace(/\s+/g, "")
           .toLowerCase();
 
-      // 🔹 Detectar duplicados internos (dentro del mismo Excel)
+      // Detectar duplicados
       const mapaFirmas = new Map();
-
       productosTemp.forEach((p) => {
         const firma = `${limpiarTexto(p.Marca)}|${limpiarTexto(
           p.NombreProducto
@@ -351,6 +305,7 @@ const leerExcel = (event) => {
       });
 
       datos.value = productosTemp;
+      repetidos.value = productosTemp.filter((p) => p.duplicado);
 
       if (hayDuplicadosInternos.value) {
         toast.error(
@@ -368,38 +323,32 @@ const leerExcel = (event) => {
       loading.value = false;
     }
   };
-
   reader.readAsArrayBuffer(archivo);
 };
 
-// 🔹 Bloquear guardar si hay duplicados
+// Guardar
 const guardarEnStore = () => {
   if (hayDuplicadosInternos.value) {
-    toast.error(
-      "❌ No se puede guardar. Elimina los productos duplicados primero."
-    );
+    toast.error("❌ No se puede guardar. Elimina los productos duplicados.");
     return;
   }
-
   localStorage.setItem("ListaProductos", JSON.stringify(datos.value));
   toast.success(
-    `✅ Se guardaron ${datos.value.length} productos en memoria correctamente.`
+    `✅ Se guardaron ${datos.value.length} productos correctamente.`
   );
   setTimeout(() => {
     router.push("/Productos");
   }, 1000);
 };
 
-// 🔹 Exportar duplicados
+// Exportar duplicados
 async function exportarRepetidos() {
   if (!repetidos.value.length) {
     toast.info("No hay productos repetidos para exportar");
     return;
   }
-
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet("Productos Repetidos");
-
   ws.columns = [
     { header: "CODIGO", key: "Codigo", width: 15 },
     { header: "Marca", key: "Marca", width: 20 },
@@ -407,7 +356,6 @@ async function exportarRepetidos() {
     { header: "Presentacion", key: "Presentacion", width: 25 },
     { header: "PrincipioActivo", key: "PrincipioActivo", width: 30 },
   ];
-
   repetidos.value.forEach((p) => ws.addRow(p));
 
   const header = ws.getRow(1);
@@ -437,12 +385,15 @@ const tieneError = (index) => datos.value[index]?.duplicado;
   border: 1px solid #ccc;
   border-radius: 8px;
 }
+
 .formato-tabla th {
   background-color: #f0de8d !important;
 }
+
 .table-danger {
   background-color: #f8d7da !important;
 }
+
 .alert-info ul {
   list-style: none;
   padding-left: 0;
@@ -460,22 +411,17 @@ const tieneError = (index) => datos.value[index]?.duplicado;
 .sticky-header th {
   position: sticky;
   top: 0;
-  background-color: #0d6efd !important; /* Azul Bootstrap */
+  background-color: #0d6efd !important;
   color: white;
   z-index: 2;
   text-align: center;
   vertical-align: middle;
 }
 
-/* Ajustes visuales */
-.table th,
-.table td {
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-.table-hover tbody tr:hover {
-  background-color: #f8f9fa;
+/* Texto adaptable */
+.text-break {
+  white-space: normal !important;
+  word-break: break-word !important;
 }
 
 /* Vista móvil */
@@ -484,26 +430,11 @@ const tieneError = (index) => datos.value[index]?.duplicado;
     font-size: 1rem;
     text-align: center;
   }
-
   .table {
     font-size: 0.75rem;
   }
-
   .sticky-header th {
     font-size: 0.8rem;
   }
-}
-</style>
-<style scoped>
-.sticky-header th {
-  position: sticky;
-  top: 0;
-  background-color: #eaf3ff;
-  z-index: 2;
-  white-space: normal; /* permite el salto de línea */
-}
-.text-break {
-  white-space: normal !important;
-  word-break: break-word !important;
 }
 </style>

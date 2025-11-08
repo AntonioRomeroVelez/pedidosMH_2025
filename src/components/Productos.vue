@@ -62,7 +62,18 @@
                   <p class="text-muted mb-1 small">
                     {{ producto.Marca }} | {{ producto.Presentacion }}
                   </p>
-                  <p class="text-muted mb-2 small">
+                  <!-- <p class="text-muted mb-2 small">
+                    
+                    <strong>🧬 Principio Activo:</strong><br />
+                    {{ producto.PrincipioActivo }}
+                  </p> -->
+                  <p
+                    v-if="
+                      producto.PrincipioActivo &&
+                      producto.PrincipioActivo.toLowerCase() !== 'insumo'
+                    "
+                    class="text-muted mb-2 small"
+                  >
                     <strong>🧬 Principio Activo:</strong><br />
                     {{ producto.PrincipioActivo }}
                   </p>
@@ -254,136 +265,3 @@ const buscarProductos = () => {
   }
 };
 </script>
-
-<!-- <style scoped>
-.alertify-notifier {
-  z-index: 9999 !important;
-}
-
-/* Estilos base del buscador */
-.sticky-buscador {
-  position: sticky;
-  z-index: 100;
-  background-color: transparent;
-  transition: all 0.3s ease;
-  margin: 0 auto;
-}
-
-.input-group {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.input-group:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  transform: translateY(-1px);
-}
-
-.input-group-text {
-  background-color: white !important;
-  border: none !important;
-  color: #0d6efd;
-  font-size: 1.2rem;
-  padding-left: 1rem;
-}
-
-.form-control-lg {
-  border: none;
-  font-size: 1rem;
-  background-color: white;
-}
-
-.form-control-lg:focus {
-  box-shadow: none;
-  background-color: white;
-}
-
-.btn-primary {
-  background-color: #0d6efd;
-  border: none;
-  transition: all 0.3s ease;
-  padding: 0.5rem 1.5rem;
-}
-
-.btn-primary:hover {
-  background-color: #198691;
-}
-
-/* Pantallas extra grandes (≥1400px) */
-@media (min-width: 1400px) {
-  .sticky-buscador {
-    width: 50%;
-    padding: 20px;
-  }
-  .form-control-lg {
-    padding: 1rem 1.5rem;
-    font-size: 1.1rem;
-  }
-}
-
-/* Pantallas grandes (≥1200px) */
-@media (min-width: 1200px) and (max-width: 1399px) {
-  .sticky-buscador {
-    width: 55%;
-    padding: 15px;
-  }
-}
-
-/* Pantallas medianas (≥992px) */
-@media (min-width: 992px) and (max-width: 1199px) {
-  .sticky-buscador {
-    width: 65%;
-    padding: 15px;
-  }
-}
-
-/* Pantallas pequeñas (≥768px) */
-@media (min-width: 768px) and (max-width: 991px) {
-  .sticky-buscador {
-    width: 85%;
-    padding: 12px;
-    margin: 3px 0px;
-  }
-  .form-control-lg {
-    padding: 0.75rem 1rem;
-  }
-}
-
-/* Tablets (≥576px) */
-@media (min-width: 576px) and (max-width: 767px) {
-  .sticky-buscador {
-    width: 100%;
-    padding: 0px;
-    margin: 3px 0px;
-  }
-  .btn-primary {
-    padding: 0.5rem 1rem;
-  }
-}
-
-/* Móviles (<576px) */
-@media (max-width: 575px) {
-  .sticky-buscador {
-    width: 100%;
-    padding: 0px;
-    margin: 3px 0px;
-  }
-  .form-control-lg {
-    padding: 0.5rem;
-    font-size: 0.95rem;
-  }
-  .input-group-text {
-    padding-left: 0.75rem;
-    font-size: 1rem;
-  }
-  .btn-primary {
-    padding: 0.5rem 0.75rem;
-  }
-  .form-control-lg::placeholder {
-    font-size: 0.9rem;
-  }
-}
-</style> -->
