@@ -14,12 +14,14 @@
     </div>
 
     <!-- 🧪 Contenedor principal -->
-    <div v-else class="container py-3">
+    <div v-else class="container py-1">
       <!-- 🔍 Buscador -->
       <div class="card border-0 shadow-sm sticky-buscador mb-4">
         <div class="card-body p-2">
           <div class="input-group input-group-lg">
-            <span class="input-group-text bg-white border-end-0">
+            <span
+              class="input-group-text bg-white border-end-0 txt-lupa-buscar"
+            >
               <i class="bi bi-search text-primary"></i>
             </span>
             <input
@@ -29,8 +31,11 @@
               placeholder="Buscar por nombre, marca o principio activo..."
               @keyup.enter="buscarProductos"
             />
-            <button class="btn btn-primary px-4" @click="buscarProductos">
-              Buscar <i class="bi bi-arrow-right-short ms-1"></i>
+            <button
+              class="btn btn-primary px-4 btn-buscador"
+              @click="buscarProductos"
+            >
+              Buscar
             </button>
           </div>
         </div>
@@ -187,9 +192,17 @@
     position: sticky;
     top: 0px; /* debajo del navbar */
     z-index: 50;
+    font-size: 1.5rem !important;
     background: white;
     padding: 0.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  .btn-buscador {
+    font-size: 1rem;
+    padding: 5px 5px !important;
+  }
+  .txt-lupa-buscar {
+    display: none;
   }
 }
 </style>
