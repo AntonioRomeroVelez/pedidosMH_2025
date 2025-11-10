@@ -94,54 +94,41 @@ function handleCloseMenu() {
 <template>
   <div class="app-layout">
     <!-- 📱 Navbar móvil -->
-    <nav class="mobile-navbar" v-if="isMobile">
-      <div class="mobile-brand">
-        <RouterLink to="/" class="mobile-brand-link">
-          <img src="/logo.png" alt="MH Logo" class="company-logo-mobile me-2" />
-        </RouterLink>
-
-        <button
-          @click="menuOpen = !menuOpen"
-          aria-label="Abrir menú"
-          class="mobile-menu-button"
-        >
-          <i class="bi" :class="menuOpen ? 'bi-x-lg' : 'bi-list'"></i>
-        </button>
-      </div>
+    <!-- 📱 Botón flotante menú móvil -->
+    <div v-if="isMobile">
+      <button class="fab-menu" @click="menuOpen = !menuOpen">
+        <i class="bi" :class="menuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+      </button>
 
       <transition name="fade-slide">
-        <div v-if="menuOpen" class="mobile-menu">
+        <div v-if="menuOpen" class="fab-menu-panel shadow-lg">
           <RouterLink
-            class="mobile-link"
             to="/productos"
+            class="fab-link"
             @click="menuOpen = false"
           >
             <i class="bi bi-box-seam me-2"></i> Productos
           </RouterLink>
           <RouterLink
-            class="mobile-link"
             to="/cargarexcel"
+            class="fab-link"
             @click="menuOpen = false"
           >
             <i class="bi bi-cloud-arrow-up-fill me-2"></i> Cargar Excel
           </RouterLink>
-          <RouterLink
-            class="mobile-link"
-            to="/carrito"
-            @click="menuOpen = false"
-          >
+          <RouterLink to="/carrito" class="fab-link" @click="menuOpen = false">
             <i class="bi bi-cart3 me-2"></i> Carrito
           </RouterLink>
           <RouterLink
-            class="mobile-link"
             to="/gestionar"
+            class="fab-link"
             @click="menuOpen = false"
           >
             <i class="bi bi-gear me-2"></i> Gestionar
           </RouterLink>
         </div>
       </transition>
-    </nav>
+    </div>
 
     <!-- 💻 Sidebar (solo escritorio) -->
     <aside
@@ -210,7 +197,7 @@ function handleCloseMenu() {
   font-family: "Inter", sans-serif;
 }
 
-/* SIDEBAR */
+/* ──────────────── SIDEBAR ──────────────── */
 .sidebar {
   position: fixed;
   top: 0;
@@ -219,20 +206,24 @@ function handleCloseMenu() {
   height: 100%;
   background: #ffffff;
   border-right: 1px solid #e9ecef;
-  transition: width 0.3s ease, background 0.3s ease;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease;
 }
 
 .sidebar-collapsed {
   width: 80px;
 }
 
+.sidebar-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
 .sidebar-logo {
   width: 42px;
   height: 42px;
   object-fit: contain;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .sidebar-nav {
@@ -243,12 +234,13 @@ function handleCloseMenu() {
 .sidebar-link {
   display: flex;
   align-items: center;
+  gap: 10px;
   padding: 0.8rem 1rem;
+  font-weight: 500;
   color: #444;
   text-decoration: none;
   border-radius: 8px;
-  transition: all 0.25s ease;
-  font-weight: 500;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .sidebar-link:hover {
@@ -263,7 +255,7 @@ function handleCloseMenu() {
   font-weight: 600;
 }
 
-/* MAIN */
+/* ──────────────── MAIN CONTENT ──────────────── */
 .main-content {
   margin-left: 250px;
   flex-grow: 1;
@@ -274,7 +266,7 @@ function handleCloseMenu() {
   margin-left: 80px;
 }
 
-/* NAVBAR MÓVIL */
+/* ──────────────── MOBILE NAVBAR ──────────────── */
 .mobile-navbar {
   position: fixed;
   top: 0;
@@ -291,70 +283,130 @@ function handleCloseMenu() {
   padding: 0.9rem 1rem;
 }
 
+.company-logo-mobile {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
 .mobile-menu-button {
-  background: none;
   border: none;
+  background: none;
   font-size: 1.8rem;
   color: #0d6efd;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
 
 .mobile-menu-button:hover {
-  transform: rotate(5deg);
+  transform: rotate(6deg);
 }
 
 .mobile-menu {
   background: white;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.25s ease forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mobile-link {
   display: flex;
   align-items: center;
-  padding: 0.85rem 1rem;
+  padding: 0.9rem 1rem;
+  font-weight: 500;
   color: #333;
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.25s ease;
+  transition: background 0.2s ease, padding-left 0.2s ease;
 }
 
 .mobile-link:hover {
   background: #e7f1ff;
   color: #0d6efd;
+  padding-left: 1.2rem;
 }
 
-/* Transición menú móvil */
+/* ──────────────── RESPONSIVE ──────────────── */
+@media (max-width: 768px) {
+  .main-content,
+  .main-expanded {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+}
+
+/* FAB MENU button */
+.fab-menu {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 58px;
+  height: 58px;
+  background: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
+  z-index: 1100;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.fab-menu:hover {
+  transform: scale(1.06);
+}
+
+/* Panel flotante */
+.fab-menu-panel {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  padding: 0.5rem 0;
+  width: 200px;
+  z-index: 1090;
+  border: 1px solid #eee;
+}
+
+/* Items del menú flotante */
+.fab-link {
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  color: #333;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.fab-link:hover {
+  background: #e7f1ff;
+  color: #0d6efd;
+}
+
+/* Animación */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
-}
-.main-content {
-  margin-left: 250px;
-  flex-grow: 1;
-  transition: margin-left 0.3s ease;
-}
-
-/* Cuando el sidebar está colapsado en escritorio */
-.main-expanded {
-  margin-left: 80px;
-}
-
-/* 🔹 En pantallas móviles el contenido debe ocupar el ancho completo */
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 0 !important;
-    width: 100% !important;
-    padding: 0 !important;
-  }
-
-  .main-expanded {
-    margin-left: 0 !important;
-  }
+  transform: translateY(10px);
 }
 </style>

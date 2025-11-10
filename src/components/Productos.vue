@@ -169,7 +169,7 @@
 
 .sticky-buscador {
   position: sticky;
-  top: 70px;
+  top: 20px;
   z-index: 10;
   background: #f8f9fa;
 }
@@ -180,6 +180,17 @@
 
 .btn i {
   vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .sticky-buscador {
+    position: sticky;
+    top: 0px; /* debajo del navbar */
+    z-index: 50;
+    background: white;
+    padding: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
 }
 </style>
 
