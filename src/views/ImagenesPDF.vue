@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-5" style="margin-top: 80px">
+  <div class="container py-5 page-container">
     <!-- Título -->
     <div class="text-center mb-5">
       <h2 class="fw-bold text-primary mb-2">🖨️ Imprimir varias imágenes</h2>
@@ -14,11 +14,27 @@
         <h5 class="card-title text-secondary mb-3">
           <i class="bi bi-upload me-2"></i>Agregar imágenes
         </h5>
+        <div
+          class="paste-drop-zone"
+          @dragover.prevent="dragOver = true"
+          @dragleave="dragOver = false"
+          @drop.prevent="
+            onDrop;
+            dragOver = false;
+          "
+          :class="{ active: dragOver }"
+          @paste.prevent="handlePaste"
+        >
+          <p class="text-muted mb-0">
+            📋 Pega aquí una imagen (Ctrl+V) o arrastra imágenes
+          </p>
+        </div>
 
         <input
           type="file"
           multiple
           accept="image/*"
+          capture="camera"
           class="form-control mb-2"
           @change="onFileChange"
         />
@@ -46,9 +62,8 @@
             <p class="small text-muted text-truncate mb-0">{{ img.name }}</p>
           </div>
           <button
-            type="button"
+            aria-label="Eliminar imagen"
             class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle"
-            title="Eliminar"
             @click="removeImage(index)"
           >
             <i class="bi bi-x-lg"></i>
@@ -65,19 +80,16 @@
 
     <!-- Botones de acción -->
     <div v-if="images.length" class="mt-5 text-center">
-      <div class="d-flex flex-wrap justify-content-center gap-3">
+      <div class="actions mt-5 text-center">
         <button @click="generateOnePdfPerImage" class="btn btn-primary">
           <i class="bi bi-file-earmark-pdf me-2"></i>Un PDF por imagen
         </button>
-
         <button @click="generateSinglePdf" class="btn btn-success">
           <i class="bi bi-collection me-2"></i>Un solo PDF con todas
         </button>
-
         <button @click="printPdfDirectly" class="btn btn-warning text-dark">
           <i class="bi bi-printer me-2"></i>Imprimir directamente
         </button>
-
         <button @click="clearAll" class="btn btn-outline-danger">
           <i class="bi bi-trash me-2"></i>Vaciar todo
         </button>
@@ -110,14 +122,16 @@ button i {
 </style>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, onUnmounted } from "vue";
 import jsPDF from "jspdf";
+const dragOver = ref(false);
 
 const images = ref([]);
 
 // 🔹 Cargar imágenes guardadas desde localStorage
 onMounted(() => {
   const stored = localStorage.getItem("imagenes_pdf");
+  window.addEventListener("paste", handlePaste);
   if (stored) {
     try {
       images.value = JSON.parse(stored);
@@ -126,6 +140,10 @@ onMounted(() => {
       localStorage.removeItem("imagenes_pdf");
     }
   }
+});
+
+onUnmounted(() => {
+  window.removeEventListener("paste", handlePaste);
 });
 
 // 🔹 Guardar automáticamente cada vez que se agreguen o eliminen imágenes
@@ -263,4 +281,76 @@ const printPdfDirectly = async () => {
     };
   }
 };
+// 🔹 Manejar imágenes pegadas
+const handlePaste = (e) => {
+  const items = e.clipboardData.items;
+
+  for (const item of items) {
+    if (item.type.startsWith("image/")) {
+      const file = item.getAsFile();
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        images.value.push({
+          id: crypto.randomUUID(),
+          name: "imagen_pegada.png",
+          url: event.target.result,
+        });
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+};
+
+const onDrop = (e) => {
+  const files = Array.from(e.dataTransfer.files);
+  for (const file of files) {
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        images.value.push({
+          id: crypto.randomUUID(),
+          name: file.name,
+          url: event.target.result,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+};
 </script>
+
+<style scoped>
+.paste-drop-zone {
+  border: 2px dashed #ced4da;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 20px;
+  transition: border-color 0.2s ease;
+  margin: 10px 0px;
+}
+
+.paste-drop-zone:hover {
+  border-color: #0d6efd;
+}
+.page-container {
+  margin-top: 80px;
+}
+
+.paste-drop-zone.active {
+  border-color: #0d6efd;
+  background: #e7f1ff;
+}
+.card-img-top {
+  height: 170px;
+  object-fit: contain;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+</style>
