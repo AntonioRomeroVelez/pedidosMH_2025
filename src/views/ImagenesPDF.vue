@@ -14,30 +14,15 @@
         <h5 class="card-title text-secondary mb-3">
           <i class="bi bi-upload me-2"></i>Agregar imágenes
         </h5>
-        <div
-          class="paste-drop-zone"
-          @dragover.prevent="dragOver = true"
-          @dragleave="dragOver = false"
-          @drop.prevent="
-            onDrop;
-            dragOver = false;
-          "
-          :class="{ active: dragOver }"
-          @paste.prevent="handlePaste"
-        >
-          <p class="text-muted mb-0">
-            📋 Pega aquí una imagen (Ctrl+V) o arrastra imágenes
-          </p>
-        </div>
 
         <input
           type="file"
           multiple
           accept="image/*"
-          capture="camera"
           class="form-control mb-2"
           @change="onFileChange"
         />
+
         <div class="form-text">
           Puedes agregar más imágenes o eliminar las que ya no necesites.
         </div>
@@ -55,12 +40,12 @@
           <img
             :src="img.url"
             class="card-img-top p-2 bg-light"
-            style="height: 170px; object-fit: contain"
             alt="Vista previa"
           />
           <div class="card-body text-center py-2">
             <p class="small text-muted text-truncate mb-0">{{ img.name }}</p>
           </div>
+
           <button
             aria-label="Eliminar imagen"
             class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle"
@@ -84,12 +69,15 @@
         <button @click="generateOnePdfPerImage" class="btn btn-primary">
           <i class="bi bi-file-earmark-pdf me-2"></i>Un PDF por imagen
         </button>
+
         <button @click="generateSinglePdf" class="btn btn-success">
           <i class="bi bi-collection me-2"></i>Un solo PDF con todas
         </button>
+
         <button @click="printPdfDirectly" class="btn btn-warning text-dark">
           <i class="bi bi-printer me-2"></i>Imprimir directamente
         </button>
+
         <button @click="clearAll" class="btn btn-outline-danger">
           <i class="bi bi-trash me-2"></i>Vaciar todo
         </button>
@@ -98,40 +86,15 @@
   </div>
 </template>
 
-<style scoped>
-.card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.hover-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-}
-
-.form-text {
-  font-size: 0.9rem;
-}
-
-button i {
-  vertical-align: middle;
-}
-
-.alert-light {
-  background: #f8f9fa;
-}
-</style>
-
 <script setup>
-import { ref, onMounted, watch, onUnmounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import jsPDF from "jspdf";
-const dragOver = ref(false);
 
 const images = ref([]);
 
-// 🔹 Cargar imágenes guardadas desde localStorage
+// Leer desde localStorage
 onMounted(() => {
   const stored = localStorage.getItem("imagenes_pdf");
-  window.addEventListener("paste", handlePaste);
   if (stored) {
     try {
       images.value = JSON.parse(stored);
@@ -142,11 +105,7 @@ onMounted(() => {
   }
 });
 
-onUnmounted(() => {
-  window.removeEventListener("paste", handlePaste);
-});
-
-// 🔹 Guardar automáticamente cada vez que se agreguen o eliminen imágenes
+// Guardar automáticamente
 watch(
   images,
   (val) => {
@@ -155,16 +114,16 @@ watch(
   { deep: true }
 );
 
-// 🔹 Subir imágenes (convertidas a Base64)
+// Cargar imágenes
 const onFileChange = (e) => {
   const files = Array.from(e.target.files);
   for (const file of files) {
     const reader = new FileReader();
     reader.onload = (event) => {
       images.value.push({
-        id: crypto.randomUUID(), // ID único
+        id: crypto.randomUUID(),
         name: file.name,
-        url: event.target.result, // Imagen en base64
+        url: event.target.result,
       });
     };
     reader.readAsDataURL(file);
@@ -172,18 +131,18 @@ const onFileChange = (e) => {
   e.target.value = null;
 };
 
-// 🔹 Eliminar una imagen específica
+// Eliminar una imagen
 const removeImage = (index) => {
   images.value.splice(index, 1);
 };
 
-// 🔹 Vaciar todas las imágenes
+// Vaciar todo
 const clearAll = () => {
   images.value = [];
   localStorage.removeItem("imagenes_pdf");
 };
 
-// 🔹 Cargar imagen en memoria (para medir tamaño)
+// Cargar imagen para escalado
 const loadImage = (src) =>
   new Promise((resolve) => {
     const img = new Image();
@@ -191,13 +150,13 @@ const loadImage = (src) =>
     img.src = src;
   });
 
-// 🔹 Escalar proporcionalmente dentro de A4
+// Escalar dentro del A4
 const getScaledDimensions = (img, maxWidth, maxHeight) => {
   const ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
   return { width: img.width * ratio, height: img.height * ratio };
 };
 
-// 🔹 Generar un PDF por cada imagen
+// Un PDF por imagen
 const generateOnePdfPerImage = async () => {
   for (const [index, img] of images.value.entries()) {
     const pdf = new jsPDF({ unit: "mm", format: "a4", compress: false });
@@ -210,16 +169,14 @@ const generateOnePdfPerImage = async () => {
       (210 - width) / 2,
       (297 - height) / 2,
       width,
-      height,
-      undefined,
-      "FAST"
+      height
     );
 
     pdf.save(`imagen_${index + 1}.pdf`);
   }
 };
 
-// 🔹 Generar un solo PDF con todas las imágenes
+// Un solo PDF con todas
 const generateSinglePdf = async () => {
   if (!images.value.length) return;
 
@@ -236,9 +193,7 @@ const generateSinglePdf = async () => {
       (210 - width) / 2,
       (297 - height) / 2,
       width,
-      height,
-      undefined,
-      "FAST"
+      height
     );
 
     if (i < images.value.length - 1) pdf.addPage();
@@ -247,7 +202,7 @@ const generateSinglePdf = async () => {
   pdf.save("todas_imagenes_A4.pdf");
 };
 
-// 🔹 Imprimir directamente sin descargar
+// Imprimir directamente
 const printPdfDirectly = async () => {
   if (!images.value.length) return;
 
@@ -264,84 +219,36 @@ const printPdfDirectly = async () => {
       (210 - width) / 2,
       (297 - height) / 2,
       width,
-      height,
-      undefined,
-      "FAST"
+      height
     );
 
     if (i < images.value.length - 1) pdf.addPage();
   }
 
   const blobUrl = pdf.output("bloburl");
-  const printWindow = window.open(blobUrl);
-  if (printWindow) {
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
+  const win = window.open(blobUrl);
+  if (win) {
+    win.onload = () => {
+      win.print();
     };
-  }
-};
-// 🔹 Manejar imágenes pegadas
-const handlePaste = (e) => {
-  const items = e.clipboardData.items;
-
-  for (const item of items) {
-    if (item.type.startsWith("image/")) {
-      const file = item.getAsFile();
-      const reader = new FileReader();
-
-      reader.onload = (event) => {
-        images.value.push({
-          id: crypto.randomUUID(),
-          name: "imagen_pegada.png",
-          url: event.target.result,
-        });
-      };
-
-      reader.readAsDataURL(file);
-    }
-  }
-};
-
-const onDrop = (e) => {
-  const files = Array.from(e.dataTransfer.files);
-  for (const file of files) {
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        images.value.push({
-          id: crypto.randomUUID(),
-          name: file.name,
-          url: event.target.result,
-        });
-      };
-      reader.readAsDataURL(file);
-    }
   }
 };
 </script>
 
 <style scoped>
-.paste-drop-zone {
-  border: 2px dashed #ced4da;
-  border-radius: 10px;
-  cursor: pointer;
-  padding: 20px;
-  transition: border-color 0.2s ease;
-  margin: 10px 0px;
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.paste-drop-zone:hover {
-  border-color: #0d6efd;
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
+
 .page-container {
   margin-top: 80px;
 }
 
-.paste-drop-zone.active {
-  border-color: #0d6efd;
-  background: #e7f1ff;
-}
 .card-img-top {
   height: 170px;
   object-fit: contain;
