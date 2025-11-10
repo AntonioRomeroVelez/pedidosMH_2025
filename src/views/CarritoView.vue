@@ -74,6 +74,36 @@
         <div class="export-text">Generando archivo, por favor espere...</div>
       </div>
 
+      <!-- Totales desglosados -->
+      <div class="mt-4" v-if="carrito.length">
+        <div class="row justify-content-end">
+          <div class="col-md-4">
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between">
+                <strong>Subtotal 15%:</strong>
+                <span>$ {{ subtotal15.toFixed(2) }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <strong>Subtotal 0%:</strong>
+                <span>$ {{ subtotal0.toFixed(2) }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <strong>IVA 15%:</strong>
+                <span>$ {{ iva15.toFixed(2) }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between bg-light"
+              >
+                <strong>Total:</strong>
+                <span class="fw-bold text-success"
+                  >$ {{ totalCarrito.toFixed(2) }}</span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div v-if="!isMobile" class="table-container">
         <table
           class="table table-bordered table-sm table-striped text-center align-middle tableProductos mx-auto"
@@ -144,36 +174,6 @@
       </div>
 
       <!-- Tarjetas para móvil -->
-      <!-- Totales desglosados -->
-      <div class="mt-4" v-if="carrito.length">
-        <div class="row justify-content-end">
-          <div class="col-md-4">
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between">
-                <strong>Subtotal 15%:</strong>
-                <span>$ {{ subtotal15.toFixed(2) }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between">
-                <strong>Subtotal 0%:</strong>
-                <span>$ {{ subtotal0.toFixed(2) }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between">
-                <strong>IVA 15%:</strong>
-                <span>$ {{ iva15.toFixed(2) }}</span>
-              </li>
-              <li
-                class="list-group-item d-flex justify-content-between bg-light"
-              >
-                <strong>Total:</strong>
-                <span class="fw-bold text-success"
-                  >$ {{ totalCarrito.toFixed(2) }}</span
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
       <div v-else class="mobile-cards">
         <div
           v-for="(item, index) in carrito"
