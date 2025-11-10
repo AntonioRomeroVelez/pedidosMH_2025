@@ -14,10 +14,10 @@
     </div>
 
     <!-- 🧪 Contenedor principal -->
-    <div class="container py-4" v-else>
+    <div v-else class="container py-3">
       <!-- 🔍 Buscador -->
       <div class="card border-0 shadow-sm sticky-buscador mb-4">
-        <div class="card-body p-3">
+        <div class="card-body p-2">
           <div class="input-group input-group-lg">
             <span class="input-group-text bg-white border-end-0">
               <i class="bi bi-search text-primary"></i>
@@ -29,7 +29,7 @@
               placeholder="Buscar por nombre, marca o principio activo..."
               @keyup.enter="buscarProductos"
             />
-            <button class="btn btn-primary" @click="buscarProductos">
+            <button class="btn btn-primary px-4" @click="buscarProductos">
               Buscar <i class="bi bi-arrow-right-short ms-1"></i>
             </button>
           </div>
@@ -37,7 +37,7 @@
       </div>
 
       <!-- ⏳ Cargando -->
-      <div v-if="loading" class="text-center py-5">
+      <div v-if="loading" class="text-center py-4">
         <LoadingComponent />
       </div>
 
@@ -50,29 +50,26 @@
             class="col-12 col-sm-6 col-lg-3"
           >
             <div class="card border-0 shadow-sm h-100 hover-card">
-              <div class="card-body d-flex flex-column justify-content-between">
+              <div class="card-body d-flex flex-column">
                 <!-- Título y marca -->
-                <div>
+                <div class="mb-2">
                   <h5
-                    class="text-primary fw-bold mb-2 d-flex align-items-center"
+                    class="text-primary fw-bold mb-1 d-flex align-items-center"
                   >
                     <i class="bi bi-capsule me-2"></i>
                     {{ producto.NombreProducto }}
                   </h5>
+
                   <p class="text-muted mb-1 small">
                     {{ producto.Marca }} | {{ producto.Presentacion }}
                   </p>
-                  <!-- <p class="text-muted mb-2 small">
-                    
-                    <strong>🧬 Principio Activo:</strong><br />
-                    {{ producto.PrincipioActivo }}
-                  </p> -->
+
                   <p
                     v-if="
                       producto.PrincipioActivo &&
                       producto.PrincipioActivo.toLowerCase() !== 'insumo'
                     "
-                    class="text-muted mb-2 small"
+                    class="text-muted small"
                   >
                     <strong>🧬 Principio Activo:</strong><br />
                     {{ producto.PrincipioActivo }}
@@ -90,13 +87,12 @@
                     </span>
                   </div>
 
-                  <!-- Descuentos y promoción -->
                   <div class="d-flex justify-content-between flex-wrap mt-2">
                     <span
                       v-if="producto.Descuento"
                       class="badge bg-success-subtle text-success"
                     >
-                      🎁 {{ producto.Descuento }}% descuento
+                      🎁 {{ producto.Descuento }}% desc
                     </span>
                     <span
                       v-if="producto.IVA"
@@ -114,7 +110,7 @@
                 </div>
 
                 <!-- Botón de acción -->
-                <div class="text-center">
+                <div class="mt-auto text-center">
                   <router-link
                     class="btn btn-outline-primary w-75"
                     :to="{
@@ -134,7 +130,7 @@
 
         <!-- 📄 Paginación -->
         <div
-          class="d-flex justify-content-center align-items-center mt-5 gap-3"
+          class="d-flex justify-content-center align-items-center mt-4 gap-3"
         >
           <button
             class="btn btn-outline-primary"

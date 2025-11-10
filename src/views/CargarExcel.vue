@@ -247,7 +247,7 @@ const leerExcel = (event) => {
           const codigo = filaNormalizada["CODIGO"]?.toString().trim() || "";
 
           const producto = {
-            ID: codigo || `id-${Math.random().toString(36).substr(2, 5)}`,
+            ID: crypto.randomUUID(),
             Codigo: codigo,
             Marca: filaNormalizada["MARCA"]?.toString().trim() || "",
             NombreProducto: filaNormalizada["NOMBRE"]?.toString().trim() || "",
