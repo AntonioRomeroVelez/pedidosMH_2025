@@ -347,8 +347,8 @@ function handleCloseMenu() {
 /* FAB MENU button */
 .fab-menu {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  bottom: 20px;
+  right: 20px;
   width: 58px;
   height: 58px;
   background: #0d6efd;
