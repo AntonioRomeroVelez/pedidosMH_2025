@@ -646,7 +646,7 @@ const descarTablaConPromocion = async () => {
   try {
     const fecha = new Date().toISOString().split("T")[0];
     const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
-    const finalWidth = 500;
+    const finalWidth = 600;
 
     container = document.createElement("div");
     container.style.width = finalWidth + "px";
@@ -676,7 +676,7 @@ const descarTablaConPromocion = async () => {
     tabla.style.tableLayout = "fixed";
 
     const colgroup = document.createElement("colgroup");
-    [40, 15, 25, 20].forEach((pct) => {
+    [40, 25, 30, 15, 25, 20].forEach((pct) => {
       const col = document.createElement("col");
       col.style.width = pct + "%";
       colgroup.appendChild(col);
@@ -687,6 +687,8 @@ const descarTablaConPromocion = async () => {
     thead.innerHTML = `
       <tr style="background-color: #4CAF50; color: white;">
         <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Producto</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Marca</th>
+        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Presentación</th>
         <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Precio</th>
         <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Promoción</th>
         <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Descuento %</th>
@@ -700,6 +702,8 @@ const descarTablaConPromocion = async () => {
       tr.style.backgroundColor = index % 2 === 0 ? "#f9f9f9" : "white";
 
       const nombre = item.NombreProducto || "";
+      const marca = item.Marca || "";
+      const presentacion = item.Presentacion || "";
       const precio =
         item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null
           ? "$" + Number(item.PrecioFarmacia).toFixed(2)
@@ -714,11 +718,14 @@ const descarTablaConPromocion = async () => {
       }
 
       tr.innerHTML = `
-        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:left; word-break:break-word;">${nombre}</td>
-        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${precio}</td>
-        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${promo}</td>
-        <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${descuento}</td>
-      `;
+  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:left; word-break:break-word;">${nombre}</td>
+  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${marca}</td>
+  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${presentacion}</td>
+  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${precio}</td>
+  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${promo}</td>
+  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${descuento}</td>
+`;
+
       tbody.appendChild(tr);
     });
     tabla.appendChild(tbody);
@@ -777,7 +784,6 @@ const descarTablaConPromocion = async () => {
 .alertify-notifier {
   z-index: 9999 !important;
 }
-
 
 @media (max-width: 768px) {
   .tableProductos thead {
