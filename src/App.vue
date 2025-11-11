@@ -103,6 +103,13 @@ function handleCloseMenu() {
       <transition name="fade-slide">
         <div v-if="menuOpen" class="fab-menu-panel shadow-lg">
           <RouterLink
+            to="/"
+            class="d-flex align-items-center text-decoration-none"
+          >
+            <img src="/logo.png" alt="Logo" class="sidebar-logo me-2" />
+            <span class="fw-bold text-primary fs-7">Molina Herrera</span>
+          </RouterLink>
+          <RouterLink
             to="/productos"
             class="fab-link"
             @click="menuOpen = false"

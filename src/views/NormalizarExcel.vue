@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4" style="margin-top: 60px">
+  <div class="container py-4">
     <h2 class="text-center mb-4">
       🧾 Formato productos - Extraer MARCA y normalizar
     </h2>

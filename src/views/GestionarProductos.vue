@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-5" style="margin-top: 80px">
+  <div class="container py-5">
     <div class="text-center mb-5">
       <h2 class="fw-bold text-primary">📦 Gestión de Productos</h2>
       <p class="text-muted">

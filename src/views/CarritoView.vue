@@ -1,8 +1,6 @@
 <template>
   <div class="container px-0">
-    <h2 class="text-center mb-4" style="margin-top: 60px">
-      🛒 Carrito de Compras
-    </h2>
+    <h2 class="text-center mb-4">🛒 Carrito de Compras</h2>
 
     <!-- Datos del pedido -->
     <div class="row mb-4" v-if="carrito.length">
@@ -40,6 +38,8 @@
         </select>
       </div>
     </div>
+    <hr style="border: solid 1px silver" />
+
     <!-- Botón para guardar pedido -->
     <div
       class="mt-4 d-flex justify-content-around flex-wrap gap-4"
@@ -65,6 +65,8 @@
         Exportar Imagen promociones
       </button>
     </div>
+
+    <hr style="border: solid 1px silver" />
 
     <!-- Lista de productos: tabla en desktop, tarjetas en móvil -->
     <div class="mt-4" v-if="carrito.length">
@@ -103,6 +105,8 @@
           </div>
         </div>
       </div>
+
+      <hr style="border: solid 1px silver" />
 
       <div v-if="!isMobile" class="table-container">
         <table
@@ -773,6 +777,7 @@ const descarTablaConPromocion = async () => {
 .alertify-notifier {
   z-index: 9999 !important;
 }
+
 
 @media (max-width: 768px) {
   .tableProductos thead {

@@ -52,20 +52,21 @@
           <div
             v-for="producto in productosPaginados"
             :key="producto.ID"
-            class="col-12 col-sm-6 col-lg-3"
+            class="col-12 col-sm-6 col-lg-4"
           >
             <div class="card border-0 shadow-sm h-100 hover-card">
               <div class="card-body d-flex flex-column">
                 <!-- Título y marca -->
                 <div class="mb-2">
                   <h5
-                    class="text-primary fw-bold mb-1 d-flex align-items-center"
+                    class="text-primary fw-bold mb-1 text-center"
                   >
-                    <i class="bi bi-capsule me-2"></i>
                     {{ producto.NombreProducto }}
                   </h5>
 
-                  <p class="text-muted mb-1 small">
+                  <p
+                    class="small text-success-emphasis bg-primary-subtle px-2 py-1 rounded d-table"
+                  >
                     {{ producto.Marca }} | {{ producto.Presentacion }}
                   </p>
 
@@ -74,25 +75,22 @@
                       producto.PrincipioActivo &&
                       producto.PrincipioActivo.toLowerCase() !== 'insumo'
                     "
-                    class="text-muted small"
+                    class="small text-secondary-emphasis bg-secondary-subtle px-2 py-1 rounded d-table"
                   >
-                    <strong>🧬 Principio Activo:</strong><br />
                     {{ producto.PrincipioActivo }}
                   </p>
                 </div>
 
                 <!-- Precios -->
                 <div class="mb-3">
-                  <div class="d-flex justify-content-between flex-wrap">
+                  <div class="d-flex justify-content-between flex-wrap gap-1">
                     <span class="badge bg-light text-dark border">
                       🏥 Farmacia: ${{ producto.PrecioFarmacia.toFixed(2) }}
                     </span>
                     <span class="badge bg-light text-dark border">
                       💰 PVP: ${{ producto.PVP.toFixed(2) }}
                     </span>
-                  </div>
 
-                  <div class="d-flex justify-content-between flex-wrap mt-2">
                     <span
                       v-if="producto.Descuento"
                       class="badge bg-success-subtle text-success"
@@ -227,7 +225,7 @@ let fuse = null;
 
 // 🔢 Paginación
 const paginaActual = ref(1);
-const elementosPorPagina = 5;
+const elementosPorPagina = 50;
 
 // 🧮 Calcular páginas totales
 const totalPaginas = computed(() =>

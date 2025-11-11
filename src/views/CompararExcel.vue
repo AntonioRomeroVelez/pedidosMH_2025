@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4" style="margin-top: 80px">
+  <div class="container py-4">
     <h2 class="text-center mb-4">📊 Comparador de Archivos Excel</h2>
 
     <div class="row g-4">

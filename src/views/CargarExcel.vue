@@ -1,10 +1,10 @@
 <template>
-  <div class="cargar-excel container" style="margin-top: 60px">
+  <div class="cargar-excel">
     <h2>📥 Cargar productos desde Excel</h2>
     <p>📝 El archivo debe tener las siguientes columnas:</p>
 
     <!-- Tabla de formato esperado -->
-    <div class="table-responsive container">
+    <div class="table-responsive">
       <table class="table table-bordered formato-tabla">
         <thead>
           <tr>
@@ -120,7 +120,7 @@
       <!-- Vista previa responsiva -->
       <div v-if="datos.length" class="vista-previa mt-4">
         <h4 class="fw-bold text-primary mb-3 text-center text-md-start">
-          👀 Vista previa de productos cargados
+          Vista previa de productos cargados
         </h4>
 
         <div
@@ -133,8 +133,8 @@
           >
             <thead class="table-primary sticky-header">
               <tr>
-                <th scope="col" style="min-width: 40px">Código</th>
-                <th scope="col" style="width: 20px">#</th>
+                <!-- <th scope="col" style="min-width: 40px">Código</th> -->
+                <!-- <th scope="col" style="width: 20px">#</th> -->
                 <th scope="col" style="min-width: 140px">Marca</th>
                 <th scope="col" style="min-width: 200px">Nombre Producto</th>
                 <th scope="col" style="min-width: 140px">Presentación</th>
@@ -152,8 +152,8 @@
                 :key="i"
                 :class="{ 'table-danger': p.duplicado }"
               >
-                <td class="text-break">{{ p.Codigo }}</td>
-                <td>{{ i + 1 }}</td>
+                <!-- <td class="text-break">{{ p.Codigo }}</td> -->
+                <!-- <td>{{ i + 1 }}</td> -->
                 <td class="text-break">{{ p.Marca }}</td>
                 <td class="text-break">{{ p.NombreProducto }}</td>
                 <td class="text-break">{{ p.Presentacion }}</td>
