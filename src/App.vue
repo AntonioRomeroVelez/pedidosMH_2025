@@ -189,7 +189,7 @@ function handleCloseMenu() {
     <main
       :class="['main-content', { 'main-expanded': !sidebarOpen && !isMobile }]"
     >
-      <div class="container py-4">
+      <div class="container">
         <RouterView />
       </div>
     </main>
@@ -202,6 +202,8 @@ function handleCloseMenu() {
   min-height: 100vh;
   background: #f1f3f5;
   font-family: "Inter", sans-serif;
+  width: 100%;
+  /* background-color: red; */
 }
 
 /* ──────────────── SIDEBAR ──────────────── */

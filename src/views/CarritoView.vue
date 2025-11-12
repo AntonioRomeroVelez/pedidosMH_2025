@@ -108,7 +108,7 @@
 
       <hr style="border: solid 1px silver" />
 
-      <div v-if="!isMobile" class="table-container">
+      <div v-if="!isMobile" class="table-container" style="margin-bottom: 20px">
         <table
           class="table table-bordered table-sm table-striped text-center align-middle tableProductos mx-auto"
         >
@@ -124,6 +124,7 @@
               <th class="text-wrap fs-6 text">IVA</th>
               <th class="text-wrap fs-6 text">Cantidad</th>
               <th class="text-wrap fs-6 text">A recibir</th>
+              <th class="text-wrap fs-6 text">Precio total producto</th>
               <th class="text-wrap fs-6 text">Acciones</th>
             </tr>
           </thead>
@@ -164,6 +165,15 @@
                   calcularPromocionYTotales(item.cantidad, item.Promocion).total
                 }}
               </td>
+              <td data-label="Precio total producto">
+                $
+                {{
+                  calcularPrecioProductoCantidad(
+                    item.cantidad,
+                    item.PrecioFarmacia
+                  ).toFixed(2)
+                }}
+              </td>
               <td data-label="Acciones">
                 <button
                   class="btn btn-danger btn-sm"
@@ -178,7 +188,7 @@
       </div>
 
       <!-- Tarjetas para móvil -->
-      <div v-else class="mobile-cards">
+      <div v-else class="mobile-cards" style="margin-bottom: 20px">
         <div
           v-for="(item, index) in carrito"
           :key="item.id"
@@ -256,6 +266,19 @@
               </div>
             </div>
 
+            <div class="quantity-controls p-2 rounded bg-light mt-2">
+              <div class="ms-2">
+                <strong>Precio total: </strong>
+                $
+                {{
+                  calcularPrecioProductoCantidad(
+                    item.cantidad,
+                    item.PrecioFarmacia
+                  ).toFixed(2)
+                }}
+              </div>
+            </div>
+
             <div class="d-grid mt-3">
               <button
                 class="btn btn-outline-danger"
@@ -288,7 +311,10 @@ const totalCarrito = ref(0);
 const isMobile = ref(false);
 const isExporting = ref(false);
 
-import { calcularPromocionYTotales } from "../servicios/utility";
+import {
+  calcularPromocionYTotales,
+  calcularPrecioProductoCantidad,
+} from "../servicios/utility";
 
 const pedido = ref({
   Nombre: "",

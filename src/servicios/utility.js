@@ -101,3 +101,11 @@ export const calcularPromocionYTotales = (cantidad, promocionStr) => {
   console.log("mejor:", mejor);
   return mejor;
 };
+
+export const calcularPrecioProductoCantidad = (cantidad, PrecioFarmacia) => {
+  console.log("cantidad:", cantidad);
+  console.log("PrecioFarmacia:", PrecioFarmacia);
+
+  let precioTotal = cantidad * PrecioFarmacia;
+  return precioTotal;
+};
