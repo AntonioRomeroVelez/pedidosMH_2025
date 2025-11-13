@@ -14,7 +14,7 @@
     </div>
 
     <!-- 🧪 Contenedor principal -->
-    <div v-else class="container py-1">
+    <div v-else class="container">
       <!-- 🔍 Buscador -->
       <div class="card border-0 shadow-sm sticky-buscador mb-4">
         <div class="card-body p-2">
@@ -27,8 +27,8 @@
             <input
               v-model="busqueda"
               type="text"
-              class="form-control border-start-0"
-              placeholder="Buscar por nombre, marca o principio activo..."
+              class="form-control border-start-0 inputBuscar"
+              placeholder="Buscar"
               @keyup.enter="buscarProductos"
             />
             <button
@@ -57,9 +57,9 @@
             <div class="card border-0 shadow-sm h-100 hover-card">
               <div class="card-body d-flex flex-column">
                 <!-- Título y marca -->
-                <div class="mb-2">
+                <div class="mb-1">
                   <h5
-                    class="text-primary fw-bold mb-1 text-center"
+                    class="text-primary fw-bold mb-1 text-center titulo-producto"
                   >
                     {{ producto.NombreProducto }}
                   </h5>
@@ -132,7 +132,7 @@
         </div>
 
         <!-- 📄 Paginación -->
-        <div
+        <!-- <div
           class="d-flex justify-content-center align-items-center mt-4 gap-3"
         >
           <button
@@ -149,6 +149,29 @@
 
           <button
             class="btn btn-outline-primary"
+            @click="paginaSiguiente"
+            :disabled="paginaActual === totalPaginas"
+          >
+            Siguiente ➡️
+          </button>
+        </div> -->
+
+        <!-- 📄 Paginación -->
+        <div class="paginacion mt-4">
+          <button
+            class="btn-paginacion"
+            @click="paginaAnterior"
+            :disabled="paginaActual === 1"
+          >
+            ⬅️ Anterior
+          </button>
+
+          <span class="pagina-info">
+            Página {{ paginaActual }} / {{ totalPaginas }}
+          </span>
+
+          <button
+            class="btn-paginacion"
             @click="paginaSiguiente"
             :disabled="paginaActual === totalPaginas"
           >
@@ -197,10 +220,81 @@
   }
   .btn-buscador {
     font-size: 1rem;
-    padding: 5px 5px !important;
+    padding: 1px 3px !important;
   }
   .txt-lupa-buscar {
     display: none;
+  }
+  .titulo-producto {
+    font-size: 1rem; /* más pequeño en móvil */
+  }
+  .inputBuscar {
+    font-size: 1rem;
+  }
+}
+
+.titulo-producto {
+  line-height: 1.2;
+}
+
+/* 💻 Pantallas grandes */
+@media (min-width: 769px) {
+  .titulo-producto {
+    font-size: 1rem; /* más grande y legible en PC */
+  }
+}
+
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap; /* permite que los botones bajen en pantallas pequeñas */
+  gap: 12px;
+  text-align: center;
+}
+
+.btn-paginacion {
+  background-color: white;
+  color: #2563eb;
+  border: 2px solid #2563eb;
+  border-radius: 10px;
+  padding: 6px 16px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-paginacion:hover:not(:disabled) {
+  background-color: #2563eb;
+  color: white;
+}
+
+.btn-paginacion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagina-info {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* 📱 Ajuste para móviles */
+@media (max-width: 768px) {
+  .paginacion {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .btn-paginacion {
+    width: 100%;
+    max-width: 260px;
+    font-size: 0.95rem;
+    padding: 8px;
+  }
+
+  .pagina-info {
+    font-size: 0.9rem;
   }
 }
 </style>

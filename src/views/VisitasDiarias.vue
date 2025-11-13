@@ -1,6 +1,6 @@
 <template>
   <div class="visitas-container py-4 px-3 px-md-5">
-    <h2 class="titulo text-center mb-4">🗓️ Registro de Visitas Diarias</h2>
+    <h2 class="titulo text-center mb-4">Registro de Visitas Diarias</h2>
 
     <!-- Formulario -->
     <div class="formulario shadow-sm p-4 rounded-4 bg-white mb-4">
@@ -10,7 +10,7 @@
           v-model="lugar"
           class="form-control campo-texto"
           rows="1"
-          placeholder="Ej. Farmacia San José"
+          placeholder=""
         ></textarea>
       </div>
 
@@ -19,8 +19,8 @@
         <textarea
           v-model="observacion"
           class="form-control campo-texto"
-          rows="2"
-          placeholder="Ej. Realizó un pedido grande o no se encontraba el encargado"
+          rows="3"
+          placeholder=""
         ></textarea>
       </div>
 
@@ -199,9 +199,7 @@ function copiarTexto() {
   const texto = [
     `${fecha}`,
     "",
-    ...visitas.value.map(
-      (v) => ` ${v.lugar.toLowerCase()}: ${v.observacion}.`
-    ),
+    ...visitas.value.map((v) => ` ${v.lugar.toLowerCase()}: ${v.observacion}.`),
   ].join("\n");
 
   navigator.clipboard.writeText(texto).then(() => {
@@ -210,7 +208,7 @@ function copiarTexto() {
 }
 </script>
 
-<style scoped>
+<style>
 .visitas-container {
   max-width: 700px;
   margin: 0 auto;
@@ -317,5 +315,49 @@ function copiarTexto() {
 
 .btn-editar:hover {
   background-color: #dbeafe;
+}
+
+/* 📱 Estilos para pantallas móviles */
+@media (max-width: 768px) {
+  .titulo {
+    font-size: 1.3rem;
+  }
+
+  .form-label,
+  .texto-visita,
+  .btn-agregar,
+  .btn-accion,
+  .btn-eliminar,
+  .btn-editar {
+    font-size: 0.9rem;
+  }
+
+  .campo-texto {
+    font-size: 0.9rem;
+  }
+
+  .list-group-item {
+    padding: 8px 4px;
+  }
+}
+
+/* 💻 Estilos para pantallas grandes */
+@media (min-width: 769px) {
+  .titulo {
+    font-size: 1.6rem;
+  }
+
+  .form-label,
+  .campo-texto,
+  .texto-visita {
+    font-size: 1rem;
+  }
+
+  .btn-agregar,
+  .btn-accion,
+  .btn-eliminar,
+  .btn-editar {
+    font-size: 1rem;
+  }
 }
 </style>

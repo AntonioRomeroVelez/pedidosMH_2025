@@ -30,17 +30,9 @@
 </template>
 
 <style scoped>
-/* .pantalla-completa {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #e9f1ff 0%, #f1f6ff 100%);
-} */
-
 .pantalla-completa {
-  height: 100vh;
-  min-height: 90dvh; /* Soporta navegadores móviles con barras dinámicas */
+  height: 90vh;
+  min-height: 100dvh; /* Soporta navegadores móviles con barras dinámicas */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,7 +82,7 @@
 }
 
 .logo {
-  width: 100px;
+  width: 50px;
   transition: transform 0.25s ease;
 }
 
