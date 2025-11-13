@@ -10,7 +10,7 @@
 
       <!-- Botones principales -->
 
-      <div class="botones d-flex flex-column  gap-3 mt-4">
+      <div class="botones d-flex flex-column gap-3 mt-4">
         <RouterLink class="btn-custom btn-primario" to="/Productos">
           <i class="bi bi-box-seam"></i> Lista de productos
         </RouterLink>
@@ -31,12 +31,58 @@
 </template>
 
 <style scoped>
-.pantalla-completa {
+/* .pantalla-completa {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #e9f1ff 0%, #f1f6ff 100%);
+} */
+
+.pantalla-completa {
+  height: 100vh;
+  min-height: 100dvh; /* Soporta navegadores móviles con barras dinámicas */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column; /* Acomoda elementos verticalmente */
+  background: linear-gradient(135deg, #e9f1ff 0%, #f8fbff 100%);
+  padding: 1.5rem;
+  text-align: center;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  color: #1e3a8a;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de fondo animado suave */
+.pantalla-completa::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, #93c5fd33, transparent 60%),
+    radial-gradient(circle at 70% 70%, #60a5fa22, transparent 70%);
+  animation: fondo-movimiento 12s ease-in-out infinite alternate;
+  z-index: 0;
+}
+
+/* Contenido principal sobre el fondo */
+.pantalla-completa > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Animación del fondo */
+@keyframes fondo-movimiento {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(5%, 5%) scale(1.05);
+  }
 }
 
 .contenido {
