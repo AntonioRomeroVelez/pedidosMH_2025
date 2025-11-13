@@ -8,29 +8,24 @@ const menuOpen = ref(false);
 const sidebarOpen = ref(true);
 
 const handleClickOutside = (event) => {
+  if (!menuOpen.value) return;
+
   const menu = document.querySelector(".mobile-menu");
   const button = document.querySelector(".mobile-menu-button");
   const navbar = document.querySelector(".mobile-navbar");
 
-  if (!menuOpen.value) return;
+  const isOutside =
+    menu &&
+    !menu.contains(event.target) &&
+    !(button && button.contains(event.target)) &&
+    navbar &&
+    !navbar.contains(event.target);
 
-  try {
-    const isOutside =
-      menu &&
-      !menu.contains(event.target) &&
-      !(button && button.contains(event.target)) &&
-      navbar &&
-      !navbar.contains(event.target);
-
-    if (isOutside) {
-      menuOpen.value = false;
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    }
-  } catch (e) {
-    console.warn("Error en handleClickOutside:", e);
+  if (isOutside) {
     menuOpen.value = false;
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   }
 };
 
@@ -52,6 +47,27 @@ const handleBlur = () => {
   }, 0);
 };
 
+// 🔹 Cierra si se toca fuera del menú
+const handleTouchOutside = (event) => {
+  if (!menuOpen.value) return;
+
+  const menu = document.querySelector(".fab-menu-panel");
+  const button = document.querySelector(".fab-menu");
+
+  if (
+    menu &&
+    !menu.contains(event.target) &&
+    !(button && button.contains(event.target))
+  ) {
+    menuOpen.value = false;
+  }
+};
+
+// 🔹 NUEVO: Cierra el menú al seleccionar una opción
+const handleMenuOptionClick = () => {
+  menuOpen.value = false;
+};
+
 const handleScroll = () => {
   if (menuOpen.value) menuOpen.value = false;
 };
@@ -71,8 +87,9 @@ onMounted(() => {
   document.addEventListener("focusout", handleBlur, true);
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("close-mobile-menu", handleCloseMenu);
+
   if ("ontouchstart" in window) {
-    document.addEventListener("touchstart", handleClickOutside, {
+    document.addEventListener("touchstart", handleTouchOutside, {
       passive: true,
     });
   }
@@ -84,6 +101,10 @@ onBeforeUnmount(() => {
   document.removeEventListener("focusout", handleBlur, true);
   window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("close-mobile-menu", handleCloseMenu);
+
+  if ("ontouchstart" in window) {
+    document.removeEventListener("touchstart", handleTouchOutside);
+  }
 });
 
 function handleCloseMenu() {
@@ -93,7 +114,6 @@ function handleCloseMenu() {
 
 <template>
   <div class="app-layout">
-    <!-- 📱 Navbar móvil -->
     <!-- 📱 Botón flotante menú móvil -->
     <div v-if="isMobile">
       <button class="fab-menu" @click="menuOpen = !menuOpen">
@@ -105,31 +125,40 @@ function handleCloseMenu() {
           <RouterLink
             to="/"
             class="d-flex align-items-center text-decoration-none"
+            @click="handleMenuOptionClick"
           >
             <img src="/logo.png" alt="Logo" class="sidebar-logo me-2" />
             <span class="fw-bold text-primary fs-7">Molina Herrera</span>
           </RouterLink>
+
           <RouterLink
             to="/productos"
             class="fab-link"
-            @click="menuOpen = false"
+            @click="handleMenuOptionClick"
           >
             <i class="bi bi-box-seam me-2"></i> Productos
           </RouterLink>
+
           <RouterLink
             to="/cargarexcel"
             class="fab-link"
-            @click="menuOpen = false"
+            @click="handleMenuOptionClick"
           >
             <i class="bi bi-cloud-arrow-up-fill me-2"></i> Cargar Excel
           </RouterLink>
-          <RouterLink to="/carrito" class="fab-link" @click="menuOpen = false">
+
+          <RouterLink
+            to="/carrito"
+            class="fab-link"
+            @click="handleMenuOptionClick"
+          >
             <i class="bi bi-cart3 me-2"></i> Carrito
           </RouterLink>
+
           <RouterLink
             to="/gestionar"
             class="fab-link"
-            @click="menuOpen = false"
+            @click="handleMenuOptionClick"
           >
             <i class="bi bi-gear me-2"></i> Gestionar
           </RouterLink>

@@ -197,9 +197,7 @@ function copiarTexto() {
   });
 
   const texto = [
-    `${fecha}`,
-    "",
-    ...visitas.value.map((v) => ` ${v.lugar.toLowerCase()}: ${v.observacion}.`),
+    ...visitas.value.map((v) => `${v.lugar}: ${v.observacion}.`),
   ].join("\n");
 
   navigator.clipboard.writeText(texto).then(() => {
