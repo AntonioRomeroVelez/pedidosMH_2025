@@ -24,8 +24,8 @@
         ></textarea>
       </div>
 
-      <button class="btn-agregar w-100" @click="agregarVisita">
-        ➕ Agregar visita
+      <button class="btn-agregar w-100" @click="guardarVisita">
+        {{ editando ? "💾 Guardar cambios" : "➕ Agregar visita" }}
       </button>
     </div>
 
@@ -58,9 +58,15 @@
             <strong>{{ v.lugar }}</strong
             >: {{ v.observacion }}
           </div>
-          <button class="btn-eliminar" @click="eliminarVisita(i)">
-            ✖ Eliminar
-          </button>
+
+          <div class="d-flex gap-2">
+            <button class="btn-editar" @click="editarVisita(i)">
+              ✏️ Editar
+            </button>
+            <button class="btn-eliminar" @click="eliminarVisita(i)">
+              ✖ Eliminar
+            </button>
+          </div>
         </li>
       </ul>
     </div>
@@ -70,11 +76,14 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import { useToast } from "vue-toastification";
+import alertify from "alertifyjs";
+
 const toast = useToast();
 const lugar = ref("");
 const observacion = ref("");
 const visitas = ref([]);
-import alertify from "alertifyjs";
+const editando = ref(false);
+const indiceEditando = ref(null);
 
 // Cargar visitas guardadas
 onMounted(() => {
@@ -91,25 +100,67 @@ watch(
   { deep: true }
 );
 
-function agregarVisita() {
+function guardarVisita() {
   if (!lugar.value.trim()) {
     toast.error("Por favor, ingresa el lugar de visita.");
     return;
   }
 
-  visitas.value.push({
-    lugar: lugar.value.trim(),
-    observacion: observacion.value.trim() || "Sin observaciones",
-  });
+  if (editando.value) {
+    visitas.value[indiceEditando.value] = {
+      lugar: lugar.value.trim(),
+      observacion: observacion.value.trim() || "Sin observaciones",
+    };
+    toast.success("✏️ Visita actualizada correctamente.");
+    cancelarEdicion();
+  } else {
+    visitas.value.push({
+      lugar: lugar.value.trim(),
+      observacion: observacion.value.trim() || "Sin observaciones",
+    });
+    toast.success("✅ Visita agregada correctamente.");
+    limpiarCampos();
+  }
+}
 
-  toast.success("Visita agregada correctamente.");
+function editarVisita(index) {
+  const visita = visitas.value[index];
+  lugar.value = visita.lugar;
+  observacion.value = visita.observacion;
+  editando.value = true;
+  indiceEditando.value = index;
+  toast.info("✏️ Editando visita...");
+}
+
+function cancelarEdicion() {
+  limpiarCampos();
+  editando.value = false;
+  indiceEditando.value = null;
+}
+
+function limpiarCampos() {
   lugar.value = "";
   observacion.value = "";
 }
 
 function eliminarVisita(index) {
-  visitas.value.splice(index, 1);
-  toast.info("Visita eliminada.");
+  alertify
+    .confirm(
+      "❌ Eliminar visita",
+      `¿Deseas eliminar la visita a "${visitas.value[index].lugar}"?`,
+      () => {
+        visitas.value.splice(index, 1);
+        toast.success("🗑️ Visita eliminada.");
+      },
+      () => {
+        toast.info("❌ Cancelado");
+      }
+    )
+    .set({
+      labels: { ok: "Sí, eliminar", cancel: "Cancelar" },
+      transition: "zoom",
+      movable: false,
+    });
 }
 
 const limpiarVisitas = () => {
@@ -124,7 +175,7 @@ const limpiarVisitas = () => {
       `Se eliminarán ${visitas.value.length} visitas registradas. Esta acción no se puede deshacer.`,
       () => {
         visitas.value = [];
-        localStorage.removeItem("visitas_diarias"); // 👈 corregido
+        localStorage.removeItem("visitas_diarias");
         toast.success("✅ Todas las visitas fueron eliminadas correctamente.");
       },
       () => {
@@ -135,8 +186,6 @@ const limpiarVisitas = () => {
       labels: { ok: "Sí, borrar", cancel: "Cancelar" },
       transition: "zoom",
       movable: false,
-      closable: false,
-      padding: true,
     });
 };
 
@@ -150,11 +199,13 @@ function copiarTexto() {
   const texto = [
     `${fecha}`,
     "",
-    ...visitas.value.map((v) => `${v.lugar.toLowerCase()}: ${v.observacion}.`),
+    ...visitas.value.map(
+      (v) => ` ${v.lugar.toLowerCase()}: ${v.observacion}.`
+    ),
   ].join("\n");
 
   navigator.clipboard.writeText(texto).then(() => {
-    toast.success("Reporte copiado al portapapeles.");
+    toast.success("📋 Reporte copiado al portapapeles.");
   });
 }
 </script>
@@ -240,16 +291,31 @@ function copiarTexto() {
   color: #374151;
 }
 
-.btn-eliminar {
+.btn-eliminar,
+.btn-editar {
   background: transparent;
-  color: #dc2626;
-  border: 1px solid #fca5a5;
+  border: 1px solid #e5e7eb;
   padding: 4px 8px;
   border-radius: 8px;
   transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-eliminar {
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.btn-editar {
+  color: #2563eb;
+  border-color: #93c5fd;
 }
 
 .btn-eliminar:hover {
   background-color: #fee2e2;
+}
+
+.btn-editar:hover {
+  background-color: #dbeafe;
 }
 </style>
