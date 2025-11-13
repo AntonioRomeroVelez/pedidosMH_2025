@@ -3,27 +3,26 @@
     <div class="contenido shadow-lg rounded-4 p-5 bg-white">
       <!-- Logo y marca -->
       <div class="text-center mb-4">
-        <img src="/logo_mh.png" alt="Logo MH" class="logo mb-3" />
+        <img src="/logo_mh.png" alt="Logo MH" class="logo mb-1" />
         <h3 class="marca">Representaciones Molina Herrera</h3>
-        <p class="text-muted mb-0">Gestión y control de productos</p>
       </div>
 
       <!-- Botones principales -->
 
-      <div class="botones d-flex flex-column gap-3 mt-4">
+      <div class="botones d-flex flex-column gap-3 mt-2">
         <RouterLink class="btn-custom btn-primario" to="/Productos">
-          <i class="bi bi-box-seam"></i> Lista de productos
+          <i class="bi bi-box-seam"></i> Productos
         </RouterLink>
 
         <RouterLink class="btn-custom btn-secundario" to="/imagenespdf">
-          <i class="bi bi-file-image"></i> Cargar imágenes para PDF
+          <i class="bi bi-file-image"></i> Imágenes a PDF
         </RouterLink>
 
         <RouterLink
           class="btn-custom btn-success btn-registroActividadDiaria"
           to="/visitasdiarias"
         >
-          <i class="bi bi-geo-alt"></i> Registrar visitas diarias
+          <i class="bi bi-geo-alt"></i> Registrar visitas
         </RouterLink>
       </div>
     </div>
@@ -41,7 +40,7 @@
 
 .pantalla-completa {
   height: 100vh;
-  min-height: 100dvh; /* Soporta navegadores móviles con barras dinámicas */
+  min-height: 90dvh; /* Soporta navegadores móviles con barras dinámicas */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -118,7 +117,8 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px;
+  text-decoration: none;
+  padding: 10px;
   border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 500;
