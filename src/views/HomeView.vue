@@ -9,13 +9,21 @@
       </div>
 
       <!-- Botones principales -->
-      <div class="botones">
+
+      <div class="botones d-flex flex-column  gap-3 mt-4">
         <RouterLink class="btn-custom btn-primario" to="/Productos">
           <i class="bi bi-box-seam"></i> Lista de productos
         </RouterLink>
 
         <RouterLink class="btn-custom btn-secundario" to="/imagenespdf">
           <i class="bi bi-file-image"></i> Cargar imágenes para PDF
+        </RouterLink>
+
+        <RouterLink
+          class="btn-custom btn-success btn-registroActividadDiaria"
+          to="/visitasdiarias"
+        >
+          <i class="bi bi-geo-alt"></i> Registrar visitas diarias
         </RouterLink>
       </div>
     </div>
@@ -84,5 +92,19 @@
 .btn-secundario {
   background: #198754;
   color: white;
+}
+
+.btn-registroActividadDiaria {
+  background-color: #1e3a8a; /* azul profundo */
+  color: #fff;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-registroActividadDiaria:hover,
+.btn-registroActividadDiaria:focus {
+  background-color: #3b82f6; /* azul más brillante al pasar el mouse */
+  transform: scale(1.05);
+  color: #fff;
 }
 </style>

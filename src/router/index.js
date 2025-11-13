@@ -73,6 +73,11 @@ const router = createRouter({
       name: "normalizarExcel",
       component: () => import("../views/NormalizarExcel.vue"),
     },
+    {
+      path: "/visitasdiarias",
+      name: "visitasdiarias",
+      component: () => import("../views/VisitasDiarias.vue"),
+    },
   ],
 });
 
