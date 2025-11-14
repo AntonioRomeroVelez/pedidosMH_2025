@@ -109,3 +109,4 @@ export const calcularPrecioProductoCantidad = (cantidad, PrecioFarmacia) => {
   let precioTotal = cantidad * PrecioFarmacia;
   return precioTotal;
 };
+

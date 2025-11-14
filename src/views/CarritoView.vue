@@ -661,18 +661,6 @@ const vaciarCarrito = async () => {
     carrito.value = [];
   }
 };
-
-
-
-
-// ====== Helper para cargar el logo ======
-function loadImage(url) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.src = url;
-    img.onload = () => resolve(img);
-  });
-}
 </script>
 
 <style scoped>
