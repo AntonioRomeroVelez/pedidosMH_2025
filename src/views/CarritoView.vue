@@ -59,10 +59,10 @@
 
       <button
         class="btn btn-success"
-        @click="descarTablaConPromocion"
+        @click="generarPDFConPromocion"
         :disabled="!carrito.length"
       >
-        Exportar Imagen promociones
+        Exportar PDF
       </button>
     </div>
 
@@ -657,7 +657,10 @@ const vaciarCarrito = async () => {
   }
 };
 
-const descarTablaConPromocion = async () => {
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+const generarPDFConPromocion = async () => {
   if (!pedido.value.Nombre.trim()) {
     alertify.alert(
       "Campo obligatorio",
@@ -667,143 +670,119 @@ const descarTablaConPromocion = async () => {
   }
 
   isExporting.value = true;
-  let container = null;
 
   try {
     const fecha = new Date().toISOString().split("T")[0];
     const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
-    const finalWidth = 600;
 
-    container = document.createElement("div");
-    container.style.width = finalWidth + "px";
-    container.style.padding = "5px";
-    container.style.backgroundColor = "white";
-    container.style.boxSizing = "border-box";
-    container.style.fontFamily = "'Segoe UI', Roboto, Arial, sans-serif";
-    container.style.margin = "0 auto";
-    container.style.color = "#222";
-    container.style.border = "1px solid #e6e6e6";
-    container.style.fontSize = "14px";
-    container.style.lineHeight = "1.25";
-    container.style.setProperty("-webkit-font-smoothing", "antialiased");
-    container.style.setProperty("text-rendering", "optimizeLegibility");
-
-    const titulo = document.createElement("h2");
-    titulo.textContent = `Lista productos MH - ${pedido.value.Nombre} - ${fecha}`;
-    titulo.style.textAlign = "center";
-    titulo.style.margin = "10px 0 12px 0";
-    titulo.style.fontSize = "14px";
-    titulo.style.color = "#333";
-    container.appendChild(titulo);
-
-    const tabla = document.createElement("table");
-    tabla.style.borderCollapse = "collapse";
-    tabla.style.width = "100%";
-    tabla.style.tableLayout = "fixed";
-
-    const colgroup = document.createElement("colgroup");
-    [40, 25, 30, 15, 25, 20].forEach((pct) => {
-      const col = document.createElement("col");
-      col.style.width = pct + "%";
-      colgroup.appendChild(col);
+    // Crear PDF tamaño A4 vertical
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4",
     });
-    tabla.appendChild(colgroup);
 
-    const thead = document.createElement("thead");
-    thead.innerHTML = `
-      <tr style="background-color: #4CAF50; color: white;">
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Producto</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Marca</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Presentación</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Precio</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Promoción</th>
-        <th style="padding: 6px; border: 1px solid #ddd; font-size:12px; text-align:center;">Descuento %</th>
-      </tr>
-    `;
-    tabla.appendChild(thead);
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    let pageHeight = pdf.internal.pageSize.getHeight();
 
-    const tbody = document.createElement("tbody");
-    carrito.value.forEach((item, index) => {
-      const tr = document.createElement("tr");
-      tr.style.backgroundColor = index % 2 === 0 ? "#f9f9f9" : "white";
+    // ====== 🔹 CABECERA CON LOGO 🔹 ======
+    const logoUrl = "/logo_mh.png"; // desde public/
+    const logo = await loadImage(logoUrl);
 
-      const nombre = item.NombreProducto || "";
-      const marca = item.Marca || "";
-      const presentacion = item.Presentacion || "";
-      const precio =
-        item.PrecioFarmacia !== undefined && item.PrecioFarmacia !== null
+    pdf.addImage(logo, "PNG", 40, 20, 60, 60);
+
+    pdf.setFontSize(14);
+    pdf.text(`Lista Productos MH`, pageWidth / 2, 40, { align: "center" });
+    pdf.setFontSize(11);
+    pdf.text(`Cliente: ${pedido.value.Nombre}`, pageWidth / 2, 60, {
+      align: "center",
+    });
+    pdf.text(`Fecha: ${fecha}`, pageWidth / 2, 80, { align: "center" });
+
+    // ====== 🔹 DATOS PARA TABLA (AUTOTABLE) 🔹 ======
+    const columnas = [
+      { header: "Producto", dataKey: "producto" },
+      { header: "Marca", dataKey: "marca" },
+      { header: "Presentación", dataKey: "presentacion" },
+      { header: "Precio", dataKey: "precio" },
+      { header: "Promoción", dataKey: "promo" },
+      { header: "Descuento %", dataKey: "descuento" },
+    ];
+
+    const filas = carrito.value.map((item) => ({
+      producto: item.NombreProducto || "",
+      marca: item.Marca || "",
+      presentacion: item.Presentacion || "",
+      precio:
+        item.PrecioFarmacia != null
           ? "$" + Number(item.PrecioFarmacia).toFixed(2)
-          : "N/D";
-      const promo = item.Promocion || "";
-      let descuento = "";
-      if (item.Descuento !== undefined && item.Descuento !== null) {
-        const dnum = Number(item.Descuento);
-        if (!isNaN(dnum) && dnum !== 0) {
-          descuento = String(dnum) + " %";
-        }
-      }
+          : "N/D",
+      promo: item.Promocion || "",
+      descuento:
+        item.Descuento && !isNaN(Number(item.Descuento))
+          ? item.Descuento + " %"
+          : "",
+    }));
 
-      tr.innerHTML = `
-  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:left; word-break:break-word;">${nombre}</td>
-  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${marca}</td>
-  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${presentacion}</td>
-  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${precio}</td>
-  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center; word-break:break-word;">${promo}</td>
-  <td style="padding: 3px; border: 1px solid #ddd; font-size:12px; text-align:center;">${descuento}</td>
-`;
+    // ====== 🔹 TABLA MULTIPÁGINA 🔹 ======
+    autoTable(pdf, {
+      startY: 110,
+      head: [columnas.map((c) => c.header)],
+      body: filas.map((f) => Object.values(f)),
 
-      tbody.appendChild(tr);
+      theme: "grid",
+      headStyles: {
+        fillColor: [21, 28, 166],
+        textColor: "#fff",
+        fontSize: 10,
+      },
+      bodyStyles: {
+        fontSize: 9,
+      },
+      styles: {
+        cellPadding: 3,
+        halign: "center",
+        valign: "middle",
+      },
+
+      columnStyles: {
+        0: { halign: "left" }, // Producto
+      },
+
+      didDrawPage: (data) => {
+        // ====== 🔹 PIE DE PÁGINA 🔹 ======
+        const page = pdf.internal.getNumberOfPages();
+        pdf.setFontSize(10);
+        pdf.text(`Página ${page}`, pageWidth - 50, pageHeight - 20, {
+          align: "right",
+        });
+
+        // Repetir logo + título si quieres
+        pdf.addImage(logo, "PNG", 40, 20, 60, 60);
+        pdf.setFontSize(14);
+        pdf.text(`Lista Productos MH`, pageWidth / 2, 40, { align: "center" });
+      },
     });
-    tabla.appendChild(tbody);
-    container.appendChild(tabla);
 
-    container.style.position = "fixed";
-    container.style.left = "50%";
-    container.style.top = "-9999px";
-    container.style.transform = "translateX(-50%)";
-    document.body.appendChild(container);
-
-    await new Promise((resolve) =>
-      requestAnimationFrame(() => setTimeout(resolve, 80))
-    );
-    if (document.fonts && document.fonts.ready) {
-      try {
-        await document.fonts.ready;
-      } catch (e) {}
-    }
-
-    const html2canvas = (await import("html2canvas")).default;
-    const scaleCapture = Math.min(3, window.devicePixelRatio || 1);
-    const canvas = await html2canvas(container, {
-      backgroundColor: "white",
-      scale: scaleCapture,
-      useCORS: true,
-      logging: false,
-    });
-
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const filename = `lista_precios_MH_cliente_${nombreCliente}_${fecha}.png`;
-        saveAs(blob, filename);
-        toast.success("Imagen descargada correctamente");
-      } else {
-        toast.error("No se pudo generar la imagen");
-      }
-    }, "image/png");
-  } catch (err) {
-    console.error("Error generando imagen:", err);
-    toast.error(
-      "No se pudo generar la imagen. Intente nuevamente o use Exportar Excel."
-    );
+    // ====== 🔹 DESCARGAR EL PDF 🔹 ======
+    pdf.save(`Lista_MH_${nombreCliente}_${fecha}.pdf`);
+    toast.success("PDF generado correctamente");
+  } catch (e) {
+    console.error(e);
+    toast.error("Error al generar PDF");
   } finally {
-    try {
-      if (container && document.body.contains(container)) {
-        document.body.removeChild(container);
-      }
-    } catch (e) {}
     isExporting.value = false;
   }
 };
+
+// ====== Helper para cargar el logo ======
+function loadImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = url;
+    img.onload = () => resolve(img);
+  });
+}
 </script>
 
 <style scoped>
