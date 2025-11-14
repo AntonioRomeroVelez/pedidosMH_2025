@@ -59,7 +59,7 @@
 
       <button
         class="btn btn-success"
-        @click="generarPDFConPromocion"
+        @click="generarPDF"
         :disabled="!carrito.length"
       >
         Exportar PDF
@@ -304,6 +304,11 @@ import alertify from "alertifyjs";
 
 import { useToast } from "vue-toastification";
 const toast = useToast();
+
+import { generarPDFConPromocion } from "@/servicios/utilityPDF.js";
+const generarPDF = () => {
+  generarPDFConPromocion(pedido.value, carrito.value, toast);
+};
 
 const cantidadRecibir = ref(0);
 const carrito = ref([]);
@@ -657,139 +662,8 @@ const vaciarCarrito = async () => {
   }
 };
 
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
-const generarPDFConPromocion = async () => {
-  if (!pedido.value.Nombre.trim()) {
-    alertify.alert(
-      "Campo obligatorio",
-      "❌ Por favor, ingrese el nombre del cliente antes de exportar"
-    );
-    return;
-  }
 
-  isExporting.value = true;
-
-  try {
-    const fecha = new Date().toISOString().split("T")[0];
-    const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
-
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "pt",
-      format: "a4",
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // ============================
-    // 🔹 CONFIGURACIÓN CABECERA
-    // ============================
-    const logoUrl = "/logo_mh.png";
-    const logo = await loadImage(logoUrl);
-    const logoSize = 40;
-    const headerHeight = 100; // Altura reservada para NO tapar la tabla
-
-    const drawHeader = () => {
-      pdf.addImage(logo, "PNG", 40, 20, logoSize, logoSize);
-
-      pdf.setFontSize(14);
-      pdf.text(`Lista Productos MH`, pageWidth / 2, 40, { align: "center" });
-
-      pdf.setFontSize(11);
-      pdf.text(`Cliente: ${pedido.value.Nombre}`, pageWidth / 2, 60, {
-        align: "center",
-      });
-
-      pdf.text(`Fecha: ${fecha}`, pageWidth / 2, 80, { align: "center" });
-    };
-
-    // Dibujar encabezado en la primera página
-    drawHeader();
-
-    // ============================
-    // 🔹 DATOS DE TABLA
-    // ============================
-    const columnas = [
-      "Producto",
-      "Marca",
-      "Presentación",
-      "Precio",
-      "Promoción",
-      "Descuento %",
-    ];
-
-    const filas = carrito.value.map((item) => [
-      item.NombreProducto || "",
-      item.Marca || "",
-      item.Presentacion || "",
-      item.PrecioFarmacia != null
-        ? "$" + Number(item.PrecioFarmacia).toFixed(2)
-        : "N/D",
-      item.Promocion || "",
-      item.Descuento && !isNaN(Number(item.Descuento))
-        ? item.Descuento + " %"
-        : "",
-    ]);
-
-    // ============================
-    // 🔹 TABLA MULTIPÁGINA
-    // ============================
-    autoTable(pdf, {
-      startY: headerHeight, // evita que se tape con el logo
-      head: [columnas],
-      body: filas,
-
-      theme: "grid",
-
-      margin: { top: headerHeight + 10 }, // ESPACIO EN PÁGINAS SIGUIENTES
-
-      headStyles: {
-        fillColor: [21, 28, 166],
-        textColor: "#fff",
-        fontSize: 10,
-      },
-      bodyStyles: { fontSize: 9 },
-      styles: {
-        cellPadding: 3,
-        halign: "center",
-        valign: "middle",
-      },
-      columnStyles: {
-        0: { halign: "left" }, // Producto
-      },
-
-      // ============================
-      // 🔹 PÁGINA NUEVA (REPETIR ENCABEZADO + PIE)
-      // ============================
-      didDrawPage: (data) => {
-        const page = pdf.internal.getNumberOfPages();
-
-        // 🔸 Pie de página
-        pdf.setFontSize(10);
-        pdf.text(`Página ${page}`, pageWidth - 50, pageHeight - 20, {
-          align: "right",
-        });
-
-        // 🔸 Volver a dibujar el encabezado
-        drawHeader();
-      },
-    });
-
-    // ============================
-    // 🔹 DESCARGAR
-    // ============================
-    pdf.save(`Lista_MH_${nombreCliente}_${fecha}.pdf`);
-    toast.success("PDF generado correctamente");
-  } catch (e) {
-    console.error(e);
-    toast.error("Error al generar PDF");
-  } finally {
-    isExporting.value = false;
-  }
-};
 
 // ====== Helper para cargar el logo ======
 function loadImage(url) {
