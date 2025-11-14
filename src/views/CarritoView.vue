@@ -675,7 +675,6 @@ const generarPDFConPromocion = async () => {
     const fecha = new Date().toISOString().split("T")[0];
     const nombreCliente = pedido.value.Nombre.trim().replace(/\s+/g, "_");
 
-    // Crear PDF tamaño A4 vertical
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "pt",
@@ -683,88 +682,105 @@ const generarPDFConPromocion = async () => {
     });
 
     const pageWidth = pdf.internal.pageSize.getWidth();
-    let pageHeight = pdf.internal.pageSize.getHeight();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-    // ====== 🔹 CABECERA CON LOGO 🔹 ======
-    const logoUrl = "/logo_mh.png"; // desde public/
+    // ============================
+    // 🔹 CONFIGURACIÓN CABECERA
+    // ============================
+    const logoUrl = "/logo_mh.png";
     const logo = await loadImage(logoUrl);
+    const logoSize = 40;
+    const headerHeight = 100; // Altura reservada para NO tapar la tabla
 
-    pdf.addImage(logo, "PNG", 40, 20, 60, 60);
+    const drawHeader = () => {
+      pdf.addImage(logo, "PNG", 40, 20, logoSize, logoSize);
 
-    pdf.setFontSize(14);
-    pdf.text(`Lista Productos MH`, pageWidth / 2, 40, { align: "center" });
-    pdf.setFontSize(11);
-    pdf.text(`Cliente: ${pedido.value.Nombre}`, pageWidth / 2, 60, {
-      align: "center",
-    });
-    pdf.text(`Fecha: ${fecha}`, pageWidth / 2, 80, { align: "center" });
+      pdf.setFontSize(14);
+      pdf.text(`Lista Productos MH`, pageWidth / 2, 40, { align: "center" });
 
-    // ====== 🔹 DATOS PARA TABLA (AUTOTABLE) 🔹 ======
+      pdf.setFontSize(11);
+      pdf.text(`Cliente: ${pedido.value.Nombre}`, pageWidth / 2, 60, {
+        align: "center",
+      });
+
+      pdf.text(`Fecha: ${fecha}`, pageWidth / 2, 80, { align: "center" });
+    };
+
+    // Dibujar encabezado en la primera página
+    drawHeader();
+
+    // ============================
+    // 🔹 DATOS DE TABLA
+    // ============================
     const columnas = [
-      { header: "Producto", dataKey: "producto" },
-      { header: "Marca", dataKey: "marca" },
-      { header: "Presentación", dataKey: "presentacion" },
-      { header: "Precio", dataKey: "precio" },
-      { header: "Promoción", dataKey: "promo" },
-      { header: "Descuento %", dataKey: "descuento" },
+      "Producto",
+      "Marca",
+      "Presentación",
+      "Precio",
+      "Promoción",
+      "Descuento %",
     ];
 
-    const filas = carrito.value.map((item) => ({
-      producto: item.NombreProducto || "",
-      marca: item.Marca || "",
-      presentacion: item.Presentacion || "",
-      precio:
-        item.PrecioFarmacia != null
-          ? "$" + Number(item.PrecioFarmacia).toFixed(2)
-          : "N/D",
-      promo: item.Promocion || "",
-      descuento:
-        item.Descuento && !isNaN(Number(item.Descuento))
-          ? item.Descuento + " %"
-          : "",
-    }));
+    const filas = carrito.value.map((item) => [
+      item.NombreProducto || "",
+      item.Marca || "",
+      item.Presentacion || "",
+      item.PrecioFarmacia != null
+        ? "$" + Number(item.PrecioFarmacia).toFixed(2)
+        : "N/D",
+      item.Promocion || "",
+      item.Descuento && !isNaN(Number(item.Descuento))
+        ? item.Descuento + " %"
+        : "",
+    ]);
 
-    // ====== 🔹 TABLA MULTIPÁGINA 🔹 ======
+    // ============================
+    // 🔹 TABLA MULTIPÁGINA
+    // ============================
     autoTable(pdf, {
-      startY: 110,
-      head: [columnas.map((c) => c.header)],
-      body: filas.map((f) => Object.values(f)),
+      startY: headerHeight, // evita que se tape con el logo
+      head: [columnas],
+      body: filas,
 
       theme: "grid",
+
+      margin: { top: headerHeight + 10 }, // ESPACIO EN PÁGINAS SIGUIENTES
+
       headStyles: {
         fillColor: [21, 28, 166],
         textColor: "#fff",
         fontSize: 10,
       },
-      bodyStyles: {
-        fontSize: 9,
-      },
+      bodyStyles: { fontSize: 9 },
       styles: {
         cellPadding: 3,
         halign: "center",
         valign: "middle",
       },
-
       columnStyles: {
         0: { halign: "left" }, // Producto
       },
 
+      // ============================
+      // 🔹 PÁGINA NUEVA (REPETIR ENCABEZADO + PIE)
+      // ============================
       didDrawPage: (data) => {
-        // ====== 🔹 PIE DE PÁGINA 🔹 ======
         const page = pdf.internal.getNumberOfPages();
+
+        // 🔸 Pie de página
         pdf.setFontSize(10);
         pdf.text(`Página ${page}`, pageWidth - 50, pageHeight - 20, {
           align: "right",
         });
 
-        // Repetir logo + título si quieres
-        pdf.addImage(logo, "PNG", 40, 20, 60, 60);
-        pdf.setFontSize(14);
-        pdf.text(`Lista Productos MH`, pageWidth / 2, 40, { align: "center" });
+        // 🔸 Volver a dibujar el encabezado
+        drawHeader();
       },
     });
 
-    // ====== 🔹 DESCARGAR EL PDF 🔹 ======
+    // ============================
+    // 🔹 DESCARGAR
+    // ============================
     pdf.save(`Lista_MH_${nombreCliente}_${fecha}.pdf`);
     toast.success("PDF generado correctamente");
   } catch (e) {
